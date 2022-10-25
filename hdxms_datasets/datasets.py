@@ -243,18 +243,3 @@ class DataVault(object):
         metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
         return HDXDataSet(
             parser=parser, data_id=data_id, metadata=metadata)
-
-
-def load_dataset(pth):
-    state_dict = yaml.safe_load((pth / "hdx_spec.yaml").read_text())
-
-    data_files_dict = state_dict["data_files"]
-    data_files = {}
-    for file_name, spec in data_files_dict.items():
-        file_pth = pth / spec["filename"]
-        fmt = spec["format"]
-        if fmt.lower() == "dynamx":
-            df = read_dynamx(file_pth)  # lazy?
-            data_files[file_name] = df
-        elif fmt.lower == "pdb":
-            data_files[file_name] = file_pth.read_text()
