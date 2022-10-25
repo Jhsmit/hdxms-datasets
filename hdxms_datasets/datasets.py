@@ -7,11 +7,11 @@ from dataclasses import dataclass
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
-from typing import Union, Literal, Optional, Protocol, Type
+from typing import Union, Literal, Optional, Type
 
 import pandas as pd
 import yaml
-from sphinx.util import requests
+import requests
 
 from hdxms_datasets.process import filter_peptides
 from hdxms_datasets.reader import read_dynamx
