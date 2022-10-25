@@ -1,11 +1,13 @@
 [build-system]
 requires = ["setuptools",]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "HDXMS Datasets"
-url = "https://github.com/Jhsmit/hdxms_datasets"
-license = {file = "LICENSE" }
+name = "hdxms-datasets"
 description = "Download and parse curated HDX-MS datasets"
+readme = "README.md"
+license = {file = "LICENSE" }
+requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Programming Language :: Python :: 3.8",
@@ -18,12 +20,22 @@ dependencies = [
     "pandas",
     "pyyaml"
 ]
+dynamic = ["version"]
+
+[project.urls]
+repository = "https://github.com/Jhsmit/hdxms_datasets"
 
 [project.optional-dependencies]
 docs = [
     "mkdocs", "mkdocstrings[python]>=0.18", "mkdocs-material"
 ]
-dev = ["pytest"]
+dev = [
+    "pytest", "build"
+]
+
+[tool.setuptools]
+packages = ['hdxms_datasets']
+
 
 [tool.versioneer]
 VCS = "git"
