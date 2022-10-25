@@ -1,0 +1,6 @@
+database_dir: $home/.hdxms_datasets/datasets
+database_url: https://raw.githubusercontent.com/Jhsmit/HDX-MS-datasets/master/datasets/
+time_unit: s
+
+dynamx:
+  time_unit: min

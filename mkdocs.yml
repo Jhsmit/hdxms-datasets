@@ -1,0 +1,21 @@
+site_name: HDX-MS Datasets
+site_description: Loading and parsing of HDX-MS datasets and associated metadata
+
+theme:
+  name: "material"
+
+nav:
+  - Overview: index.md
+  - install.md
+  - Usage:
+    - usage/loading.md
+  - api_docs.md
+
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [hdxms_datasets]
+

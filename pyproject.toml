@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools",]
+
+[project]
+name = "HDXMS Datasets"
+url = "https://github.com/Jhsmit/hdxms_datasets"
+license = {file = "LICENSE" }
+description = "Download and parse curated HDX-MS datasets"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Intended Audience :: Science/Research",
+    "Topic :: Database"
+]
+dependencies = [
+    "omegaconf >= 0.2.3",
+    "pandas",
+    "pyyaml"
+]
+
+[project.optional-dependencies]
+docs = [
+    "mkdocs", "mkdocstrings[python]>=0.18", "mkdocs-material"
+]
+dev = ["pytest"]
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440-pre"
+versionfile_source = "hdxms_datasets/_version.py"
+versionfile_build = "hdxms_datasets/_version.py"
+tag_prefix = ""
+
+[tool.flake8]
+ignore = "D203"
+exclude = [".git", "__pycache__", "build", "dist", "docs"]
+max-complexity = 10
