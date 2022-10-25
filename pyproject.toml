@@ -17,6 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "omegaconf >= 0.2.3",
+    "packaging",
     "pandas",
     "pyyaml",
     "requests",

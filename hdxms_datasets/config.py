@@ -6,7 +6,6 @@ from typing import Any
 
 from omegaconf import OmegaConf, DictConfig, DictKeyType
 from packaging import version
-
 from hdxms_datasets._version import get_versions
 
 __version__ = get_versions()["version"]
