@@ -85,8 +85,6 @@ def valid_config() -> bool:
         return hdxms_datasets_version.public == cfg_version.public
 
 
-
-
 # https://stackoverflow.com/questions/6198372/most-pythonic-way-to-provide-global-configuration-variables-in-config-py/25880082
 class CfgClass(metaclass=Singleton):
     def __init__(self, config=None):
@@ -102,7 +100,7 @@ config_dir.mkdir(parents=False, exist_ok=True)
 conf_home_pth = config_dir / "config.yaml"
 
 current_dir = Path(__file__).parent
-conf_src_pth = current_dir / 'config.yaml'
+conf_src_pth = current_dir / "config.yaml"
 
 # Current config version is outdated
 if not valid_config():
