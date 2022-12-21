@@ -24,13 +24,13 @@ class DataFile(object):
 
     name: str
 
-    format: Literal['DynamX']
+    format: Literal["DynamX"]
 
     filepath_or_buffer: Union[Path, StringIO]
 
     @cached_property
     def data(self) -> pd.DataFrame:
-        if self.format == 'DynamX':
+        if self.format == "DynamX":
             # from, to time conversion
             time_conversion = (cfg.dynamx.time_unit, cfg.time_unit)
 
@@ -66,52 +66,55 @@ class StateParser(object):
 
         if isinstance(data_src, (os.PathLike, str)):
             data_src = Path(data_src) or Path(".")
-            for name, spec in self.hdx_spec['data_files'].items():
-                datafile = DataFile(name=name,
-                                    filepath_or_buffer= data_src / spec['filename'],
-                                    **{k: v for k, v in spec.items() if k != 'filename'},
-                                    )
+            for name, spec in self.hdx_spec["data_files"].items():
+                datafile = DataFile(
+                    name=name,
+                    filepath_or_buffer=data_src / spec["filename"],
+                    **{k: v for k, v in spec.items() if k != "filename"},
+                )
                 self.data_files[name] = datafile
 
         elif isinstance(data_src, dict):
             self.data_files = data_src
         else:
-            raise TypeError(
-                f"Invalid data type {type(data_src)!r}, must be path or dict"
-            )
+            raise TypeError(f"Invalid data type {type(data_src)!r}, must be path or dict")
 
     def load_peptides(self, state: Union[str, int], peptides: str) -> pd.DataFrame:
-        #todo allow peptides as int, None
+        # todo allow peptides as int, None
         state = self.states[state] if isinstance(state, int) else state
-        peptide_spec = self.hdx_spec["states"][state]['peptides'][peptides]
+        peptide_spec = self.hdx_spec["states"][state]["peptides"][peptides]
 
-        df = self.data_files[peptide_spec['data_file']].data
+        df = self.data_files[peptide_spec["data_file"]].data
 
-        filter_fields = {'state', 'exposure', 'query', 'dropna'}
-        peptides = filter_peptides(df, **{k: v for k, v in peptide_spec.items() if k in filter_fields})
+        filter_fields = {"state", "exposure", "query", "dropna"}
+        peptides = filter_peptides(
+            df, **{k: v for k, v in peptide_spec.items() if k in filter_fields}
+        )
 
         return peptides
 
     @property
     def states(self) -> list[str]:
-        return list(self.hdx_spec['states'].keys())
+        return list(self.hdx_spec["states"].keys())
 
     @property
     def state_peptide_sets(self) -> dict[str, list[str]]:
         """Dictionary of state names and list of peptide sets for each state"""
-        return {state: list(spec['peptides']) for state, spec in self.hdx_spec['states'].items()}
+        return {state: list(spec["peptides"]) for state, spec in self.hdx_spec["states"].items()}
 
     @cached_property
     def peptide_sets(self) -> dict[str, dict[str, pd.DataFrame]]:
 
         peptides_dfs = {}
         for state, peptides in self.state_peptide_sets.items():
-            peptides_dfs[state] = {peptide_set: self.load_peptides(state, peptide_set) for peptide_set in
-                                   peptides}
+            peptides_dfs[state] = {
+                peptide_set: self.load_peptides(state, peptide_set) for peptide_set in peptides
+            }
 
         return peptides_dfs
 
-#TODO remove parser and merge with HDXDataSet
+
+# TODO remove parser and merge with HDXDataSet
 @dataclass
 class HDXDataSet(object):
 
@@ -121,15 +124,12 @@ class HDXDataSet(object):
 
     metadata: Optional[dict]
 
-
     def describe(self):
         """
         Returns states and peptides in the dataset
         """
         ...
         output = {}
-
-
 
     def cite(self) -> str:
         """
@@ -143,11 +143,14 @@ class HDXDataSet(object):
 
 
 class DataVault(object):
-    def __init__(self, cache_dir: Optional[Union[Path[str], str]] = None,
-                 parser: Type[StateParser] = StateParser):
+    def __init__(
+        self,
+        cache_dir: Optional[Union[Path[str], str]] = None,
+        parser: Type[StateParser] = StateParser,
+    ):
 
         if cache_dir is None:
-            self.cache_dir = Path.home() / '.hdxms_datasets' / 'datasets'
+            self.cache_dir = Path.home() / ".hdxms_datasets" / "datasets"
             self.cache_dir.mkdir(exist_ok=True, parents=True)
         else:
             self.cache_dir: Path = Path(cache_dir)
@@ -164,10 +167,10 @@ class DataVault(object):
     def index(self) -> list[str]:
         """List of available datasets in the remote database"""
 
-        url = urllib.parse.urljoin(cfg.database_url, 'index.txt')
+        url = urllib.parse.urljoin(cfg.database_url, "index.txt")
         response = requests.get(url)
         if response.ok:
-            index = response.text.split('\n')[1:]
+            index = response.text.split("\n")[1:]
             return index
         else:
             return []
@@ -183,7 +186,7 @@ class DataVault(object):
         Checks if the supplied path is a HDX-MS dataset.
         """
 
-        return (path / 'hdx_spec.yaml').exists()
+        return (path / "hdx_spec.yaml").exists()
 
     async def fetch_datasets(self, n: Optional[str] = None, data_ids: Optional[list[str]] = None):
         """
@@ -216,8 +219,8 @@ class DataVault(object):
 
         dataset_url = urllib.parse.urljoin(cfg.database_url, data_id + "/")
 
-        files = ['hdx_spec.yaml', 'metadata.yaml']
-        optional_files = ['CITATION.cff']
+        files = ["hdx_spec.yaml", "metadata.yaml"]
+        optional_files = ["CITATION.cff"]
         for f in files + optional_files:
             url = urllib.parse.urljoin(dataset_url, f)
             response = requests.get(url)
@@ -226,15 +229,17 @@ class DataVault(object):
                 (output_pth / f).write_bytes(response.content)
 
             elif f in files:
-                raise urllib.error.HTTPError(url, response.status_code, f"Error for file {f!r}", response.headers, None)
+                raise urllib.error.HTTPError(
+                    url, response.status_code, f"Error for file {f!r}", response.headers, None
+                )
 
-            if f == 'hdx_spec.yaml':
+            if f == "hdx_spec.yaml":
                 hdx_spec = yaml.safe_load(response.text)
 
-        data_pth = output_pth / 'data'
+        data_pth = output_pth / "data"
         data_pth.mkdir()
 
-        for file_spec in hdx_spec['data_files'].values():
+        for file_spec in hdx_spec["data_files"].values():
             filename = file_spec["filename"]
             f_url = urllib.parse.urljoin(dataset_url, filename)
             response = requests.get(f_url)
@@ -242,7 +247,13 @@ class DataVault(object):
             if response.ok:
                 (output_pth / filename).write_bytes(response.content)
             else:
-                raise urllib.error.HTTPError(f_url, response.status_code, f"Error for data file {filename!r}", response.headers, None)
+                raise urllib.error.HTTPError(
+                    f_url,
+                    response.status_code,
+                    f"Error for data file {filename!r}",
+                    response.headers,
+                    None,
+                )
 
         return True
 
@@ -257,5 +268,4 @@ class DataVault(object):
         hdx_spec = yaml.safe_load((self.cache_dir / data_id / "hdx_spec.yaml").read_text())
         parser = self.parser(hdx_spec, self.cache_dir / data_id)
         metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
-        return HDXDataSet(
-            parser=parser, data_id=data_id, metadata=metadata)
+        return HDXDataSet(parser=parser, data_id=data_id, metadata=metadata)

@@ -10,8 +10,7 @@ vault.fetch_dataset("20221007_1530_SecA_Krishnamurthy")
 ds = vault.load_dataset("20221007_1530_SecA_Krishnamurthy")
 
 # Load the FD control of the first 'state' in the dataset.
-fd_control = ds.parser.load_peptides(0, 'FD_control')
+fd_control = ds.parser.load_peptides(0, "FD_control")
 
 # Load the corresponding experimental peptides.
-peptides = ds.parser.load_peptides(0, 'experiment')
-
+peptides = ds.parser.load_peptides(0, "experiment")

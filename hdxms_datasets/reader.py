@@ -12,7 +12,7 @@ import pandas as pd
 
 def read_dynamx(
     filepath_or_buffer: Union[Path[str], str, StringIO],
-    time_conversion: tuple[Literal["h", "min", "s"], Literal["h", "min", "s"]] = ("min", "s")
+    time_conversion: tuple[Literal["h", "min", "s"], Literal["h", "min", "s"]] = ("min", "s"),
 ) -> pd.DataFrame:
 
     """
@@ -37,12 +37,12 @@ def read_dynamx(
     names = [name.lower().strip("\r\t\n") for name in hdr.split(",")]
     df = pd.read_csv(filepath_or_buffer, header=0, names=names)
 
-    df.insert(df.columns.get_loc('end') + 1, 'stop', df['end'] + 1)
+    df.insert(df.columns.get_loc("end") + 1, "stop", df["end"] + 1)
 
     time_lut = {"h": 3600, "min": 60, "s": 1}
     time_factor = time_lut[time_conversion[0]] / time_lut[time_conversion[1]]
 
     df["exposure"] *= time_factor
-    df.columns = df.columns.str.replace(' ', '_')
+    df.columns = df.columns.str.replace(" ", "_")
 
     return df
