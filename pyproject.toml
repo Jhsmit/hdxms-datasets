@@ -44,7 +44,7 @@ VCS = "git"
 style = "pep440-pre"
 versionfile_source = "hdxms_datasets/_version.py"
 versionfile_build = "hdxms_datasets/_version.py"
-tag_prefix = ""
+tag_prefix = "v"
 
 [tool.flake8]
 ignore = "D203"
