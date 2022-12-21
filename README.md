@@ -3,10 +3,14 @@
 
 * Free software: MIT license
 
+### Installation
 
+```bash
+$ pip install hdxms-datasets
+```
 
-Example code
---------
+### Example code
+
 
 ```python
 from hdxms_datasets import DataVault
@@ -26,3 +30,4 @@ fd_control = ds.parser.load_peptides(0, 'FD_control')
 peptides = ds.parser.load_peptides(0, 'experiment')
 
 ```
+

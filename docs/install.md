@@ -1,3 +1,6 @@
 # Installation
 
-Coming soon
+
+```bash
+$ pip install hdxms-datasets
+```
