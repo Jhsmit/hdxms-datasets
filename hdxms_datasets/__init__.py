@@ -1,7 +1,7 @@
 """Top-level package for HDXMS Datasets."""
 
-from hdxms_datasets.datasets import DataVault, StateParser
-from hdxms_datasets.config import cfg
+from hdxms_datasets.datavault import DataVault
+from hdxms_datasets.datasets import HDXDataSet
 
 # placeholder version number
 __version__ = "0.0.0"
