@@ -27,6 +27,8 @@ authors = ["Jochem Smit <jhsmit@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "hdxms_datasets"}]
+exclude = ["hdxms_datasets/_version.py"]
+
 
 [tool.poetry.dependencies]
 python = "^3.9"
