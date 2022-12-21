@@ -1,8 +1,19 @@
 site_name: HDX-MS Datasets
 site_description: Loading and parsing of HDX-MS datasets and associated metadata
+site_url: https://jhsmit.github.io/hdxms-datasets/
+
+repo_url: https://github.com/Jhsmit/hdxms-datasets/
+edit_uri: edit/master/docs/
+
 
 theme:
   name: "material"
+
+markdown_extensions:
+  - codehilite
+  - markdown.extensions.codehilite:
+      guess_lang: false
+
 
 nav:
   - Overview: index.md

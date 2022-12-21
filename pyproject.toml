@@ -1,52 +1,63 @@
-[build-system]
-requires = ["setuptools",]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "hdxms-datasets"
-description = "Download and parse curated HDX-MS datasets"
-readme = "README.md"
-license = {file = "LICENSE" }
-requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Intended Audience :: Science/Research",
-    "Topic :: Database"
 ]
-dependencies = [
-    "omegaconf >= 0.2.3",
-    "packaging",
-    "pandas",
-    "pyyaml",
-    "requests",
-]
-dynamic = ["version"]
 
 [project.urls]
-repository = "https://github.com/Jhsmit/hdxms_datasets"
-
-[project.optional-dependencies]
-docs = [
-    "mkdocs", "mkdocstrings[python]>=0.18", "mkdocs-material"
-]
-dev = [
-    "pytest", "build"
-]
-
-[tool.setuptools]
-packages = ['hdxms_datasets']
-
-
-[tool.versioneer]
-VCS = "git"
-style = "pep440-pre"
-versionfile_source = "hdxms_datasets/_version.py"
-versionfile_build = "hdxms_datasets/_version.py"
-tag_prefix = "v"
+repository = "https://github.com/Jhsmit/hdxms-datasets/"
+documentation = "https://jhsmit.github.io/hdxms-datasets/"
 
 [tool.flake8]
+max-line-length = 100
 ignore = "D203"
 exclude = [".git", "__pycache__", "build", "dist", "docs"]
 max-complexity = 10
+
+[tool.black]
+line-length = 100
+
+[tool.poetry]
+name = "hdxms-datasets"
+version = "0.0.0" # placeholder
+description = "Download and parse curated HDX-MS datasets"
+authors = ["Jochem Smit <jhsmit@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "hdxms_datasets"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+omegaconf = "^2.3.0"
+pandas = "^1.5.2"
+PyYAML = "^6.0"
+requests = "^2.28.1"
+packaging = "^22.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.12.0"
+pytest = "^7.2.0"
+mypy = "^0.991"
+pylint = "^2.15.9"
+poetry-dynamic-versioning = {extras = ["plugin"], version = "^0.21.2"}
+
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.4.2"
+mkdocstrings = {extras = ["python"], version = "^0.19.1"}
+mkdocs-material = "^8.5.11"
+pygments = "^2.13.0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+metadata = false
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
+
