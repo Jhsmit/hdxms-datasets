@@ -96,7 +96,22 @@ class StateParser(object):
     def states(self) -> list[str]:
         return list(self.hdx_spec['states'].keys())
 
+    @property
+    def state_peptide_sets(self) -> dict[str, list[str]]:
+        """Dictionary of state names and list of peptide sets for each state"""
+        return {state: list(spec['peptides']) for state, spec in self.hdx_spec['states'].items()}
 
+    @cached_property
+    def peptide_sets(self) -> dict[str, dict[str, pd.DataFrame]]:
+
+        peptides_dfs = {}
+        for state, peptides in self.state_peptide_sets.items():
+            peptides_dfs[state] = {peptide_set: self.load_peptides(state, peptide_set) for peptide_set in
+                                   peptides}
+
+        return peptides_dfs
+
+#TODO remove parser and merge with HDXDataSet
 @dataclass
 class HDXDataSet(object):
 
@@ -106,11 +121,15 @@ class HDXDataSet(object):
 
     metadata: Optional[dict]
 
+
     def describe(self):
         """
         Returns states and peptides in the dataset
         """
         ...
+        output = {}
+
+
 
     def cite(self) -> str:
         """
@@ -119,11 +138,8 @@ class HDXDataSet(object):
 
         return "Not implemented"
 
-
-    # metadata:
-        # publications:
-        # institute:
-        # papers:
+    def __len__(self) -> int:
+        return len(self.parser.states)
 
 
 class DataVault(object):
