@@ -14,14 +14,12 @@ markdown_extensions:
   - markdown.extensions.codehilite:
       guess_lang: false
 
-
 nav:
   - Overview: index.md
   - install.md
   - Usage:
     - usage/loading.md
   - api_docs.md
-
 
 plugins:
   - search
@@ -30,3 +28,5 @@ plugins:
         python:
           paths: [hdxms_datasets]
 
+extra_css:
+- css/styles.css
