@@ -31,7 +31,6 @@ class DataVault(object):
             if not self.cache_dir.exists():
                 raise FileNotFoundError(f"Cache directory '{self.cache_dir}' does not exist")
 
-
     def filter(self, *spec: dict):
         # filters list of available datasets
         ...
@@ -142,15 +141,15 @@ class DataVault(object):
         data_files = {}
         for name, spec in hdx_spec["data_files"].items():
             datafile = DataFile(
-                        name=name,
-                        filepath_or_buffer=Path(self.cache_dir / data_id / spec["filename"]),
-                        **{k: v for k, v in spec.items() if k != "filename"},
+                name=name,
+                filepath_or_buffer=Path(self.cache_dir / data_id / spec["filename"]),
+                **{k: v for k, v in spec.items() if k != "filename"},
             )
             data_files[name] = datafile
 
         return HDXDataSet(
             data_id=data_id,
-            data_files = data_files,
+            data_files=data_files,
             state_spec=hdx_spec["states"],
             metadata=metadata,
         )

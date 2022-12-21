@@ -177,5 +177,3 @@ class HDXDataSet(object):
 
     def __len__(self) -> int:
         return len(self.parser.states)
-
-
