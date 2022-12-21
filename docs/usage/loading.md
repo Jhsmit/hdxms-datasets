@@ -1,8 +1,7 @@
 # Loading Datasets
 
 The `hdxms_datasets` package features a central `DataVault` object, which is used to fetch datasets from an online 
-database, as well as parse those locally saved datasets into either a pandas `DataFrame` or other formats from external 
-libraries.
+database to a local cache dir, as well as parse those locally saved peptide sets into a pandas `DataFrame`.
 
 ## Basic usage
 
@@ -14,8 +13,8 @@ vault.fetch_dataset("20221007_1530_SecA_Krishnamurthy")
 
 ds = vault.load_dataset("20221007_1530_SecA_Krishnamurthy")
 
-fd_control = ds.parser.load_peptides(0, "FD_control") 
-peptides = ds.parser.load_peptides(0, 'experiment')
+fd_control = ds.load_peptides(0, "FD_control") 
+peptides = ds.load_peptides(0, 'experiment')
 
 ```
 
@@ -23,7 +22,6 @@ The code above initiates a `DataVault` object, thereby creating a cache director
 (`~/.hdxms_datasets`) if it does not yet exist. Then the dataset `"20221007_1530_SecA_Krishnamurthy"` is fetched 
 from the database and stored in the cache dir.
 
-`Datavault.load_dataset` loads the dataset which is returned as `HDXDataSet` object. This object has a `StateParser` instance as the `parser`attribute 
-which can be used to select protein states as defined in this dataset (here the first state is selected), and within 
-this state users can choose defined sets of peptides. In this example both the peptides belonging to the fully deuterated
-control and the 'experiment' peptides are loaded and returned as pandas `DataFrame`. 
+`Datavault.load_dataset` loads the dataset which is returned as `HDXDataSet` object. From the `HDXDataSet` object, 
+users can load peptides from the available states. In the example above, the Fully Deuterated control peptides are loaded
+from the first HDX state as a pandas `DataFrame`. The experimental peptides are loaded in the same way.
