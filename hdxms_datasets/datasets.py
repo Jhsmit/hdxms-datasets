@@ -5,11 +5,13 @@ from dataclasses import dataclass
 from functools import cached_property
 from io import StringIO
 from pathlib import Path
-from typing import Union, Literal, Optional
+from string import Template
+from typing import Union, Literal, Optional, Type
 
 import pandas as pd
+import yaml
 
-from hdxms_datasets.process import filter_peptides
+from hdxms_datasets.process import filter_peptides, convert_temperature
 from hdxms_datasets.reader import read_dynamx
 
 from hdxms_datasets.config import cfg
@@ -120,25 +122,36 @@ class HDXDataSet(object):
     data_files: dict[str, DataFile]
     """Dictionary of data files"""
 
-    state_spec: dict
+    hdx_spec: dict
     """Dictionary with HDX-MS state specification"""
 
     metadata: Optional[dict]
     """Optional metadata"""
 
     @property
+    def state_spec(self) -> dict:
+        return self.hdx_spec["states"]
+
+    @property
     def states(self) -> list[str]:
         return list(self.state_spec.keys())
 
+    def get_metadata(self, state) -> dict:
+        """
+        Returns metadata for a given state
+        """
+        return {**self.hdx_spec.get('metadata', {}), **self.state_spec[state].get("metadata", {})}
+
     @property
-    def state_peptide_sets(self) -> dict[str, list[str]]:
+    def peptides_per_state(self) -> dict[str, list[str]]:
         """Dictionary of state names and list of peptide sets for each state"""
         return {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
 
     @cached_property
     def peptide_sets(self) -> dict[str, dict[str, pd.DataFrame]]:
         peptides_dfs = {}
-        for state, peptides in self.state_peptide_sets.items():
+        peptides_per_state = {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
+        for state, peptides in peptides_per_state.items():
             peptides_dfs[state] = {
                 peptide_set: self.load_peptides(state, peptide_set) for peptide_set in peptides
             }
@@ -161,19 +174,45 @@ class HDXDataSet(object):
 
         return peptides
 
-    def describe(self):
-        """
-        Returns states and peptides in the dataset
-        """
-        ...
-        output = {}
+    def describe(self, peptide_template: Optional[str] = "Total peptides: $peptides, timepoints: $timepoints",
+                 metadata_template: Optional[str] = "Temperature: $temperature, pH: $pH",
+                 return_type: Union[Type[str], Union[type[dict]]] = str) -> Union[dict, str]:
+
+        output_dict = {}
+        for state, peptides in self.peptides_per_state.items():
+            state_desc = {}
+            if peptide_template:
+                for peptide_set_name in peptides:
+                    peptide_df = self.peptide_sets[state][peptide_set_name]
+                    mapping = {
+                        "peptides": len(peptide_df),
+                        "timepoints": len(peptide_df['exposure'].unique()),
+                    }
+                    state_desc[peptide_set_name] = Template(peptide_template).substitute(**mapping)
+            if metadata_template:
+                mapping = self.get_metadata(state)
+                if temperature_dict := mapping.pop('temperature', None):
+                    mapping['temperature'] = f"{convert_temperature(temperature_dict)} C"
+
+                state_desc['metadata'] = Template(metadata_template).substitute(**mapping)
+
+            output_dict[state] = state_desc
+
+        if return_type == str:
+            return yaml.dump(output_dict, sort_keys=False)
+        elif return_type == dict:
+            return output_dict
+        else:
+            raise TypeError(f"Invalid return type {return_type!r}")
 
     def cite(self) -> str:
         """
         Returns citation information
         """
-
-        return "Not implemented"
+        try:
+            return self.metadata['publications']
+        except KeyError:
+            return "No publication information available"
 
     def __len__(self) -> int:
-        return len(self.parser.states)
+        return len(self.states)

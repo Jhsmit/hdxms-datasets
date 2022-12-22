@@ -96,6 +96,9 @@ states:
         exposure:
           value: 0.167
           unit: min
+        query:
+          - "sequence != 'TKVFGSRND'" # drop a specific peptide by sequence
+          - "not (start == 16 & end == 29)" # drop a specific peptide by start and end
         description:
           method: 6M Urea-d4 (98% D, Sigma) overnight at room temperature
           DOI: 10.1016/j.str.2021.03.015

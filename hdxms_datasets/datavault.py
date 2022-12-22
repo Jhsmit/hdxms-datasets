@@ -136,7 +136,7 @@ class DataVault(object):
 
     def load_dataset(self, data_id: str) -> HDXDataSet:
         hdx_spec = yaml.safe_load((self.cache_dir / data_id / "hdx_spec.yaml").read_text())
-        metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
+        dataset_metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
 
         data_files = {}
         for name, spec in hdx_spec["data_files"].items():
@@ -150,6 +150,6 @@ class DataVault(object):
         return HDXDataSet(
             data_id=data_id,
             data_files=data_files,
-            state_spec=hdx_spec["states"],
-            metadata=metadata,
+            hdx_spec=hdx_spec,
+            metadata=dataset_metadata,
         )
