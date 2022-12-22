@@ -47,8 +47,8 @@ class TestDataSet:
         # Control with two peptides removed
         df_control = dataset.peptide_sets["SecA_WT"]["FD_control"]
         assert len(df_control) == 186
-        assert "TKVFGSRND" not in df['sequence']
-        assert not np.any(np.logical_and(df['start'] == 16, df['end'] == 29))
+        assert "TKVFGSRND" not in df["sequence"]
+        assert not np.any(np.logical_and(df["start"] == 16, df["end"] == 29))
 
         s = """
         SecA_monomer:
@@ -65,7 +65,7 @@ class TestDataSet:
           metadata: 'Temperature: 20.0 C, pH: 7.5'
         """
 
-        assert textwrap.dedent(s.lstrip('\n')) == dataset.describe()
+        assert textwrap.dedent(s.lstrip("\n")) == dataset.describe()
 
     def test_metadata(self, dataset: HDXDataSet):
         test_metadata = yaml.safe_load(

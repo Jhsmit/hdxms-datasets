@@ -34,17 +34,16 @@ SecA_WT:
 
 s == ds.describe()
 
-#s
+# s
 
 #%%
 
 df = ds.peptide_sets["SecA_monomer"]["FD_control"]
 
-"TKVFGSRND" in df['sequence']
+"TKVFGSRND" in df["sequence"]
 len(df)
 
 #%%
 
 # FD_control: 'Total peptides: 185, timepoints: 1'
 # experiment: 'Total peptides: 1316, timepoints: 7'
-

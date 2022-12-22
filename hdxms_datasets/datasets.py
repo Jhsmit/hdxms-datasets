@@ -69,7 +69,7 @@ class HDXDataSet(object):
         """
         Returns metadata for a given state
         """
-        return {**self.hdx_spec.get('metadata', {}), **self.state_spec[state].get("metadata", {})}
+        return {**self.hdx_spec.get("metadata", {}), **self.state_spec[state].get("metadata", {})}
 
     @property
     def peptides_per_state(self) -> dict[str, list[str]]:
@@ -79,7 +79,9 @@ class HDXDataSet(object):
     @cached_property
     def peptide_sets(self) -> dict[str, dict[str, pd.DataFrame]]:
         peptides_dfs = {}
-        peptides_per_state = {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
+        peptides_per_state = {
+            state: list(spec["peptides"]) for state, spec in self.state_spec.items()
+        }
         for state, peptides in peptides_per_state.items():
             peptides_dfs[state] = {
                 peptide_set: self.load_peptides(state, peptide_set) for peptide_set in peptides
@@ -103,9 +105,12 @@ class HDXDataSet(object):
 
         return peptides
 
-    def describe(self, peptide_template: Optional[str] = "Total peptides: $peptides, timepoints: $timepoints",
-                 metadata_template: Optional[str] = "Temperature: $temperature, pH: $pH",
-                 return_type: Union[Type[str], Union[type[dict]]] = str) -> Union[dict, str]:
+    def describe(
+        self,
+        peptide_template: Optional[str] = "Total peptides: $peptides, timepoints: $timepoints",
+        metadata_template: Optional[str] = "Temperature: $temperature, pH: $pH",
+        return_type: Union[Type[str], Union[type[dict]]] = str,
+    ) -> Union[dict, str]:
 
         output_dict = {}
         for state, peptides in self.peptides_per_state.items():
@@ -115,15 +120,15 @@ class HDXDataSet(object):
                     peptide_df = self.peptide_sets[state][peptide_set_name]
                     mapping = {
                         "peptides": len(peptide_df),
-                        "timepoints": len(peptide_df['exposure'].unique()),
+                        "timepoints": len(peptide_df["exposure"].unique()),
                     }
                     state_desc[peptide_set_name] = Template(peptide_template).substitute(**mapping)
             if metadata_template:
                 mapping = self.get_metadata(state)
-                if temperature_dict := mapping.pop('temperature', None):
-                    mapping['temperature'] = f"{convert_temperature(temperature_dict)} C"
+                if temperature_dict := mapping.pop("temperature", None):
+                    mapping["temperature"] = f"{convert_temperature(temperature_dict)} C"
 
-                state_desc['metadata'] = Template(metadata_template).substitute(**mapping)
+                state_desc["metadata"] = Template(metadata_template).substitute(**mapping)
 
             output_dict[state] = state_desc
 
@@ -139,7 +144,7 @@ class HDXDataSet(object):
         Returns citation information
         """
         try:
-            return self.metadata['publications']
+            return self.metadata["publications"]
         except KeyError:
             return "No publication information available"
 

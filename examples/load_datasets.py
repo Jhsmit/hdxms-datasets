@@ -19,7 +19,7 @@ print(ds.describe())
 # >>>  metadata: 'Temperature: 20.0 C, pH: 7.5'
 
 # Load the FD control of the 'SecA_monomer' state .
-fd_control = ds.load_peptides('SecA_monomer', "FD_control")
+fd_control = ds.load_peptides("SecA_monomer", "FD_control")
 
 # States can also be referenced by their index, used here to load the peptides corresponding to
 # the experiment.
