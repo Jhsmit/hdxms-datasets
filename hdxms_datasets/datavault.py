@@ -35,7 +35,6 @@ class DataVault(object):
         # filters list of available datasets
         ...
 
-    # todo remote index?
     @cached_property
     def remote_index(self) -> list[str]:
         """List of available datasets in the remote database"""
