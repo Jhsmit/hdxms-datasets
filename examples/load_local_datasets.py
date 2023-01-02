@@ -18,5 +18,4 @@ print(ds.describe())
 fd_control = ds.load_peptides(0, "FD_control")
 
 # Load experimental peptides as pandas dataframe
-peptides = ds.load_peptides(0, 'experiment')
-
+peptides = ds.load_peptides(0, "experiment")
