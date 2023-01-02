@@ -1,13 +1,14 @@
 # Reference
 
+
+## DataFile
 ::: hdxms_datasets.datasets.DataFile
 
-
+## HDXDataSet
 ::: hdxms_datasets.datasets.HDXDataSet
 
-
-::: hdxms_datasets.datasets.DataVault
+## DataVault
+::: hdxms_datasets.datavault.DataVault
     options:
       show_root_heading: True
-      show_source: False
       heading_level: 2

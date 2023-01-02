@@ -19,6 +19,7 @@ nav:
   - install.md
   - Usage:
     - usage/loading.md
+    - usage/configuration.md
   - api_docs.md
 
 plugins:

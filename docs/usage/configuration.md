@@ -26,3 +26,5 @@ from hdxms_datasets import cfg
 cfg.time_unit = 'min'
 
 ```
+
+This will change the time unit to minutes for all datasets loaded from then on.

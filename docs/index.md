@@ -1,17 +1,14 @@
-# Welcome to MkDocs
+# HDXMS Datasets
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Welcome to the HDXMS datasets repository. 
 
-## Commands
+The aim of this repository is to provide python bindings for downloading and loading curated bottom-up HDX-MS datasets.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+The repository of curated datasets is available elsewhere on [GitHub](https://github.com/Jhsmit/HDX-MS-datasets) and is
+currently the default remote data repository.
 
-## Project layout
+## Installation
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+```bash
+$ pip install hdxms-datasets
+```
