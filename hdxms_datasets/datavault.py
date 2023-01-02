@@ -24,7 +24,7 @@ class DataVault(object):
     ):
 
         if cache_dir is None:
-            self.cache_dir = Path.home() / ".hdxms_datasets" / "datasets"
+            self.cache_dir = cfg.database_dir
             self.cache_dir.mkdir(exist_ok=True, parents=True)
         else:
             self.cache_dir: Path = Path(cache_dir)
@@ -65,7 +65,7 @@ class DataVault(object):
         Asynchronously download multiple datasets
         """
         raise NotImplementedError("Not yet implemented")
-        
+
         if n is None and data_ids is None:
             n = 10
 
@@ -85,7 +85,7 @@ class DataVault(object):
         :return:
         """
 
-        output_pth = cfg.database_dir / data_id
+        output_pth = self.cache_dir / data_id
         if output_pth.exists():
             return False
         else:

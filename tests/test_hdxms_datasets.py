@@ -83,6 +83,14 @@ class TestDataVault:
         idx = vault.remote_index
         assert len(idx) > 0
 
+        assert vault.fetch_dataset(DATA_ID)
+        assert DATA_ID in vault.datasets
+
+        ds = vault.load_dataset(DATA_ID)
+
+        vault.clear_cache()
+        assert len(vault.datasets) == 0
+
     def test_vault(self):
         vault = DataVault(cache_dir=TEST_PTH / "datasets")
         assert len(vault.datasets) == 1
