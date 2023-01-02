@@ -45,6 +45,14 @@ class HDXMSDatasetsConfig(metaclass=Singleton):
     def __getattr__(self, item: str) -> Any:
         return getattr(self.conf, item)
 
+    def __setattr__(self, key: str, value: Any) -> None:
+        if key in self.__slots__:
+            super().__setattr__(key, value)
+        elif key in self.conf.keys():
+            setattr(self.conf, key, value)
+        else:
+            raise AttributeError(f"Config has no attribute {key}")
+
     def load_config(self, config_file: os.PathLike[str]):
         conf = OmegaConf.create(Path(config_file).read_text())
         self.set_config(conf)

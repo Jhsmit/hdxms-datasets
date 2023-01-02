@@ -5,6 +5,7 @@ import numpy.typing as npt
 
 from typing import Literal, Optional, Union, TypeVar
 
+from hdxms_datasets.config import cfg
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
 TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
@@ -61,7 +62,7 @@ def convert_time(time_dict: dict, target_unit: Literal["s", "min", "h"] = "s"):
 def filter_peptides(
     df: pd.DataFrame,
     state: Optional[str] = None,
-    exposure: Union[dict, float, None] = None,
+    exposure: Optional[dict] = None,
     query: Optional[list[str]] = None,
     dropna: bool = True,
 ) -> pd.DataFrame:
@@ -86,17 +87,15 @@ def filter_peptides(
 
     """
 
-    if state:
+    if state is not None:
         df = df[df["state"] == state]
 
-    if isinstance(exposure, dict):
-        t_val = convert_time(exposure)
+    if exposure is not None:
+        t_val = convert_time(exposure, target_unit=cfg.time_unit)
         if isinstance(t_val, list):
             df = df[df["exposure"].isin(t_val)]
         else:
             df = df[df["exposure"] == t_val]
-    elif isinstance(exposure, float):
-        df = df[df["exposure"] == exposure]
 
     if query:
         for q in query:

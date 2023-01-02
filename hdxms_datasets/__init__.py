@@ -2,6 +2,7 @@
 
 from hdxms_datasets.datavault import DataVault
 from hdxms_datasets.datasets import HDXDataSet
+from hdxms_datasets.config import cfg
 
 # placeholder version number
 __version__ = "0.0.0"
