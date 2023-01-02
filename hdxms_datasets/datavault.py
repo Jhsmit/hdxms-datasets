@@ -33,7 +33,7 @@ class DataVault(object):
 
     def filter(self, *spec: dict):
         # filters list of available datasets
-        ...
+        raise NotImplementedError("Not yet implemented")
 
     @cached_property
     def remote_index(self) -> list[str]:
@@ -64,6 +64,8 @@ class DataVault(object):
         """
         Asynchronously download multiple datasets
         """
+        raise NotImplementedError("Not yet implemented")
+        
         if n is None and data_ids is None:
             n = 10
 
