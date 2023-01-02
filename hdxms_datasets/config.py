@@ -6,16 +6,16 @@ from typing import Any
 
 from omegaconf import OmegaConf, DictConfig, DictKeyType
 from packaging import version
-from hdxms_datasets._version import get_versions
 
-__version__ = get_versions()["version"]
-del get_versions
+import hdxms_datasets
 
 
 def reset_config():
     """Create a new config.yaml file in the user home dir/.hdxms_datasets folder"""
 
     with open(conf_home_pth, "w") as target:
+        from hdxms_datasets.__version__ import __version__
+
         version_string = "# HDXMS datasets configuration file " + __version__ + "\n\n"
         target.write(version_string)
 
@@ -86,6 +86,8 @@ def valid_config() -> bool:
     else:
         with open(conf_home_pth, "r") as f:
             version_string = f.readline().strip("; ").split(" ")[-1]
+
+        from hdxms_datasets.__version__ import __version__
 
         hdxms_datasets_version = version.parse(__version__)
         cfg_version = version.parse(version_string)
