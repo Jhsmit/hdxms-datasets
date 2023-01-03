@@ -7,8 +7,8 @@ from typing import Any
 from omegaconf import OmegaConf, DictConfig, DictKeyType
 from packaging import version
 
-import hdxms_datasets
 
+PACKAGE_NAME = 'hdxms_datasets'
 
 def reset_config():
     """Create a new config.yaml file in the user home dir/.hdxms_datasets folder"""
@@ -16,7 +16,7 @@ def reset_config():
     with open(conf_home_pth, "w") as target:
         from hdxms_datasets.__version__ import __version__
 
-        version_string = "# HDXMS datasets configuration file " + __version__ + "\n\n"
+        version_string = f"# {PACKAGE_NAME} configuration file " + __version__ + "\n\n"
         target.write(version_string)
 
         with open(current_dir / "config.yaml") as source:
@@ -105,7 +105,7 @@ class CfgClass(metaclass=Singleton):
 
 
 home_dir = Path.home()
-config_dir = home_dir / ".hdxms_datasets"
+config_dir = home_dir / f".{PACKAGE_NAME}"
 config_dir.mkdir(parents=False, exist_ok=True)
 conf_home_pth = config_dir / "config.yaml"
 
@@ -119,7 +119,7 @@ if not valid_config():
         conf = OmegaConf.load(conf_home_pth)
     except FileNotFoundError:
         # This will happen on conda-forge docker build.
-        # When no config.yaml file is in home_dir / '.dont_fret',
+        # When no config.yaml file is in home_dir / '.{PACKAGE_NAME}'
         # ConfigurationSettings will use the hardcoded version
         conf = OmegaConf.load(conf_src_pth)
         # (this is run twice due to import but should be OK since conf is singleton)
