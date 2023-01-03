@@ -22,6 +22,8 @@ nav:
     - usage/configuration.md
   - API Reference: reference/
 
+watch:
+  - hdxms_datasets
 
 plugins:
   - search
@@ -36,10 +38,12 @@ plugins:
         python:
           options:
             enable_inventory: true
-            show_signature_annotations: true
+            show_signature_annotations: false
           import:
             - https://docs.python.org/3/objects.inv
             - https://numpy.org/doc/stable/objects.inv
+            - https://docs.scipy.org/doc/scipy/objects.inv
+            - https://pandas.pydata.org/docs/objects.inv
           paths: [hdxms_datasets]
 
 extra_css:

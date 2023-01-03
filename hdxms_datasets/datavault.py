@@ -81,8 +81,11 @@ class DataVault(object):
         """
         Download a dataset from the online repository to the cache dir
 
-        :param data_id:
-        :return:
+        Args:
+            data_id: The ID of the dataset to download.
+
+        Returns:
+            `True` if the dataset was downloaded successfully, `False`  otherwise.
         """
 
         output_pth = self.cache_dir / data_id

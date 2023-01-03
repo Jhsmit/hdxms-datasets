@@ -13,17 +13,17 @@ TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
 A = TypeVar("A", npt.ArrayLike, pd.Series, pd.DataFrame)
 
 
-def convert_temperature(temperature_dict: dict, target_unit: str = "c"):
+def convert_temperature(temperature_dict: dict, target_unit: str = "c") -> Union[float, list[float]]:
     """
     Convenience function to convert temperature values.
 
     Args:
-        temperature_dict: Dictionary with temperature value and unit.
+        temperature_dict: Dictionary with temperature value(s) and unit.
         target_unit: Target unit for temperature. Must be "c", "k", "celsius", or "kelvin" and is
             case-insensitive.
 
     Returns:
-        Converted temperature value.
+        Converted temperature value(s).
     """
 
     src_unit = temperature_dict["unit"].lower()
@@ -36,16 +36,16 @@ def convert_temperature(temperature_dict: dict, target_unit: str = "c"):
         raise ValueError("Invalid temperature dictionary")
 
 
-def convert_time(time_dict: dict, target_unit: Literal["s", "min", "h"] = "s"):
+def convert_time(time_dict: dict, target_unit: Literal["s", "min", "h"] = "s") -> Union[float, list[float]]:
     """
     Convenience function to convert time values.
 
     Args:
-        time_dict: Dictionary with time value and unit.
+        time_dict: Dictionary with time value(s) and unit.
         target_unit: Target unit for time.
 
     Returns:
-        Converted time value.
+        Converted time value(s).
     """
 
     src_unit = time_dict["unit"]
@@ -67,24 +67,24 @@ def filter_peptides(
     dropna: bool = True,
 ) -> pd.DataFrame:
     """
-    Convenience function to filter a peptides DataFrame.
+    Convenience function to filter a peptides DataFrame. .
 
     Args:
-        df: Input :class:`pandas.DataFrame`
+        df: Input dataframe.
         state: Name of protein state to select.
         exposure: Exposure value(s) to select. Exposure is given as a :obj:`dict`, with keys "value" or "values" for
             exposure value, and "unit" for the time unit.
-        query: Additional queries to pass to :meth:`pandas.DataFrame.query`.
-        dropna: Drop rows with NaN uptake entries.
+        query: Additional queries to pass to [pandas.DataFrame.query][].
+        dropna: Drop rows with `NaN` uptake entries.
 
-    Example:
-        ::
+    Examples:
+        Filter peptides for a specific protein state and exposure time:
 
-        d = {"state", "SecB WT apo", "exposure": {"value": 0.167, "unit": "min"}
-        filtered_df = filter_peptides(df, **d)
+        >>> d = {"state", "SecB WT apo", "exposure": {"value": 0.167, "unit": "min"}
+        >>> filtered_df = filter_peptides(df, **d)
 
     Returns:
-
+        Filtered dataframe.
     """
 
     if state is not None:
