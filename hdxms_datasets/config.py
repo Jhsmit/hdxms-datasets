@@ -8,7 +8,8 @@ from omegaconf import OmegaConf, DictConfig, DictKeyType
 from packaging import version
 
 
-PACKAGE_NAME = 'hdxms_datasets'
+PACKAGE_NAME = "hdxms_datasets"
+
 
 def reset_config():
     """Create a new config.yaml file in the user home dir/.hdxms_datasets folder"""
