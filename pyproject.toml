@@ -52,6 +52,8 @@ mkdocs = "^1.4.2"
 mkdocstrings = {extras = ["python"], version = "^0.19.1"}
 mkdocs-material = "^8.5.11"
 pygments = "^2.13.0"
+mkdocs-gen-files = "^0.4.0"
+mkdocs-literate-nav = "^0.5.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true

@@ -20,13 +20,26 @@ nav:
   - Usage:
     - usage/loading.md
     - usage/configuration.md
-  - api_docs.md
+  - API Reference: reference/
+
 
 plugins:
   - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
   - mkdocstrings:
+      default_handler: python
       handlers:
         python:
+          options:
+            enable_inventory: true
+            show_signature_annotations: true
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://numpy.org/doc/stable/objects.inv
           paths: [hdxms_datasets]
 
 extra_css:
