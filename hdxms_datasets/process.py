@@ -13,7 +13,9 @@ TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
 A = TypeVar("A", npt.ArrayLike, pd.Series, pd.DataFrame)
 
 
-def convert_temperature(temperature_dict: dict, target_unit: str = "c") -> Union[float, list[float]]:
+def convert_temperature(
+    temperature_dict: dict, target_unit: str = "c"
+) -> Union[float, list[float]]:
     """
     Convenience function to convert temperature values.
 
@@ -36,7 +38,9 @@ def convert_temperature(temperature_dict: dict, target_unit: str = "c") -> Union
         raise ValueError("Invalid temperature dictionary")
 
 
-def convert_time(time_dict: dict, target_unit: Literal["s", "min", "h"] = "s") -> Union[float, list[float]]:
+def convert_time(
+    time_dict: dict, target_unit: Literal["s", "min", "h"] = "s"
+) -> Union[float, list[float]]:
     """
     Convenience function to convert time values.
 
