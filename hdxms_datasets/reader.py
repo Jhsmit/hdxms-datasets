@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from io import StringIO
 from pathlib import Path
-from typing import Union, Literal
+from typing import Union, Literal, IO
 import pandas as pd
 
 
 def read_dynamx(
-    filepath_or_buffer: Union[Path[str], str, StringIO],
+    filepath_or_buffer: Union[Path[str], str, IO],
     time_conversion: tuple[Literal["h", "min", "s"], Literal["h", "min", "s"]] = ("min", "s"),
 ) -> pd.DataFrame:
 
@@ -27,15 +27,8 @@ def read_dynamx(
         Peptide table as a pandas DataFrame.
     """
 
-    if isinstance(filepath_or_buffer, StringIO):
-        hdr = filepath_or_buffer.readline().strip("# \n\t")
-        filepath_or_buffer.seek(0)
-    else:
-        with open(filepath_or_buffer, "r") as f_obj:
-            hdr = f_obj.readline().strip("# \n\t")
-
-    names = [name.lower().strip("\r\t\n") for name in hdr.split(",")]
-    df = pd.read_csv(filepath_or_buffer, header=0, names=names)
+    df = pd.read_csv(filepath_or_buffer)
+    df.columns = df.columns.str.replace(" ", "_").str.lower()
 
     df.insert(df.columns.get_loc("end") + 1, "stop", df["end"] + 1)
 
@@ -43,6 +36,5 @@ def read_dynamx(
     time_factor = time_lut[time_conversion[0]] / time_lut[time_conversion[1]]
 
     df["exposure"] *= time_factor
-    df.columns = df.columns.str.replace(" ", "_")
 
     return df
