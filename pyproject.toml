@@ -37,7 +37,17 @@ pandas = "^1.5.2"
 PyYAML = "^6.0"
 requests = "^2.28.1"
 packaging = "^22.0"
+solara = {version = "^1.8.2", optional = true}
+jupyterlab = {version = "^3.6.2", optional = true}
+ipykernel = {version = "6.21.2", optional = true}
 
+
+[tool.poetry.extras]
+web = [
+    "solara",
+    "jupyterlab",
+    "ipykernel",
+]
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
