@@ -11,7 +11,7 @@ import pandas as pd
 import solara
 from solara.alias import rv
 
-from hdxms_datasets.web.models import ExperimentMetadata
+from hdxms_datasets.web.models import ExperimentMetadata, POIMetadata
 
 print('joe')
 
@@ -78,19 +78,17 @@ def Page():
     step, set_step = solara.use_state(1)
 
     global_exp_metadata = solara.use_reactive(ExperimentMetadata())
+    global_poi_metadata = solara.use_reactive(POIMetadata())
 
     def on_new_file(new_file_items: List[FileItem]):
         new_items = new_file_items + file_items
         set_file_items(new_items)
 
-
-
     print("current step", step)
-    with rv.Stepper(non_linear=True, v_model=step, on_v_model=set_step,):
+    with rv.Stepper(non_linear=True, v_model=step, on_v_model=set_step, class_='ma-4'):
         with rv.StepperHeader():
             with rv.StepperStep(step=1, editable=True):
                 solara.Text("Input data files")
-
             with rv.StepperStep(step=2, editable=True):
                 solara.Text("Define global metadata")
             with rv.StepperStep(step=3, editable=True):
@@ -124,32 +122,43 @@ def Page():
                 with solara.Row():
                     solara.Button("next", on_click=lambda *args: set_step(2), color='primary')
 
-
             with rv.StepperContent(step=2):
                 with solara.Card(title="Set global metadata", subtitle="Set metadata applying to all protein states"):
 
-                    exp_column = ValidationForm(global_exp_metadata)
+                    with rv.ExpansionPanels():
+                        with rv.ExpansionPanel():
+                            rv.ExpansionPanelHeader(children=['HDX Experiment'])
+                            with rv.ExpansionPanelContent():
+                                solara.Text('Metadata relating to the HDX experiment')
+                                field_options = {'temperature': {'suffix': '\u2103'}, 'd_percentage': {'suffix': '%'}}
+                                ValidationForm(global_exp_metadata, field_options=field_options)
 
-                    exp_panel = rv.ExpansionPanel(children=[
-                        rv.ExpansionPanelHeader(children=['HDX Experiment']),
-                        rv.ExpansionPanelContent(children=['Metadata relating to the HDX experiment', exp_column])
-                    ])
+                        with rv.ExpansionPanel():
+                            rv.ExpansionPanelHeader(children=['Protein of interest'])
+                            with rv.ExpansionPanelContent():
+                                solara.Text("Metadata relating to the protein of interest")
+                                ValidationForm(global_poi_metadata)
 
-                    with solara.Column() as protein_column:
-                        with solara.Tooltip("The protein concentration in the exchange buffer."):
-                            solara.InputFloat(label="Protein concentration (M)")
-                        with solara.Tooltip("Oligomeric state of the protein."):
-                            solara.InputFloat(label="Oligomeric state.")  # TODO input int
-                        with solara.Tooltip("The protein concentration in the exchange buffer."):
-                            solara.InputFloat(label="Protein concentration (mg/mL)")
+                    # exp_panel = rv.ExpansionPanel(children=[
+                    #     rv.ExpansionPanelHeader(children=['HDX Experiment']),
+                    #     rv.ExpansionPanelContent(children=['Metadata relating to the HDX experiment', exp_column])
+                    # ])
 
-                    prot_panel = rv.ExpansionPanel(children=[
-                        rv.ExpansionPanelHeader(children=['Protein of interest']),
-                        rv.ExpansionPanelContent(
-                            children=['Metadata relating to the protein of interest', protein_column])
-                    ])
-
-                    panels = rv.ExpansionPanels(children=[exp_panel, prot_panel])
+                    # with solara.Column() as protein_column:
+                    #     with solara.Tooltip("The protein concentration in the exchange buffer."):
+                    #         solara.InputFloat(label="Protein concentration (M)")
+                    #     with solara.Tooltip("Oligomeric state of the protein."):
+                    #         solara.InputFloat(label="Oligomeric state.")  # TODO input int
+                    #     with solara.Tooltip("The protein concentration in the exchange buffer."):
+                    #         solara.InputFloat(label="Protein concentration (mg/mL)")
+                    #
+                    # prot_panel = rv.ExpansionPanel(children=[
+                    #     rv.ExpansionPanelHeader(children=['Protein of interest']),
+                    #     rv.ExpansionPanelContent(
+                    #         children=['Metadata relating to the protein of interest', protein_column])
+                    # ])
+                    #
+                    # panels = rv.ExpansionPanels(children=[exp_panel, prot_panel])
                     rv.CardActions(children=[solara.Button("Save", text=True)])
 
             with rv.StepperContent(step=3):
@@ -159,8 +168,11 @@ def Page():
 
 
 
-
-
-
-
+# @solara.component
+# def Page():
+#     d = {'hide-spin-buttons': True}
+#     rv.TextField(label="teasdfsdfst", type='number', attributes={'hideSpinButtons': True}, append_icon='delete', **d)
+#
+#
+#
 
