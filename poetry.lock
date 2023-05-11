@@ -1036,18 +1036,18 @@ dev = ["pre-commit"]
 
 [[package]]
 name = "ipyvuetify"
-version = "1.8.5"
+version = "1.8.10"
 description = "Jupyter widgets based on vuetify UI components"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "ipyvuetify-1.8.5-py2.py3-none-any.whl", hash = "sha256:229adecc783275fe226393bc0e2b9e253e589e0f48d5a0e86f8084da75aee12e"},
-    {file = "ipyvuetify-1.8.5.tar.gz", hash = "sha256:c1f88485dcac8324c8e134cf38fcea1fb5f9bd3e75836d055713e354f158f565"},
+    {file = "ipyvuetify-1.8.10-py2.py3-none-any.whl", hash = "sha256:11bdfe9490b4533a91b141c40763bea4e73d71c764e8d1aa9969b5a348a886b5"},
+    {file = "ipyvuetify-1.8.10.tar.gz", hash = "sha256:9ba44279479f33f5cb83af406aa813050ee96201955c2cba087fd23a843d5b4e"},
 ]
 
 [package.dependencies]
-ipyvue = ">=1.5,<2"
+ipyvue = ">=1.7,<2"
 
 [[package]]
 name = "ipywidgets"
@@ -3266,14 +3266,14 @@ full = ["numpy"]
 
 [[package]]
 name = "reacton"
-version = "1.4.0"
+version = "1.6.1"
 description = ""
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "reacton-1.4.0-py2.py3-none-any.whl", hash = "sha256:2b01c13e668285476baf8e2226f01b9914165ce1dd717390943a9073b25cbe88"},
-    {file = "reacton-1.4.0.tar.gz", hash = "sha256:4a70608ca1db17390687d47968830d6f671fcd33fc87c9b998b33a40ee34715e"},
+    {file = "reacton-1.6.1-py2.py3-none-any.whl", hash = "sha256:6bf1011842a6ce2ee6b7c7ed66f3894a7ca111470f7ab54b4197103bfd0566c3"},
+    {file = "reacton-1.6.1.tar.gz", hash = "sha256:346262f208fdcb60dca5a4117126124d45692d758225d99c0ec67ea5846d1d7b"},
 ]
 
 [package.dependencies]
@@ -3456,14 +3456,14 @@ files = [
 
 [[package]]
 name = "solara"
-version = "1.8.2"
+version = "1.12.0"
 description = "Build webapps using IPywidgets"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "solara-1.8.2-py2.py3-none-any.whl", hash = "sha256:097155e3e64b65517f7dedd74e001ed71cc0003fe5c44b1fd59e7ed7b875a655"},
-    {file = "solara-1.8.2.tar.gz", hash = "sha256:148e102b4b6fc661fb73799b1ff5489a86375d52287d758684510f79c36ae272"},
+    {file = "solara-1.12.0-py2.py3-none-any.whl", hash = "sha256:81c65e11446547be0e47a3f41db464e52057b55595b8b79ec92b08aa77d59e32"},
+    {file = "solara-1.12.0.tar.gz", hash = "sha256:43b212a7e6dc47a2124e43215ae6a2181250701b0363c4c0afdf8fba374f578c"},
 ]
 
 [package.dependencies]
@@ -3471,9 +3471,10 @@ cachetools = "*"
 click = ">=7.1.0"
 filelock = "*"
 humanize = "*"
-ipyvue = ">=1.8.2"
-ipyvuetify = "*"
-ipywidgets = "<8"
+ipykernel = "*"
+ipyvue = ">=1.9.0"
+ipyvuetify = ">=1.8.10"
+ipywidgets = "*"
 jinja2 = "*"
 jupyter_client = ">=7.0.0"
 jupyter_server = "*"
@@ -3482,12 +3483,13 @@ markdown-it-py = "*"
 MarkupSafe = "<2.1"
 mdit-py-plugins = "*"
 nbconvert = "*"
+nbformat = "*"
 numpy = "*"
 pillow = "*"
 pydantic = "*"
 pygments = "*"
 pymdown-extensions = "*"
-reacton = ">=1.2.0"
+reacton = ">=1.6.0"
 requests = "*"
 rich_click = "*"
 starlette = "*"
@@ -3497,10 +3499,11 @@ watchgod = "*"
 websockets = "*"
 
 [package.extras]
-assets = ["solara-assets (==1.8.2)"]
-dev = ["black", "bqplot", "bqplot-image-gl", "bump2version", "dask[dataframe]", "flake8", "mypy", "playwright", "plotly", "pre-commit", "pytest", "pytest-cov", "pytest-mock", "pytest-playwright", "pytest-timeout", "types-PyYAML", "types-markdown", "types-requests", "vaex-core", "vaex-hdf5", "vaex-jupyter"]
+assets = ["solara-assets (==1.12.0)"]
+dev = ["black", "bqplot", "bqplot-image-gl", "bump2version", "dask[dataframe]", "flake8", "mypy", "playwright", "plotly", "pre-commit", "pytest", "pytest-cov", "pytest-mock", "pytest-playwright", "pytest-timeout", "python-dotenv", "types-PyYAML", "types-markdown", "types-requests", "vaex-core", "vaex-hdf5", "vaex-jupyter"]
 documentation = ["altair", "bqplot", "ipycanvas", "matplotlib", "numpy", "plotly", "vaex-core", "vaex-hdf5", "vega_datasets"]
 flask = ["flask", "flask-sock"]
+pytest = ["jupyterlab", "pillow", "pixelmatch", "playwright", "pytest", "pytest-playwright", "voila"]
 
 [[package]]
 name = "soupsieve"
@@ -4250,9 +4253,9 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-web = ["solara", "jupyterlab"]
+web = ["solara", "jupyterlab", "ipykernel"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8949085099960efc5cfb92a91bd12283b820b0f40d501a76ebeca6778b782ec8"
+content-hash = "a0850d9c0bf49ab1225d90fd2c5ccfa64381b8aef4dbe2ceaf8990d4bb55d16a"
