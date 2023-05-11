@@ -1,13 +1,14 @@
 import contextlib
 from functools import partial
-from typing import Callable
+from typing import Callable, Union, Optional
 
 import solara
+from solara import Reactive
 from solara.alias import rv
 from pydantic import ValidationError, BaseModel
 
 @solara.component
-def ValidationForm(value: BaseModel, on_value: Callable[[BaseModel], None] = None, layout=None, field_options=None, global_options=None):
+def ValidationForm(value: Union[BaseModel, Reactive[BaseModel]], on_value: Optional[Callable[[BaseModel], None]] = None, layout=None, field_options=None, global_options=None):
     field_options = field_options or {}
     global_options = global_options or {}
 
