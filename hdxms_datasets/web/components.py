@@ -44,21 +44,8 @@ def ValidationForm(value: BaseModel, on_value: Callable[[BaseModel], None] = Non
             else:
                 cm = contextlib.nullcontext()
 
-            kwargs = {k: v for k, v in f_opt.items() if k not in {'tooltip'}}
-
             label = field.field_info.title or humanize_snake_case(name)
-            textfield_kwargs = dict(label=label, v_model=form_value.value[name], error_messages=error_value.value[name], on_v_model=upd_func, **field_options, **global_options)
-
-            if issubclass(field.type_, float):
-                textfield_kwargs['type'] = "number"
-                textfield_kwargs['attributes'] = {"step": "any"} # any?
-            elif issubclass(field.type_, int):
-                textfield_kwargs['type'] = "number"
-                textfield_kwargs['attributes'] = {"step": 1}
-            elif issubclass(field.type_, str):
-                textfield_kwargs['type'] = "text"
-            else:
-                continue
+            textfield_kwargs = dict(label=label, v_model=form_value.value[name], error_messages=error_value.value[name], on_v_model=upd_func, **f_opt, **global_options)
 
             with cm:
                 rv.TextField(**textfield_kwargs)
