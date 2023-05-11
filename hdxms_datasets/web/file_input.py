@@ -11,7 +11,6 @@ import solara
 import solara.hooks as hooks
 from solara.components.file_drop import FileInfo
 
-
 @solara.component
 def FileInput(
     label: str = "",

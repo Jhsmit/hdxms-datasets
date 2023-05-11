@@ -139,31 +139,10 @@ def Page():
                                 solara.Text("Metadata relating to the protein of interest")
                                 ValidationForm(global_poi_metadata)
 
-                    # exp_panel = rv.ExpansionPanel(children=[
-                    #     rv.ExpansionPanelHeader(children=['HDX Experiment']),
-                    #     rv.ExpansionPanelContent(children=['Metadata relating to the HDX experiment', exp_column])
-                    # ])
-
-                    # with solara.Column() as protein_column:
-                    #     with solara.Tooltip("The protein concentration in the exchange buffer."):
-                    #         solara.InputFloat(label="Protein concentration (M)")
-                    #     with solara.Tooltip("Oligomeric state of the protein."):
-                    #         solara.InputFloat(label="Oligomeric state.")  # TODO input int
-                    #     with solara.Tooltip("The protein concentration in the exchange buffer."):
-                    #         solara.InputFloat(label="Protein concentration (mg/mL)")
-                    #
-                    # prot_panel = rv.ExpansionPanel(children=[
-                    #     rv.ExpansionPanelHeader(children=['Protein of interest']),
-                    #     rv.ExpansionPanelContent(
-                    #         children=['Metadata relating to the protein of interest', protein_column])
-                    # ])
-                    #
-                    # panels = rv.ExpansionPanels(children=[exp_panel, prot_panel])
-                    rv.CardActions(children=[solara.Button("Save", text=True)])
-
             with rv.StepperContent(step=3):
                 with solara.Card():
-                    solara.Markdown("This is step 2")
+                    solara.Markdown("This is step 3")
+
 
 
 
