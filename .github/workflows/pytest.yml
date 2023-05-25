@@ -29,7 +29,6 @@ jobs:
           black . --check
 
   test:
-    needs: linting
     strategy:
       fail-fast: true
       matrix:
