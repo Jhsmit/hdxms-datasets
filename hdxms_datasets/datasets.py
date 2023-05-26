@@ -99,11 +99,11 @@ class HDXDataSet(object):
         df = self.data_files[peptide_spec["data_file"]].data
 
         filter_fields = {"state", "exposure", "query", "dropna"}
-        peptides = filter_peptides(
+        peptide_df = filter_peptides(
             df, **{k: v for k, v in peptide_spec.items() if k in filter_fields}
         )
 
-        return peptides
+        return peptide_df
 
     def describe(
         self,
