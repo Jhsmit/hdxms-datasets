@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
-from functools import cached_property
+from dataclasses import dataclass, field
+from functools import cached_property, cache, lru_cache
 from io import StringIO
 from pathlib import Path
 from string import Template
@@ -57,6 +57,8 @@ class HDXDataSet(object):
     metadata: Optional[dict]
     """Optional metadata"""
 
+    _cache: dict[tuple[str, str], pd.DataFrame] = field(init=False, default_factory=dict)
+
     @property
     def state_spec(self) -> dict:
         return self.hdx_spec["states"]
@@ -76,7 +78,7 @@ class HDXDataSet(object):
         """Dictionary of state names and list of peptide sets for each state"""
         return {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
 
-    @cached_property
+    @property
     def peptide_sets(self) -> dict[str, dict[str, pd.DataFrame]]:
         peptides_dfs = {}
         peptides_per_state = {
@@ -89,19 +91,71 @@ class HDXDataSet(object):
 
         return peptides_dfs
 
+    def load(self) -> dict[str, dict[str, pd.DataFrame]]:
+        """
+        Loads all peptide sets for all states.
+
+        Returns:
+            Dictionary of state names and dictionary of peptide sets for each state.
+        """
+        return {state: self.load_state(state) for state in self.states}
+
+    def load_state(self, state: Union[str, int]) -> dict[str, pd.DataFrame]:
+        """
+        Load all peptide sets for a given state.
+
+        Args:
+            state: State name or index of state in the HDX specification file.
+
+        Returns:
+            Dictionary of peptide sets for a given state.
+        """
+
+        state = self.states[state] if isinstance(state, int) else state
+        return {peptide_set: self.load_peptides(state, peptide_set) for peptide_set in self.state_spec[state]['peptides'].keys()}
+
     def load_peptides(self, state: Union[str, int], peptides: str) -> pd.DataFrame:
         """
-        Load a single set of peptides for a given state
-        """
-        state = self.states[state] if isinstance(state, int) else state
-        peptide_spec = self.state_spec[state]["peptides"][peptides]
+        Load a single set of peptides for a given state.
 
+        Args:
+            state: State name or index of state in the HDX specification file.
+            peptides: Name of the peptide set.
+
+        Returns:
+            DataFrame with peptide data.
+        """
+
+        state = self.states[state] if isinstance(state, int) else state
+        return self._load_peptides(state, peptides)
+
+    def _load_peptides(self, state: str, peptides: str) -> pd.DataFrame:
+        """
+        Load a single set of peptides for a given state.
+
+        Returned dataframes are cached for faster subsequent access.
+
+        Args:
+            state: State name.
+            peptides: Name of the peptide set.
+
+        Returns:
+            DataFrame with peptide data.
+
+        """
+
+        if (state, peptides) in self._cache:
+            return self._cache[(state, peptides)]
+
+        peptide_spec = self.state_spec[state]["peptides"][peptides]
         df = self.data_files[peptide_spec["data_file"]].data
 
         filter_fields = {"state", "exposure", "query", "dropna"}
         peptide_df = filter_peptides(
             df, **{k: v for k, v in peptide_spec.items() if k in filter_fields}
         )
+
+        self._cache[(state, peptides)] = peptide_df
 
         return peptide_df
 
