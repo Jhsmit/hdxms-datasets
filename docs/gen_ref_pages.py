@@ -10,7 +10,7 @@ nav = mkdocs_gen_files.Nav()
 # open_func = open # for debugging
 open_func = mkdocs_gen_files.open
 
-#%%
+# %%
 
 for path in sorted(Path(ROOT_DIR).rglob("*.py")):  #
     module_path = path.relative_to(ROOT_DIR).with_suffix("")  #

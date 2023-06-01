@@ -19,7 +19,6 @@ from hdxms_datasets.config import cfg
 
 @dataclass(frozen=True)
 class DataFile(object):
-
     name: str
 
     format: Literal["DynamX"]
@@ -44,7 +43,6 @@ class DataFile(object):
 
 @dataclass(frozen=True)
 class HDXDataSet(object):
-
     data_id: str
     """Unique identifier for the dataset"""
 
@@ -112,7 +110,10 @@ class HDXDataSet(object):
         """
 
         state = self.states[state] if isinstance(state, int) else state
-        return {peptide_set: self.load_peptides(state, peptide_set) for peptide_set in self.state_spec[state]['peptides'].keys()}
+        return {
+            peptide_set: self.load_peptides(state, peptide_set)
+            for peptide_set in self.state_spec[state]["peptides"].keys()
+        }
 
     def load_peptides(self, state: Union[str, int], peptides: str) -> pd.DataFrame:
         """
@@ -161,11 +162,12 @@ class HDXDataSet(object):
 
     def describe(
         self,
-        peptide_template: Optional[str] = "Total peptides: $num_peptides, timepoints: $num_timepoints",
+        peptide_template: Optional[
+            str
+        ] = "Total peptides: $num_peptides, timepoints: $num_timepoints",
         metadata_template: Optional[str] = "Temperature: $temperature, pH: $pH",
         return_type: Union[Type[str], Union[type[dict]]] = str,
     ) -> Union[dict, str]:
-
         output_dict = {}
         for state, peptides in self.peptides_per_state.items():
             state_desc = {}

@@ -22,7 +22,6 @@ class DataVault(object):
         self,
         cache_dir: Optional[Union[Path[str], str]] = None,
     ):
-
         if cache_dir is None:
             self.cache_dir = cfg.database_dir
             self.cache_dir.mkdir(exist_ok=True, parents=True)
