@@ -161,7 +161,7 @@ class HDXDataSet(object):
 
     def describe(
         self,
-        peptide_template: Optional[str] = "Total peptides: $peptides, timepoints: $timepoints",
+        peptide_template: Optional[str] = "Total peptides: $num_peptides, timepoints: $num_timepoints",
         metadata_template: Optional[str] = "Temperature: $temperature, pH: $pH",
         return_type: Union[Type[str], Union[type[dict]]] = str,
     ) -> Union[dict, str]:
@@ -172,10 +172,13 @@ class HDXDataSet(object):
             if peptide_template:
                 for peptide_set_name in peptides:
                     peptide_df = self.peptide_sets[state][peptide_set_name]
+                    timepoints = peptide_df["exposure"].unique()
                     mapping = {
-                        "peptides": len(peptide_df),
-                        "timepoints": len(peptide_df["exposure"].unique()),
+                        "num_peptides": len(peptide_df),
+                        "num_timepoints": len(timepoints),
+                        "timepoints": ", ".join([f"{t:.1f}" for t in timepoints]),
                     }
+                    mapping["timepoints"]
                     state_desc[peptide_set_name] = Template(peptide_template).substitute(**mapping)
             if metadata_template:
                 mapping = self.get_metadata(state)
