@@ -143,8 +143,8 @@ class DataVault(object):
         dataset_metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
 
         return HDXDataSet.from_spec(
-            hdx_spec = hdx_spec,
-            data_pth = self.cache_dir / data_id,
-            data_id = data_id,
-            metadata = dataset_metadata
+            hdx_spec=hdx_spec,
+            data_dir=self.cache_dir / data_id,
+            data_id=data_id,
+            metadata=dataset_metadata
         )

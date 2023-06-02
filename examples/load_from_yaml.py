@@ -15,7 +15,7 @@ metadata = yaml.safe_load((data_pth / data_id / "metadata.yaml").read_text())
 
 dataset = HDXDataSet.from_spec(
     hdx_spec,
-    data_pth = data_pth / data_id,
+    data_dir=data_pth / data_id,
     metadata=metadata
 )
 

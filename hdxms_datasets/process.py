@@ -116,13 +116,13 @@ def filter_peptides(
     return df.reset_index()
 
 
-def parse_data_files(data_file_spec: dict, data_pth: Path) -> dict[str, DataFile]:
+def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile]:
     """
     Parse data file specifications from a YAML file.
 
     Args:
         data_file_spec: Dictionary with data file specifications.
-        data_pth: Path to data directory.
+        data_dir: Path to data directory.
 
     Returns:
         Dictionary with parsed data file specifications.
@@ -134,7 +134,7 @@ def parse_data_files(data_file_spec: dict, data_pth: Path) -> dict[str, DataFile
     for name, spec in data_file_spec.items():
         datafile = DataFile(
             name=name,
-            filepath_or_buffer=Path(data_pth / spec["filename"]),
+            filepath_or_buffer=Path(data_dir / spec["filename"]),
             **{k: v for k, v in spec.items() if k != "filename"},
         )
         data_files[name] = datafile
