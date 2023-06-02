@@ -5,7 +5,7 @@ Reader functions for various file formats
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union, Literal, IO
+from typing import Union, Literal, IO, Optional
 
 import pandas as pd
 
