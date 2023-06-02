@@ -11,10 +11,9 @@ from typing import Union, Literal, Optional, Type
 import pandas as pd
 import yaml
 
+from hdxms_datasets.config import cfg
 from hdxms_datasets.process import filter_peptides, convert_temperature
 from hdxms_datasets.reader import read_dynamx
-
-from hdxms_datasets.config import cfg
 
 
 @dataclass(frozen=True)

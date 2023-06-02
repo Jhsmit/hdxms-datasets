@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import pandas as pd
-import numpy.typing as npt
-
 from typing import Literal, Optional, Union, TypeVar
+
+import numpy.typing as npt
+import pandas as pd
 
 from hdxms_datasets.config import cfg
 
