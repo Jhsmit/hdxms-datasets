@@ -12,6 +12,7 @@ import yaml
 
 from hdxms_datasets.config import cfg
 from hdxms_datasets.datasets import HDXDataSet, DataFile
+from hdxms_datasets.process import parse_data_files
 
 if TYPE_CHECKING:
     from hdxms_datasets.datasets import StateParser
@@ -141,14 +142,7 @@ class DataVault(object):
         hdx_spec = yaml.safe_load((self.cache_dir / data_id / "hdx_spec.yaml").read_text())
         dataset_metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
 
-        data_files = {}
-        for name, spec in hdx_spec["data_files"].items():
-            datafile = DataFile(
-                name=name,
-                filepath_or_buffer=Path(self.cache_dir / data_id / spec["filename"]),
-                **{k: v for k, v in spec.items() if k != "filename"},
-            )
-            data_files[name] = datafile
+        data_files = parse_data_files(hdx_spec["data_files"], self.cache_dir / data_id)
 
         return HDXDataSet(
             data_id=data_id,

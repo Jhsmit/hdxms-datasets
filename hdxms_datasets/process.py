@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-from typing import Literal, Optional, Union, TypeVar
+from pathlib import Path
+from typing import Literal, Optional, Union, TypeVar, TYPE_CHECKING
 
 import numpy.typing as npt
 import pandas as pd
 
 from hdxms_datasets.config import cfg
+
+if TYPE_CHECKING:
+    from hdxms_datasets import DataFile
+
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
 TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
@@ -109,3 +114,29 @@ def filter_peptides(
         df = df.dropna(subset=["uptake"])
 
     return df.reset_index()
+
+
+def parse_data_files(data_file_spec: dict, data_pth: Path) -> dict[str, DataFile]:
+    """
+    Parse data file specifications from a YAML file.
+
+    Args:
+        data_file_spec: Dictionary with data file specifications.
+        data_pth: Path to data directory.
+
+    Returns:
+        Dictionary with parsed data file specifications.
+    """
+
+    from hdxms_datasets import DataFile
+
+    data_files = {}
+    for name, spec in data_file_spec.items():
+        datafile = DataFile(
+            name=name,
+            filepath_or_buffer=Path(data_pth / spec["filename"]),
+            **{k: v for k, v in spec.items() if k != "filename"},
+        )
+        data_files[name] = datafile
+
+    return data_files
