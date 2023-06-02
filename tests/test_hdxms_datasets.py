@@ -26,7 +26,7 @@ def dataset():
     yield ds
 
 
-def test_dataset(self, dataset: HDXDataSet):
+def test_dataset(dataset: HDXDataSet):
     assert isinstance(dataset, HDXDataSet)
     assert dataset.states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
     assert dataset.peptides_per_state["SecA_monomer"] == ["FD_control", "experiment"]

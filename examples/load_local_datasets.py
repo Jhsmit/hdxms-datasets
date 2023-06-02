@@ -3,6 +3,7 @@ from pathlib import Path
 
 test_pth = Path("../tests").resolve()
 data_pth = test_pth / "datasets"
+
 # Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
 vault = DataVault(data_pth)
 
