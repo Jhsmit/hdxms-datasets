@@ -108,4 +108,4 @@ def filter_peptides(
     if dropna:
         df = df.dropna(subset=["uptake"])
 
-    return df
+    return df.reset_index()
