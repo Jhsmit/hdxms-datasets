@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from functools import cached_property
 from io import StringIO
@@ -11,7 +12,7 @@ import pandas as pd
 import yaml
 
 from hdxms_datasets.config import cfg
-from hdxms_datasets.process import filter_peptides, convert_temperature
+from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
 from hdxms_datasets.reader import read_dynamx
 
 
@@ -54,6 +55,14 @@ class HDXDataSet(object):
     """Optional metadata"""
 
     _cache: dict[tuple[str, str], pd.DataFrame] = field(init=False, default_factory=dict)
+
+    @classmethod
+    def from_spec(cls, hdx_spec: dict, data_pth: Path, data_id = Optional[str], metadata: Optional[dict] = None):
+        metadata = metadata or {}
+        data_id = data_id or uuid.uuid4().hex
+        data_files = parse_data_files(hdx_spec["data_files"], data_pth)
+
+        return cls(data_id, data_files, hdx_spec, metadata)
 
     @property
     def state_spec(self) -> dict:
