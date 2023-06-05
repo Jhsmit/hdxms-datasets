@@ -113,7 +113,7 @@ def filter_peptides(
     if dropna:
         df = df.dropna(subset=["uptake"])
 
-    return df.reset_index()
+    return df.reset_index(drop=True)
 
 
 def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile]:
