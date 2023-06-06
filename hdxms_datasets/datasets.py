@@ -51,7 +51,7 @@ class HDXDataSet(object):
     hdx_spec: dict
     """Dictionary with HDX-MS state specification"""
 
-    metadata: Optional[dict]
+    metadata: Optional[dict] = field(default_factory=dict)
     """Optional metadata"""
 
     _cache: dict[tuple[str, str], pd.DataFrame] = field(init=False, default_factory=dict)
