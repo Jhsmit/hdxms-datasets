@@ -45,6 +45,7 @@ pytest = "^7.2.0"
 mypy = "^0.991"
 pylint = "^2.15.9"
 poetry-dynamic-versioning = {extras = ["plugin"], version = "^0.21.2"}
+ipykernel = "^6.24.0"
 
 
 [tool.poetry.group.docs.dependencies]
