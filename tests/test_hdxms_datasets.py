@@ -64,9 +64,7 @@ def test_dataset(dataset: HDXDataSet):
 
 
 def test_metadata(dataset: HDXDataSet):
-    test_metadata = yaml.safe_load(
-        (TEST_PTH / "datasets" / DATA_ID / "metadata.yaml").read_text()
-    )
+    test_metadata = yaml.safe_load((TEST_PTH / "datasets" / DATA_ID / "metadata.yaml").read_text())
     assert dataset.metadata == test_metadata
     assert dataset.metadata["authors"][0]["name"] == "Srinath Krishnamurthy"
 
@@ -98,13 +96,9 @@ def test_vault():
     assert states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
 
     peptide_dict = ds.load_state(states[0])
-    assert 'experiment' in peptide_dict
+    assert "experiment" in peptide_dict
 
-    df = peptide_dict['experiment']
-    ref_df = pd.read_csv(TEST_PTH / 'test_data' / 'monomer_experimental_peptides.csv', index_col=0)
+    df = peptide_dict["experiment"]
+    ref_df = pd.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv", index_col=0)
 
     pd.testing.assert_frame_equal(df, ref_df)
-
-    # ds.load_
-
-
