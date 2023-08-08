@@ -60,7 +60,7 @@ exclude = [
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "hdxms-datasets/_version.py"
+version-file = "hdxms_datasets/_version.py"
 
 [tool.flake8]
 max-line-length = 100
