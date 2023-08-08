@@ -1,7 +1,8 @@
 # Adapted from: https://github.com/maresb/hatch-vcs-footgun-example
 # Define the variable '__version__':
 try:
-    # If we are in an editable install, the _versioneer file exist and we can use it to find the version
+    # If we are in an editable install, the _versioneer file
+    # exist and we can use it to find the version
     from hdxms_datasets._versioneer import get_versions
 
     # This will fail with LookupError if the package is not installed in
