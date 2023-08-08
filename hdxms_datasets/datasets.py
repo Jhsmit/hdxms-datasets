@@ -57,7 +57,9 @@ class HDXDataSet(object):
     _cache: dict[tuple[str, str], pd.DataFrame] = field(init=False, default_factory=dict)
 
     @classmethod
-    def from_spec(cls, hdx_spec: dict, data_dir: Path, data_id = Optional[str], metadata: Optional[dict] = None):
+    def from_spec(
+        cls, hdx_spec: dict, data_dir: Path, data_id=Optional[str], metadata: Optional[dict] = None
+    ):
         metadata = metadata or {}
         data_id = data_id or uuid.uuid4().hex
         data_files = parse_data_files(hdx_spec["data_files"], data_dir)

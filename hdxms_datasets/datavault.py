@@ -146,5 +146,5 @@ class DataVault(object):
             hdx_spec=hdx_spec,
             data_dir=self.cache_dir / data_id,
             data_id=data_id,
-            metadata=dataset_metadata
+            metadata=dataset_metadata,
         )

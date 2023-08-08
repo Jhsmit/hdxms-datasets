@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Literal, Optional, Union, TypeVar, TYPE_CHECKING
+from typing import Literal, Optional, Union, TYPE_CHECKING
 
-import numpy.typing as npt
 import pandas as pd
 
 from hdxms_datasets.config import cfg
@@ -14,8 +13,6 @@ if TYPE_CHECKING:
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
 TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
-
-A = TypeVar("A", npt.ArrayLike, pd.Series, pd.DataFrame)
 
 
 def convert_temperature(
