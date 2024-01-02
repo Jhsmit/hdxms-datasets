@@ -10,3 +10,15 @@ from hdxms_datasets.process import (
     parse_data_files,
 )
 from hdxms_datasets.reader import read_dynamx
+
+__all__ = [
+    "HDXDataSet",
+    "DataFile",
+    "DataVault",
+    "convert_temperature",
+    "convert_time",
+    "filter_peptides",
+    "parse_data_files",
+    "read_dynamx",
+    "__version__",
+]
