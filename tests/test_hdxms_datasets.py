@@ -76,6 +76,9 @@ def test_create_dataset(tmp_path):
 
     assert (dataset_pth / "readme.md").read_text() == f"# {data_id}"
 
+    assert (dataset_pth / "hdx_spec.yaml").exists()
+    assert (dataset_pth / "data" / "data_file.csv").exists()
+
 
 def test_metadata(dataset: HDXDataSet):
     test_metadata = yaml.safe_load((TEST_PTH / "datasets" / DATA_ID / "metadata.yaml").read_text())
