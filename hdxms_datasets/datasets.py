@@ -58,7 +58,11 @@ class HDXDataSet(object):
 
     @classmethod
     def from_spec(
-        cls, hdx_spec: dict, data_dir: Path, data_id=Optional[str], metadata: Optional[dict] = None
+        cls,
+        hdx_spec: dict,
+        data_dir: Path,
+        data_id: Optional[str] = None,
+        metadata: Optional[dict] = None,
     ):
         metadata = metadata or {}
         data_id = data_id or uuid.uuid4().hex
