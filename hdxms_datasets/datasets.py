@@ -1,4 +1,6 @@
 from __future__ import annotations
+import shutil
+import time
 
 import uuid
 from dataclasses import dataclass, field
@@ -13,6 +15,45 @@ import yaml
 
 from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
 from hdxms_datasets.reader import read_dynamx
+
+
+TEMPLATE_DIR = Path(__file__).parent / "template"
+
+
+def create_dataset(
+    target_dir: Path,
+    author_name: str,
+    tag: Optional[str] = None,
+    template_dir: Path = TEMPLATE_DIR,
+) -> str:
+    """
+    Create a dataset in the specified target directory.
+
+    Args:
+        target_dir: The directory where the dataset will be created.
+        author_name: The name of the author of the dataset.
+        tag: An optional tag to append to the directory name. Defaults to None.
+        template_dir: The directory containing the template files for the dataset. Defaults to TEMPLATE_DIR.
+
+    Returns:
+        The id of the created dataset.
+
+    """
+    dirname = str(int(time.time()))
+
+    if tag:
+        dirname += f"_{tag}"
+
+    dirname += f"_{author_name}"
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target_dir = target_dir / dirname
+
+    shutil.copytree(template_dir, target_dir)
+
+    (target_dir / "readme.md").write_text(f"# {dirname}")
+
+    return dirname
 
 
 @dataclass(frozen=True)

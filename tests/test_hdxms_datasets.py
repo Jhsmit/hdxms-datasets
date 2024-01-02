@@ -1,6 +1,6 @@
 import textwrap
 
-from hdxms_datasets.datasets import HDXDataSet
+from hdxms_datasets.datasets import HDXDataSet, create_dataset
 from hdxms_datasets.datavault import DataVault
 from pathlib import Path
 import pytest
@@ -61,6 +61,23 @@ def test_dataset(dataset: HDXDataSet):
     """
 
     assert textwrap.dedent(s.lstrip("\n")) == dataset.describe()
+
+
+def test_create_dataset(tmp_path):
+    author_name = "smit"
+    human_readable_tag = "testing"  # optional tag
+
+    data_id = create_dataset(tmp_path / "datasets", author_name, human_readable_tag)
+
+    dataset_pth = tmp_path / "datasets" / data_id
+
+    assert human_readable_tag == data_id.split("_")[1]
+    assert author_name == data_id.split("_")[2]
+
+    assert (dataset_pth / "readme.md").read_text() == f"# {data_id}"
+
+    assert (dataset_pth / "hdx_spec.yaml").exists()
+    assert (dataset_pth / "data" / "data_file.csv").exists()
 
 
 def test_metadata(dataset: HDXDataSet):

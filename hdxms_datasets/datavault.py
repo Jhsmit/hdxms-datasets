@@ -94,6 +94,7 @@ class DataVault(object):
 
         files = ["hdx_spec.yaml", "metadata.yaml"]
         optional_files = ["CITATION.cff"]
+        hdx_spec = None
         for f in files + optional_files:
             url = urllib.parse.urljoin(dataset_url, f)
             response = requests.get(url)
@@ -103,11 +104,18 @@ class DataVault(object):
 
             elif f in files:
                 raise urllib.error.HTTPError(
-                    url, response.status_code, f"Error for file {f!r}", response.headers, None
+                    url,
+                    response.status_code,
+                    f"Error for file {f!r}",
+                    response.headers,  # type: ignore
+                    None,
                 )
 
             if f == "hdx_spec.yaml":
                 hdx_spec = yaml.safe_load(response.text)
+
+        if hdx_spec is None:
+            raise ValueError(f"Could not find HDX spec for data_id {data_id!r}")
 
         data_pth = output_pth / "data"
         data_pth.mkdir()
@@ -124,7 +132,7 @@ class DataVault(object):
                     f_url,
                     response.status_code,
                     f"Error for data file {filename!r}",
-                    response.headers,
+                    response.headers,  # type: ignore
                     None,
                 )
 
