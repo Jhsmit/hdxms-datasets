@@ -175,7 +175,7 @@ class HDXDataSet(object):
             str
         ] = "Total peptides: $num_peptides, timepoints: $num_timepoints",
         metadata_template: Optional[str] = "Temperature: $temperature, pH: $pH",
-        return_type: Union[Type[str], Union[type[dict]]] = str,
+        return_type: Union[Type[str], type[dict]] = str,
     ) -> Union[dict, str]:
         output_dict = {}
         for state, peptides in self.peptides_per_state.items():
