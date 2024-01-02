@@ -5,17 +5,16 @@ import urllib.error
 import urllib.parse
 from functools import cached_property
 from pathlib import Path
-from typing import Optional, Union, Type, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING
 
 import requests
 import yaml
 
 from hdxms_datasets.config import cfg
-from hdxms_datasets.datasets import HDXDataSet, DataFile
-from hdxms_datasets.process import parse_data_files
+from hdxms_datasets.datasets import HDXDataSet
 
 if TYPE_CHECKING:
-    from hdxms_datasets.datasets import StateParser
+    pass
 
 
 class DataVault(object):

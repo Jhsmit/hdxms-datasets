@@ -1,8 +1,7 @@
-from hdxms_datasets import DataFile, HDXDataSet
+from hdxms_datasets import HDXDataSet
 from pathlib import Path
 import yaml
 
-from hdxms_datasets.process import parse_data_files
 
 test_pth = Path("../tests").resolve()
 data_pth = test_pth / "datasets"
