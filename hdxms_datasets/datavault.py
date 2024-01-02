@@ -10,22 +10,22 @@ from typing import Optional, Union
 import requests
 import yaml
 
-from hdxms_datasets.config import cfg
 from hdxms_datasets.datasets import HDXDataSet
+
+
+DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDX-MS-datasets/master/datasets/"
 
 
 class DataVault(object):
     def __init__(
         self,
-        cache_dir: Optional[Union[Path[str], str]] = None,
+        cache_dir: Union[Path, str],
+        remote_url: str = DATABASE_URL,
     ):
-        if cache_dir is None:
-            self.cache_dir = cfg.database_dir
-            self.cache_dir.mkdir(exist_ok=True, parents=True)
-        else:
-            self.cache_dir: Path = Path(cache_dir)
-            if not self.cache_dir.exists():
-                raise FileNotFoundError(f"Cache directory '{self.cache_dir}' does not exist")
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(exist_ok=True, parents=True)
+
+        self.remote_url = remote_url
 
     def filter(self, *spec: dict):
         # filters list of available datasets
@@ -35,7 +35,7 @@ class DataVault(object):
     def remote_index(self) -> list[str]:
         """List of available datasets in the remote database"""
 
-        url = urllib.parse.urljoin(cfg.database_url, "index.txt")
+        url = urllib.parse.urljoin(self.remote_url, "index.txt")
         response = requests.get(url)
         if response.ok:
             index = response.text.split("\n")[1:]
@@ -90,7 +90,7 @@ class DataVault(object):
         else:
             output_pth.mkdir()
 
-        dataset_url = urllib.parse.urljoin(cfg.database_url, data_id + "/")
+        dataset_url = urllib.parse.urljoin(self.remote_url, data_id + "/")
 
         files = ["hdx_spec.yaml", "metadata.yaml"]
         optional_files = ["CITATION.cff"]

@@ -5,8 +5,6 @@ from typing import Literal, Optional, Union, TYPE_CHECKING
 
 import pandas as pd
 
-from hdxms_datasets.config import cfg
-
 if TYPE_CHECKING:
     from hdxms_datasets import DataFile
 
@@ -71,6 +69,7 @@ def filter_peptides(
     exposure: Optional[dict] = None,
     query: Optional[list[str]] = None,
     dropna: bool = True,
+    time_unit: str = "s",
 ) -> pd.DataFrame:
     """
     Convenience function to filter a peptides DataFrame. .
@@ -82,6 +81,7 @@ def filter_peptides(
             exposure value, and "unit" for the time unit.
         query: Additional queries to pass to [pandas.DataFrame.query][].
         dropna: Drop rows with `NaN` uptake entries.
+        time_unit: Time unit for exposure column of supplied dataframe.
 
     Examples:
         Filter peptides for a specific protein state and exposure time:
@@ -97,7 +97,7 @@ def filter_peptides(
         df = df[df["state"] == state]
 
     if exposure is not None:
-        t_val = convert_time(exposure, target_unit=cfg.time_unit)
+        t_val = convert_time(exposure, time_unit)  # type: ignore
         if isinstance(t_val, list):
             df = df[df["exposure"].isin(t_val)]
         else:

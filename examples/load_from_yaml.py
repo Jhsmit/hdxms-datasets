@@ -10,7 +10,7 @@ data_id = "20221007_1530_SecA_Krishnamurthy"
 hdx_spec = yaml.safe_load((data_pth / data_id / "hdx_spec.yaml").read_text())
 metadata = yaml.safe_load((data_pth / data_id / "metadata.yaml").read_text())
 
-#%%
+# %%
 
 dataset = HDXDataSet.from_spec(hdx_spec, data_dir=data_pth / data_id, metadata=metadata)
 

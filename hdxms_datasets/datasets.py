@@ -11,7 +11,6 @@ from typing import Union, Literal, Optional, Type
 import pandas as pd
 import yaml
 
-from hdxms_datasets.config import cfg
 from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
 from hdxms_datasets.reader import read_dynamx
 
@@ -24,13 +23,14 @@ class DataFile(object):
 
     filepath_or_buffer: Union[Path, StringIO]
 
+    time_conversion: tuple[Literal["h", "min", "s"], Literal["h", "min", "s"]] = ("min", "s")
+    # from, to time conversion
+
     @cached_property
     def data(self) -> pd.DataFrame:
+        # TODO convert time after reading
         if self.format == "DynamX":
-            # from, to time conversion
-            time_conversion = (cfg.dynamx.time_unit, cfg.time_unit)
-
-            data = read_dynamx(self.filepath_or_buffer, time_conversion=time_conversion)
+            data = read_dynamx(self.filepath_or_buffer, time_conversion=self.time_conversion)
         else:
             raise ValueError(f"Invalid format {self.format!r}")
 
