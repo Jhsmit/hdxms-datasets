@@ -6,10 +6,10 @@ from pathlib import Path
 test_pth = Path("../tests").resolve()
 data_pth = test_pth / "datasets"
 
-vault = DataVault()
+vault = DataVault(cache_dir=data_pth)
 ds = vault.load_dataset("20221007_1530_SecB_Krishnamurthy")
 
-# Not implemented yet
+# not yet in latests release
 hdxm = HDXMeasurement.from_dataset(ds)
 
 print(hdxm)

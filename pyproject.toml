@@ -19,7 +19,6 @@ classifiers = [
 ]
 
 dependencies = [
-    "omegaconf",
     "pandas",
     "PyYAML",
     "requests",
@@ -73,3 +72,4 @@ line-length = 100
 
 [tool.ruff]
 line-length = 100
+target-version = "py310"

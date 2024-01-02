@@ -4,35 +4,29 @@
 #
 #    pip-compile --output-file=requirements-ubuntu-latest-3.10.txt pyproject.toml
 #
-antlr4-python3-runtime==4.9.3
-    # via omegaconf
-certifi==2023.7.22
+certifi==2023.11.17
     # via requests
-charset-normalizer==3.2.0
+charset-normalizer==3.3.2
     # via requests
-idna==3.4
+idna==3.6
     # via requests
-numpy==1.25.2
+numpy==1.26.2
     # via pandas
-omegaconf==2.3.0
+packaging==23.2
     # via hdxms-datasets (pyproject.toml)
-packaging==23.1
-    # via hdxms-datasets (pyproject.toml)
-pandas==2.0.3
+pandas==2.1.4
     # via hdxms-datasets (pyproject.toml)
 python-dateutil==2.8.2
     # via pandas
-pytz==2023.3
+pytz==2023.3.post1
     # via pandas
 pyyaml==6.0.1
-    # via
-    #   hdxms-datasets (pyproject.toml)
-    #   omegaconf
+    # via hdxms-datasets (pyproject.toml)
 requests==2.31.0
     # via hdxms-datasets (pyproject.toml)
 six==1.16.0
     # via python-dateutil
-tzdata==2023.3
+tzdata==2023.4
     # via pandas
-urllib3==2.0.4
+urllib3==2.1.0
     # via requests
