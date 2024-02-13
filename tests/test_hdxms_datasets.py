@@ -1,6 +1,6 @@
 import textwrap
 
-from hdxms_datasets.datasets import HDXDataSet, create_dataset
+from hdxms_datasets.datasets import DataSet, create_dataset
 from hdxms_datasets.datavault import DataVault
 from pathlib import Path
 import pytest
@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 TEST_PTH = Path(__file__).parent
-DATA_ID = "20221007_1530_SecA_Krishnamurthy"
+DATA_ID = "1665149400_SecA_Krishnamurthy"
 
 
 @pytest.fixture()
@@ -26,8 +26,8 @@ def dataset():
     yield ds
 
 
-def test_dataset(dataset: HDXDataSet):
-    assert isinstance(dataset, HDXDataSet)
+def test_dataset(dataset: DataSet):
+    assert isinstance(dataset, DataSet)
     assert dataset.states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
     assert dataset.peptides_per_state["SecA_monomer"] == ["FD_control", "experiment"]
     assert dataset.peptides_per_state["SecA_monomer_ADP"] == ["FD_control", "experiment"]
@@ -80,7 +80,7 @@ def test_create_dataset(tmp_path):
     assert (dataset_pth / "data" / "data_file.csv").exists()
 
 
-def test_metadata(dataset: HDXDataSet):
+def test_metadata(dataset: DataSet):
     test_metadata = yaml.safe_load((TEST_PTH / "datasets" / DATA_ID / "metadata.yaml").read_text())
     assert dataset.metadata == test_metadata
     assert dataset.metadata["authors"][0]["name"] == "Srinath Krishnamurthy"
@@ -107,7 +107,7 @@ def test_vault():
     assert len(vault.datasets) == 1
 
     ds = vault.load_dataset(DATA_ID)
-    assert isinstance(ds, HDXDataSet)
+    assert isinstance(ds, DataSet)
 
     states = ds.states
     assert states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]

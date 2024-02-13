@@ -10,7 +10,7 @@ from typing import Optional, Union
 import requests
 import yaml
 
-from hdxms_datasets.datasets import HDXDataSet
+from hdxms_datasets.datasets import DataSet
 
 
 DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDX-MS-datasets/master/datasets/"
@@ -142,11 +142,11 @@ class DataVault(object):
         for dir in self.cache_dir.iterdir():
             shutil.rmtree(dir)
 
-    def load_dataset(self, data_id: str) -> HDXDataSet:
+    def load_dataset(self, data_id: str) -> DataSet:
         hdx_spec = yaml.safe_load((self.cache_dir / data_id / "hdx_spec.yaml").read_text())
         dataset_metadata = yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
 
-        return HDXDataSet.from_spec(
+        return DataSet.from_spec(
             hdx_spec=hdx_spec,
             data_dir=self.cache_dir / data_id,
             data_id=data_id,

@@ -1,4 +1,4 @@
-from hdxms_datasets import HDXDataSet
+from hdxms_datasets import DataSet
 from pathlib import Path
 import yaml
 
@@ -12,6 +12,6 @@ metadata = yaml.safe_load((data_pth / data_id / "metadata.yaml").read_text())
 
 # %%
 
-dataset = HDXDataSet.from_spec(hdx_spec, data_dir=data_pth / data_id, metadata=metadata)
+dataset = DataSet.from_spec(hdx_spec, data_dir=data_pth / data_id, metadata=metadata)
 
 print(dataset.describe())

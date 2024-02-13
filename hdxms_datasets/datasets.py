@@ -82,7 +82,7 @@ class DataFile(object):
 
 
 @dataclass(frozen=True)
-class HDXDataSet(object):
+class DataSet(object):
     data_id: str
     """Unique identifier for the dataset"""
 
@@ -119,10 +119,12 @@ class HDXDataSet(object):
     def states(self) -> list[str]:
         return list(self.state_spec.keys())
 
-    def get_metadata(self, state) -> dict:
+    def get_metadata(self, state: Union[str, int]) -> dict:
         """
         Returns metadata for a given state
         """
+
+        state = self.states[state] if isinstance(state, int) else state
         return {**self.hdx_spec.get("metadata", {}), **self.state_spec[state].get("metadata", {})}
 
     @property
@@ -263,3 +265,7 @@ class HDXDataSet(object):
 
     def __len__(self) -> int:
         return len(self.states)
+
+
+# was refactored to DataSet
+HDXDataSet = DataSet
