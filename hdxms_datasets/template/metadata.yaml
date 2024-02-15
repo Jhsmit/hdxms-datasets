@@ -1,5 +1,6 @@
 data:
-  description: Single sentences description of the dataset.
+  description: Single sentence description of the dataset.
+  exchange_type: HD
 
 # required fields are name and uniprot_id
 protein:

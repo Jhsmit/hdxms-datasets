@@ -8,11 +8,7 @@ data_files:
 
 metadata:  # global metadata equal for all protein states
   pH: 7.5
-  protein:
-    uniprot: P10408
-    model: # Optional protein model information
-      database: pdb
-      entry: 2vda
+
 
 states:
   SecB_ADP_glucose:  # Short human-readable identifier for this protein HDX state
