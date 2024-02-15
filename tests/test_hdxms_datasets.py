@@ -39,12 +39,8 @@ def test_dataset(dataset: DataSet):
     df_control = dataset.peptide_sets["SecA_monomer"]["FD_control"]
     assert len(df_control) == 188
 
-    # Control with two peptides removed
-    # (Fails because of updated dataset)
     df_control = dataset.peptide_sets["SecA_WT"]["FD_control"]
-    assert len(df_control) == 186
-    assert "TKVFGSRND" not in df["sequence"]
-    assert not np.any(np.logical_and(df["start"] == 16, df["end"] == 29))
+    assert len(df_control) == 188
 
     s = """
     SecA_monomer:
@@ -56,7 +52,7 @@ def test_dataset(dataset: DataSet):
       experiment: 'Total peptides: 1267, timepoints: 7'
       metadata: 'Temperature: 20.0 C, pH: 7.5'
     SecA_WT:
-      FD_control: 'Total peptides: 186, timepoints: 1'
+      FD_control: 'Total peptides: 188, timepoints: 1'
       experiment: 'Total peptides: 1316, timepoints: 7'
       metadata: 'Temperature: 20.0 C, pH: 7.5'
     """
