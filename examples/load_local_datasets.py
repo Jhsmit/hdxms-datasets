@@ -1,14 +1,14 @@
 from hdxms_datasets import DataVault
 from pathlib import Path
 
-test_pth = Path("../tests").resolve()
+test_pth = Path(__file__).parent.parent / "tests"
 data_pth = test_pth / "datasets"
 
 # Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
 vault = DataVault(data_pth)
 
 # Load the dataset
-ds = vault.load_dataset("20221007_1530_SecA_Krishnamurthy")
+ds = vault.load_dataset("1665149400_SecA_Krishnamurthy")
 
 # %%
 

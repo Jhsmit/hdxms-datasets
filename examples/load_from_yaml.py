@@ -3,9 +3,9 @@ from pathlib import Path
 import yaml
 
 
-test_pth = Path("../tests").resolve()
+test_pth = Path(__file__).parent.parent / "tests"
 data_pth = test_pth / "datasets"
-data_id = "20221007_1530_SecA_Krishnamurthy"
+data_id = "1665149400_SecA_Krishnamurthy"
 
 hdx_spec = yaml.safe_load((data_pth / data_id / "hdx_spec.yaml").read_text())
 metadata = yaml.safe_load((data_pth / data_id / "metadata.yaml").read_text())
