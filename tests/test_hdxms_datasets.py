@@ -40,6 +40,7 @@ def test_dataset(dataset: DataSet):
     assert len(df_control) == 188
 
     # Control with two peptides removed
+    # (Fails because of updated dataset)
     df_control = dataset.peptide_sets["SecA_WT"]["FD_control"]
     assert len(df_control) == 186
     assert "TKVFGSRND" not in df["sequence"]
