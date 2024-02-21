@@ -13,6 +13,7 @@ TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
 TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
 
 
+# overload typing to get correct return type
 def convert_temperature(
     temperature_dict: dict, target_unit: str = "c"
 ) -> Union[float, list[float]]:
