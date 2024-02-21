@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 import yaml
 import pandas as pd
-import numpy as np
 
 TEST_PTH = Path(__file__).parent
 DATA_ID = "1665149400_SecA_Krishnamurthy"

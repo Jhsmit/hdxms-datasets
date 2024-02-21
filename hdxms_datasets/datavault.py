@@ -3,7 +3,6 @@ from __future__ import annotations
 import shutil
 import urllib.error
 import urllib.parse
-from functools import cached_property
 from pathlib import Path
 from typing import Optional, Union
 import warnings
