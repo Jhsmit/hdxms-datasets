@@ -6,6 +6,8 @@ import urllib.parse
 from functools import cached_property
 from pathlib import Path
 from typing import Optional, Union
+import warnings
+import pandas as pd
 
 import requests
 import yaml
@@ -26,22 +28,33 @@ class DataVault(object):
         self.cache_dir.mkdir(exist_ok=True, parents=True)
 
         self.remote_url = remote_url
+        self.remote_index: Optional[pd.DataFrame] = None
 
     def filter(self, *spec: dict):
         # filters list of available datasets
         raise NotImplementedError("Not yet implemented")
 
-    @cached_property
-    def remote_index(self) -> list[str]:
-        """List of available datasets in the remote database"""
+    def get_index(self, on_error="ignore") -> Optional[pd.DataFrame]:
+        """Retrieves the index of available datasets
 
-        url = urllib.parse.urljoin(self.remote_url, "index.txt")
-        response = requests.get(url)
-        if response.ok:
-            index = response.text.split("\n")[1:]
-            return index
-        else:
-            return []
+        on success, returns the index dataframe and
+        stores as `remote_index` attribute.
+
+        """
+
+        url = urllib.parse.urljoin(self.remote_url, "index.csv")
+        try:
+            index_df = pd.read_csv(url)
+            self.remote_index = index_df
+            return index_df
+
+        except urllib.error.HTTPError as err:
+            if on_error == "ignore":
+                pass
+            elif on_error == "warn":
+                warnings.warn(f"Error loading index: {err}")
+            else:
+                raise err
 
     @property
     def datasets(self) -> list[str]:
