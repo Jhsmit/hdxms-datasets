@@ -86,13 +86,15 @@ def test_empty_vault(tmp_path):
     vault = DataVault(cache_dir=tmp_path)
     assert len(vault.datasets) == 0
 
-    idx = vault.remote_index
+    idx = vault.get_index()
+    assert isinstance(idx, pd.DataFrame)
     assert len(idx) > 0
 
     assert vault.fetch_dataset(DATA_ID)
     assert DATA_ID in vault.datasets
 
     ds = vault.load_dataset(DATA_ID)
+    assert isinstance(ds, DataSet)
 
     vault.clear_cache()
     assert len(vault.datasets) == 0
