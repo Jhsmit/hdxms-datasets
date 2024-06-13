@@ -17,7 +17,6 @@ from pathlib import Path
 from hdxms_datasets import DataVault
 
 # local path the download datasets to
-
 cache_dir = Path('.cache')
 
 # create a vault with local cache dir, set `remote_url` to connect to a different database
