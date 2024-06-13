@@ -9,6 +9,11 @@
 $ pip install hdxms-datasets
 ```
 
+### HDX-MS database
+
+Currently a beta test database is set up at:
+https://github.com/Jhsmit/HDX-MS-datasets
+
 ### Example code
 
 
