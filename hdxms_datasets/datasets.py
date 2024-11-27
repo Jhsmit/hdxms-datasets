@@ -247,9 +247,9 @@ class DataSet(object):
 
             output_dict[state] = state_desc
 
-        if return_type == str:
+        if return_type is str:
             return yaml.dump(output_dict, sort_keys=False)
-        elif return_type == dict:
+        elif return_type is dict:
             return output_dict
         else:
             raise TypeError(f"Invalid return type {return_type!r}")
