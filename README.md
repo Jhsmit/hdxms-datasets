@@ -9,13 +9,23 @@
 $ pip install hdxms-datasets
 ```
 
+### HDX-MS database
+
+Currently a beta test database is set up at:
+https://github.com/Jhsmit/HDX-MS-datasets
+
 ### Example code
 
 
 ```python
+from pathlib import Path
 from hdxms_datasets import DataVault
 
-vault = DataVault()
+# local path the download datasets to
+cache_dir = Path('.cache')
+
+# create a vault with local cache dir, set `remote_url` to connect to a different database
+vault = DataVault(cache_dir=cache_dir)
 
 # Download a specific HDX dataset
 vault.fetch_dataset("20221007_1530_SecA_Krishnamurthy")

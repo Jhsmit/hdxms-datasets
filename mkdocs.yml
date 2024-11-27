@@ -19,7 +19,6 @@ nav:
   - install.md
   - Usage:
     - usage/loading.md
-    - usage/configuration.md
   - API Reference: reference/
 
 watch:
