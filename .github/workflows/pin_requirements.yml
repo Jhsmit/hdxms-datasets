@@ -25,7 +25,7 @@ jobs:
         run: uv pip compile --all-extras pyproject.toml -o requirements-${{ matrix.os }}-${{ matrix.python-version }}.txt
 
       - name: Upload requirements file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: requirements
           path: requirements-${{ matrix.os }}-${{ matrix.python-version }}.txt
