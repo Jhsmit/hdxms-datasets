@@ -5,8 +5,10 @@ This script generates test data for the HDXMS datasets.
 # %%
 
 from pathlib import Path
+from typing import Any
 
 
+from hdxms_datasets.backend import BACKEND
 from hdxms_datasets.datasets import DataSet
 from hdxms_datasets.datavault import DataVault
 from hdxms_datasets.reader import read_dynamx
@@ -27,12 +29,9 @@ assert states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
 
 peptide_dict = ds.load_state(states[0])
 df = peptide_dict["experiment"]
-df.to_csv("monomer_experimental_peptides.csv", index=False)
+df.to_pandas().to_csv("monomer_experimental_peptides.csv", index=False)
 # %%
 
 csv_file = TEST_PTH / "datasets" / DATA_ID / "data" / "SecA.csv"
 csv_dynamx = read_dynamx(csv_file)
-csv_dynamx.to_csv("read_dynamx_result.csv", index=False)
-
-
-# %%
+# csv_dynamx.to_csv("read_dynamx_result.csv", index=False)

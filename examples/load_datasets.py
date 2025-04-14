@@ -1,13 +1,13 @@
 # %%
 
-from hdxms_datasets import DataVault
+from hdxms_datasets import RemoteDataVault
 from pathlib import Path
 
 
 # %%
 # create a data vault, specify cache_dir to download datasets to
 cache_dir = Path.home() / ".hdxms_datasets"
-vault = DataVault(cache_dir=cache_dir)
+vault = RemoteDataVault(cache_dir=cache_dir)
 vault
 
 # %%
@@ -30,6 +30,7 @@ print(ds.describe())
 
 # Load the FD control of the 'SecA_monomer' state .
 fd_control = ds.load_peptides("SecA_monomer", "FD_control")
+
 
 # States can also be referenced by their index, used here to load the peptides corresponding to
 # the experiment.

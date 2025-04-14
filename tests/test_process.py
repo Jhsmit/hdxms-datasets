@@ -1,5 +1,6 @@
 import numpy as np
-import pandas as pd
+import polars as pl
+import narwhals as nw
 import pytest
 
 from hdxms_datasets.process import convert_temperature, convert_time, filter_peptides
@@ -72,8 +73,8 @@ def test_convert_time_invalid_dict():
 
 
 @pytest.fixture
-def sample_df():
-    return pd.DataFrame(
+def sample_df() -> nw.DataFrame:
+    df = pl.DataFrame(
         {
             "state": ["state1", "state1", "state2", "state2"],
             "exposure": [10.0, 20.0, 10.0, 20.0],
@@ -81,6 +82,7 @@ def sample_df():
             "sequence": ["SEQ1", "SEQ2", "SEQ3", "SEQ4"],
         }
     )
+    return nw.from_native(df)
 
 
 def test_filter_peptides_by_state(sample_df):
@@ -105,29 +107,11 @@ def test_filter_peptides_by_exposure_multiple_values(sample_df):
 def test_filter_peptides_with_unit_conversion(sample_df):
     exposure = {"value": 1 / 60, "unit": "min"}  # 1/60 min = 1s
     # Use a modified df where exposure is in minutes
-    df_min = sample_df.copy()
-    df_min["exposure"] = df_min["exposure"] / 60  # convert to minutes
+    df_min = nw.from_dict(sample_df.to_dict()).with_columns(
+        nw.col("exposure") * 60
+    )  # convert to minutes
     result = filter_peptides(df_min, exposure=exposure, time_unit="min")
     assert len(result) == 0  # Nothing matches 1s when converted to minutes
-
-
-def test_filter_peptides_with_query(sample_df):
-    result = filter_peptides(sample_df, query=["sequence == 'SEQ1'"])
-    assert len(result) == 1
-    assert result.iloc[0]["sequence"] == "SEQ1"
-
-
-def test_filter_peptides_with_multiple_conditions(sample_df):
-    result = filter_peptides(
-        sample_df,
-        state="state1",
-        exposure={"value": 10.0, "unit": "s"},
-        query=["sequence == 'SEQ1'"],
-    )
-    assert len(result) == 1
-    assert result.iloc[0]["state"] == "state1"
-    assert result.iloc[0]["exposure"] == 10.0
-    assert result.iloc[0]["sequence"] == "SEQ1"
 
 
 def test_filter_peptides_keep_na(sample_df):
@@ -136,12 +120,12 @@ def test_filter_peptides_keep_na(sample_df):
 
 
 def test_filter_peptides_drop_na(sample_df):
-    result = filter_peptides(sample_df, dropna=True)
+    result = filter_peptides(sample_df, dropna=True).to_polars()
     assert len(result) == 3  # All rows except the one with NaN uptake
-    assert not result["uptake"].isna().any()
+    assert result.filter(pl.col("uptake").is_nan()).is_empty()  # No NaN values
 
 
 def test_filter_peptides_empty_result(sample_df):
     result = filter_peptides(sample_df, state="non_existent_state")
     assert len(result) == 0
-    assert isinstance(result, pd.DataFrame)
+    assert isinstance(result, nw.DataFrame)

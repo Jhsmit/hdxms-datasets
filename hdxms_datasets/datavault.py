@@ -4,56 +4,21 @@ import shutil
 import urllib.error
 import urllib.parse
 from pathlib import Path
-from typing import Optional, Union
-import warnings
-import pandas as pd
+from typing import Union
 
 import requests
 import yaml
 
 from hdxms_datasets.datasets import DataSet
-
+import narwhals as nw
 
 DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDX-MS-datasets/master/datasets/"
 
 
-class DataVault(object):
-    def __init__(
-        self,
-        cache_dir: Union[Path, str],
-        remote_url: str = DATABASE_URL, # TODO optional
-    ):
+class DataVault:
+    def __init__(self, cache_dir: Union[Path, str]):
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(exist_ok=True, parents=True)
-
-        self.remote_url = remote_url
-        self.remote_index: Optional[pd.DataFrame] = None
-
-    def filter(self, *spec: dict):
-        # filters list of available datasets
-        raise NotImplementedError("Not yet implemented")
-
-    def get_index(self, on_error="ignore") -> Optional[pd.DataFrame]:
-        """Retrieves the index of available datasets
-
-        on success, returns the index dataframe and
-        stores as `remote_index` attribute.
-
-        """
-
-        url = urllib.parse.urljoin(self.remote_url, "index.csv")
-        try:
-            index_df = pd.read_csv(url)
-            self.remote_index = index_df
-            return index_df
-
-        except urllib.error.HTTPError as err:
-            if on_error == "ignore":
-                pass
-            elif on_error == "warn":
-                warnings.warn(f"Error loading index: {err}")
-            else:
-                raise err
 
     @property
     def datasets(self) -> list[str]:
@@ -68,22 +33,61 @@ class DataVault(object):
 
         return (path / "hdx_spec.yaml").exists()
 
-    async def fetch_datasets(self, n: Optional[str] = None, data_ids: Optional[list[str]] = None):
+    def clear_cache(self) -> None:
+        for dir in self.cache_dir.iterdir():
+            shutil.rmtree(dir)
+
+    def get_metadata(self, data_id: str) -> dict:
+        return yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
+
+    def load_dataset(self, data_id: str) -> DataSet:
+        hdx_spec = yaml.safe_load((self.cache_dir / data_id / "hdx_spec.yaml").read_text())
+        dataset_metadata = self.get_metadata(data_id)
+
+        return DataSet.from_spec(
+            hdx_spec=hdx_spec,
+            data_dir=self.cache_dir / data_id,
+            data_id=data_id,
+            metadata=dataset_metadata,
+        )
+
+
+class RemoteDataVault(DataVault):
+    """
+    A vault for HDX-MS datasets, with the ability to fetch datasets from a remote repository.
+
+    Args:
+        cache_dir: Directory to store downloaded datasets.
+        remote_url: URL of the remote repository (default: DATABASE_URL).
+    """
+
+    def __init__(self, cache_dir: Union[Path, str], remote_url: str = DATABASE_URL):
+        super().__init__(cache_dir)
+        self.remote_url = remote_url
+        # self.get_index()
+
+    def get_index(self) -> nw.DataFrame:
+        """Retrieves the index of available datasets
+
+        on success, returns the index dataframe and
+        stores as `remote_index` attribute.
+
         """
-        Asynchronously download multiple datasets
-        """
-        raise NotImplementedError("Not yet implemented")
 
-        if n is None and data_ids is None:
-            n = 10
+        url = urllib.parse.urljoin(self.remote_url, "index.csv")
+        response = requests.get(url)
 
-        if data_ids:
-            # Download specified datasets to cache_dir
-            ...
-
-        elif n:
-            # Download n new datasets to cache_dir
-            ...
+        if response.ok:
+            (self.cache_dir / "index.csv").write_bytes(response.content)
+            return nw.read_csv(str(self.cache_dir / "index.csv"))
+        else:
+            raise urllib.error.HTTPError(
+                url,
+                response.status_code,
+                "Error downloading database index",
+                response.headers,  # type: ignore
+                None,
+            )
 
     def fetch_dataset(self, data_id: str) -> bool:
         """
@@ -149,21 +153,3 @@ class DataVault(object):
                 )
 
         return True
-
-    def clear_cache(self) -> None:
-        for dir in self.cache_dir.iterdir():
-            shutil.rmtree(dir)
-
-    def get_metadata(self, data_id: str) -> dict:
-        return yaml.safe_load((self.cache_dir / data_id / "metadata.yaml").read_text())
-
-    def load_dataset(self, data_id: str) -> DataSet:
-        hdx_spec = yaml.safe_load((self.cache_dir / data_id / "hdx_spec.yaml").read_text())
-        dataset_metadata = self.get_metadata(data_id)
-
-        return DataSet.from_spec(
-            hdx_spec=hdx_spec,
-            data_dir=self.cache_dir / data_id,
-            data_id=data_id,
-            metadata=dataset_metadata,
-        )

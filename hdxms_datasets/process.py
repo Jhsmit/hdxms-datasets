@@ -3,7 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal, Optional, Union, TYPE_CHECKING
 
-import pandas as pd
+import narwhals as nw
+
 
 if TYPE_CHECKING:
     from hdxms_datasets import DataFile
@@ -65,13 +66,12 @@ def convert_time(
 
 
 def filter_peptides(
-    df: pd.DataFrame,
+    df: nw.DataFrame,
     state: Optional[str] = None,
     exposure: Optional[dict] = None,
-    query: Optional[list[str]] = None,
     dropna: bool = True,
-    time_unit: str = "s",
-) -> pd.DataFrame:
+    time_unit: Literal["s", "min", "h"] = "s",
+) -> nw.DataFrame:
     """
     Convenience function to filter a peptides DataFrame. .
 
@@ -81,7 +81,7 @@ def filter_peptides(
         exposure: Exposure value(s) to select. Exposure is given as a :obj:`dict`, with keys "value" or "values" for
             exposure value, and "unit" for the time unit.
         query: Additional queries to pass to [pandas.DataFrame.query][].
-        dropna: Drop rows with `NaN` uptake entries.
+        dropna: Drop rows with `NaN` or `null` uptake entries.
         time_unit: Time unit for exposure column of supplied dataframe.
 
     Examples:
@@ -95,23 +95,19 @@ def filter_peptides(
     """
 
     if state is not None:
-        df = df[df["state"] == state]
+        df = df.filter(nw.col("state") == state)
 
     if exposure is not None:
-        t_val = convert_time(exposure, time_unit)  # type: ignore
+        t_val = convert_time(exposure, time_unit)
         if isinstance(t_val, list):
-            df = df[df["exposure"].isin(t_val)]
+            df = df.filter(nw.col("exposure").is_in(t_val))
         else:
-            df = df[df["exposure"] == t_val]
-
-    if query:
-        for q in query:
-            df = df.query(q)
+            df = df.filter(nw.col("exposure") == t_val)
 
     if dropna:
-        df = df.dropna(subset=["uptake"])
+        df = df.drop_nulls("uptake").filter(~nw.col("uptake").is_nan())
 
-    return df.reset_index(drop=True)
+    return df
 
 
 def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile]:

@@ -1,11 +1,13 @@
 import textwrap
 
 from hdxms_datasets.datasets import DataSet, create_dataset
-from hdxms_datasets.datavault import DataVault
+from hdxms_datasets.datavault import DataVault, RemoteDataVault
 from pathlib import Path
 import pytest
 import yaml
-import pandas as pd
+import polars as pl
+import narwhals as nw
+from polars.testing import assert_frame_equal
 
 TEST_PTH = Path(__file__).parent
 DATA_ID = "1665149400_SecA_Krishnamurthy"
@@ -33,7 +35,7 @@ def test_dataset(dataset: DataSet):
     assert dataset.peptides_per_state["SecA_WT"] == ["FD_control", "experiment"]
 
     df = dataset.peptide_sets["SecA_monomer"]["experiment"]
-    assert isinstance(df, pd.DataFrame)
+    assert isinstance(df, nw.DataFrame)
 
     df_control = dataset.peptide_sets["SecA_monomer"]["FD_control"]
     assert len(df_control) == 188
@@ -83,12 +85,8 @@ def test_metadata(dataset: DataSet):
 
 
 def test_empty_vault(tmp_path):
-    vault = DataVault(cache_dir=tmp_path)
+    vault = RemoteDataVault(cache_dir=tmp_path)
     assert len(vault.datasets) == 0
-
-    idx = vault.get_index()
-    assert isinstance(idx, pd.DataFrame)
-    assert len(idx) > 0
 
     assert vault.fetch_dataset(DATA_ID)
     assert DATA_ID in vault.datasets
@@ -114,6 +112,7 @@ def test_vault():
     assert "experiment" in peptide_dict
 
     df = peptide_dict["experiment"]
-    ref_df = pd.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv", index_col=0)
+    assert isinstance(df, nw.DataFrame)
+    ref_df = pl.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv")
 
-    pd.testing.assert_frame_equal(df, ref_df)
+    assert_frame_equal(df.to_polars(), ref_df[:, 1:])

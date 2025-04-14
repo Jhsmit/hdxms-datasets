@@ -15,8 +15,8 @@ ds = vault.load_dataset("1665149400_SecA_Krishnamurthy")
 # Print a string describing the states in the dataset
 print(ds.describe())
 
-# Load FD control peptides as a pandas DataFrame
+# Load FD control peptides as a narwhals DataFrame
 fd_control = ds.load_peptides(0, "FD_control")
 
-# Load experimental peptides as pandas dataframe
+# Load experimental peptides as narwhals dataframe
 peptides = ds.load_peptides(0, "experiment")

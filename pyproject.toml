@@ -5,9 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "hdxms-datasets"
 description = "Download and parse curated HDX-MS datasets"
-authors = [
-  { name = "Jochem Smit", email = "jhsmit@gmail.com" },
-]
+authors = [{ name = "Jochem Smit", email = "jhsmit@gmail.com" }]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -20,12 +18,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
-dependencies = [
-    "pandas",
-    "PyYAML",
-    "requests",
-    "packaging",
-]
+dependencies = ["narwhals", "PyYAML", "requests"]
 
 dynamic = ["version"]
 
@@ -38,24 +31,18 @@ docs = [
     "mkdocs-gen-files>=0.4.0",
     "mkdocs-literate-nav>=0.5.0",
     "mkdocs-jupyter>=0.22.0",
-    "jupyter>=1.0.0"
+    "jupyter>=1.0.0",
 ]
-dev = [
-    "black[jupyter]>=22.12.0",
-]
+dev = ["black[jupyter]>=22.12.0"]
 
-test = [
-    "pytest>=7.2.0",
-]
+test = ["pytest>=7.2.0", "polars"]
 
 [project.urls]
 Source = "https://github.com/Jhsmit/hdxms-datasets/"
 Documentation = "https://jhsmit.github.io/hdxms-datasets/"
 
 [tool.hatch.build]
-exclude = [
-    "_versioneer.py"
-]
+exclude = ["_versioneer.py"]
 
 [tool.hatch.version]
 source = "vcs"

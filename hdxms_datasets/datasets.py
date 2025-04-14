@@ -9,8 +9,8 @@ from io import StringIO
 from pathlib import Path
 from string import Template
 from typing import Union, Literal, Optional, Type
+import narwhals as nw
 
-import pandas as pd
 import yaml
 
 from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
@@ -68,7 +68,7 @@ class DataFile(object):
     # from, to time conversion
 
     @cached_property
-    def data(self) -> pd.DataFrame:
+    def data(self) -> nw.DataFrame:
         # TODO convert time after reading
         if self.format == "DynamX":
             data = read_dynamx(self.filepath_or_buffer, time_conversion=self.time_conversion)
@@ -95,7 +95,7 @@ class DataSet(object):
     metadata: dict = field(default_factory=dict)
     """Optional metadata"""
 
-    _cache: dict[tuple[str, str], pd.DataFrame] = field(init=False, default_factory=dict)
+    _cache: dict[tuple[str, str], nw.DataFrame] = field(init=False, default_factory=dict)
 
     @classmethod
     def from_spec(
@@ -133,7 +133,7 @@ class DataSet(object):
         return {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
 
     @property
-    def peptide_sets(self) -> dict[str, dict[str, pd.DataFrame]]:
+    def peptide_sets(self) -> dict[str, dict[str, nw.DataFrame]]:
         peptides_dfs = {}
         peptides_per_state = {
             state: list(spec["peptides"]) for state, spec in self.state_spec.items()
@@ -145,7 +145,7 @@ class DataSet(object):
 
         return peptides_dfs
 
-    def load(self) -> dict[str, dict[str, pd.DataFrame]]:
+    def load(self) -> dict[str, dict[str, nw.DataFrame]]:
         """
         Loads all peptide sets for all states.
 
@@ -154,7 +154,7 @@ class DataSet(object):
         """
         return {state: self.load_state(state) for state in self.states}
 
-    def load_state(self, state: Union[str, int]) -> dict[str, pd.DataFrame]:
+    def load_state(self, state: Union[str, int]) -> dict[str, nw.DataFrame]:
         """
         Load all peptide sets for a given state.
 
@@ -171,7 +171,7 @@ class DataSet(object):
             for peptide_set in self.state_spec[state]["peptides"].keys()
         }
 
-    def load_peptides(self, state: Union[str, int], peptides: str) -> pd.DataFrame:
+    def load_peptides(self, state: Union[str, int], peptides: str) -> nw.DataFrame:
         """
         Load a single set of peptides for a given state.
 
@@ -186,7 +186,7 @@ class DataSet(object):
         state = self.states[state] if isinstance(state, int) else state
         return self._load_peptides(state, peptides)
 
-    def _load_peptides(self, state: str, peptides: str) -> pd.DataFrame:
+    def _load_peptides(self, state: str, peptides: str) -> nw.DataFrame:
         """
         Load a single set of peptides for a given state.
 
