@@ -21,7 +21,7 @@ class DataVault(object):
     def __init__(
         self,
         cache_dir: Union[Path, str],
-        remote_url: str = DATABASE_URL,
+        remote_url: str = DATABASE_URL, # TODO optional
     ):
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(exist_ok=True, parents=True)
