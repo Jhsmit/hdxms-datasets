@@ -18,7 +18,13 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 
-dependencies = ["narwhals", "PyYAML", "requests"]
+dependencies = [
+    "narwhals",
+    "PyYAML",
+    "requests",
+    'statsmodels',
+    'uncertainties',
+]
 
 dynamic = ["version"]
 

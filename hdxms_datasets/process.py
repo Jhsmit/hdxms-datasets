@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
 from typing import Literal, Optional, Union, TYPE_CHECKING
 
 import narwhals as nw
+from statsmodels.stats.weightstats import DescrStatsW
+from uncertainties import ufloat, Variable
+
+from hdxms_datasets.backend import BACKEND
 
 
 if TYPE_CHECKING:
@@ -12,6 +17,128 @@ if TYPE_CHECKING:
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
 TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
+PROTON_MASS = 1.0072764665789
+
+
+STATE_DATA_COLUMN_ORDER = [
+    "protein",
+    "start",
+    "end",
+    "stop",
+    "sequence",
+    "modification",
+    "fragment",
+    "maxuptake",
+    "mhp",
+    "state",
+    "exposure",
+    "center",
+    "center_sd",
+    "uptake",
+    "uptake_sd",
+    "rt",
+    "rt_sd",
+]
+
+
+def ufloat_stats(array, weights) -> Variable:
+    """Calculate the weighted mean and standard deviation."""
+    weighted_stats = DescrStatsW(array, weights=weights, ddof=0)
+    return ufloat(weighted_stats.mean, weighted_stats.std)
+
+
+def records_to_dict(records: list[dict]) -> dict[str, list]:
+    """
+    Convert a list of records to a dictionary of lists.
+
+    Args:
+        records: List of dictionaries.
+
+    Returns:
+        Dictionary with keys as column names and values as lists.
+    """
+
+    df_dict = defaultdict(list)
+    for record in records:
+        for key, value in record.items():
+            df_dict[key].append(value)
+
+    return dict(df_dict)
+
+
+def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0) -> nw.DataFrame:
+    """
+    convert dynamx cluster data to state data
+    must contain only a single state
+    """
+
+    assert len(cluster_data["state"].unique()) == 1, "Multiple states found in data"
+
+    # determine undeuterated masses per peptide
+    nd_data = cluster_data.filter(nw.col("exposure") == nd_exposure)
+    nd_peptides: list[tuple[int, int]] = sorted(
+        {(start, end) for start, end in zip(nd_data["start"], nd_data["end"])}
+    )
+
+    peptides_nd_mass = {}
+    for p in nd_peptides:
+        start, end = p
+        df_nd_peptide = nd_data.filter((nw.col("start") == start) & (nw.col("end") == end))
+
+        masses = df_nd_peptide["z"] * (df_nd_peptide["center"] - PROTON_MASS)
+        nd_mass = ufloat_stats(masses, df_nd_peptide["inten"])
+
+        peptides_nd_mass[p] = nd_mass
+
+    groups = cluster_data.group_by(["start", "end", "exposure"])
+    unique_columns = [
+        "end",
+        "exposure",
+        "fragment",
+        "maxuptake",
+        "mhp",
+        "modification",
+        "protein",
+        "sequence",
+        "start",
+        "state",
+        "stop",
+    ]
+    records = []
+    for (start, end, exposure), df_group in groups:
+        record = {col: df_group[col][0] for col in unique_columns}
+
+        rt = ufloat_stats(df_group["rt"], df_group["inten"])
+        record["rt"] = rt.nominal_value
+        record["rt_sd"] = rt.std_dev
+
+        # state data 'center' is mass as if |charge| would be 1
+        center = ufloat_stats(
+            df_group["z"] * (df_group["center"] - PROTON_MASS) + PROTON_MASS, df_group["inten"]
+        )
+        record["center"] = center.nominal_value
+        record["center_sd"] = center.std_dev
+
+        masses = df_group["z"] * (df_group["center"] - PROTON_MASS)
+        exp_mass = ufloat_stats(masses, df_group["inten"])
+
+        if (start, end) in peptides_nd_mass:
+            uptake = exp_mass - peptides_nd_mass[(start, end)]
+            record["uptake"] = uptake.nominal_value
+            record["uptake_sd"] = uptake.std_dev
+        else:
+            record["uptake"] = None
+            record["uptake_sd"] = None
+
+        records.append(record)
+
+    d = records_to_dict(records)
+    df = nw.from_dict(d, backend=BACKEND)
+
+    if set(df.columns) == set(STATE_DATA_COLUMN_ORDER):
+        df = df[STATE_DATA_COLUMN_ORDER]
+
+    return df
 
 
 # overload typing to get correct return type
