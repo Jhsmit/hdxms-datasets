@@ -13,7 +13,7 @@ TEST_PTH = ROOT / "tests"
 ND_EXPOSURE = "0s"
 
 # read a cluster data file, select a single state and convert to state data
-csv_file = TEST_PTH / "test_data" / "All-Export_FD-Control.csv"
+csv_file = TEST_PTH / "test_data" / "hd_examiner_example.csv"
 hd_examiner_data = nw.read_csv(csv_file.as_posix(), backend=BACKEND)
 
 
@@ -49,8 +49,6 @@ def calc_uptake(df, nd_mass_dict: dict[tuple[int, int], Variable]) -> np.ndarray
     return output
 
 
-# %%
-
 states = list(hd_examiner_data["Protein State"].unique())
 
 
@@ -66,7 +64,7 @@ def test_calc_uptake():
 
         d_uptake = nw.new_series(values=uptake, name="uptake", backend=BACKEND)
         compare_data = (
-            pd_data.select(d_uptake, nw.col("# Deut"))
+            pd_data.select(d_uptake, nw.col("# Deut"), nw.col("Cent Diff"), nw.col("Charge"))
             .filter(nw.col("# Deut") != "n/a")
             .with_columns(nw.col("# Deut").cast(nw.Float64))
         )
@@ -76,3 +74,17 @@ def test_calc_uptake():
         max_diff = np.max(np.abs(diff))
         assert np.mean(np.abs(diff)) < 0.0022, mean_diff
         print(state, mean_diff, max_diff)
+
+        # calculate uptake from 'Cent Diff', compare to 'uptake'
+        compare_data = compare_data.with_columns(
+            (nw.col("Cent Diff").cast(nw.Float64) * nw.col("Charge").cast(nw.Int32)).alias(
+                "uptake_from_cent_diff"
+            )
+        )
+        diff_cent = compare_data["uptake"] - compare_data["uptake_from_cent_diff"]
+
+        mean_diff_cent = np.mean(np.abs(diff_cent))
+        assert mean_diff_cent < 0.002, mean_diff_cent
+
+
+# %%
