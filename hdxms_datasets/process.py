@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from functools import reduce
+from operator import and_
 from pathlib import Path
-from typing import Literal, Optional, Union, TYPE_CHECKING
+from typing import Literal, Optional, TypedDict, Union, TYPE_CHECKING
 
 import narwhals as nw
 from statsmodels.stats.weightstats import DescrStatsW
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
 
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
-TEMPERATURE_OFFSETS = {"c": 273.15, "celsius": 273.15, "k": 0.0, "kelvin": 0.0}
+TEMPERATURE_OFFSETS = {"C": 273.15, "K": 0.0}
 PROTON_MASS = 1.0072764665789
 
 
@@ -141,30 +143,28 @@ def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0
     return df
 
 
-# overload typing to get correct return type
-def convert_temperature(
-    temperature_dict: dict, target_unit: str = "c"
-) -> Union[float, list[float]]:
+class TemperatureDict(TypedDict):
+    """TypedDict for temperature dictionary."""
+
+    value: float
+    unit: Literal["C", "K"]
+
+
+def convert_temperature(temperature_dict: TemperatureDict, target_unit: str = "C") -> float:
     """
     Convenience function to convert temperature values.
 
     Args:
         temperature_dict: Dictionary with temperature value(s) and unit.
-        target_unit: Target unit for temperature. Must be "c", "k", "celsius", or "kelvin" and is
-            case-insensitive.
+        target_unit: Target unit for temperature. Must be "C, or "K"
 
     Returns:
         Converted temperature value(s).
     """
 
-    src_unit = temperature_dict["unit"].lower()
-    temp_offset = TEMPERATURE_OFFSETS[src_unit] - TEMPERATURE_OFFSETS[target_unit.lower()]
-    if values := temperature_dict.get("values"):
-        return [v + temp_offset for v in values]
-    elif value := temperature_dict.get("value"):
-        return value + temp_offset
-    else:
-        raise ValueError("Invalid temperature dictionary")
+    src_unit = temperature_dict["unit"]
+    temp_offset = TEMPERATURE_OFFSETS[src_unit] - TEMPERATURE_OFFSETS[target_unit]
+    return temperature_dict["value"] + temp_offset
 
 
 def convert_time(
@@ -180,7 +180,7 @@ def convert_time(
     Returns:
         Converted time value(s).
     """
-
+    raise DeprecationWarning()
     src_unit = time_dict["unit"]
 
     time_factor = TIME_FACTORS[src_unit] / TIME_FACTORS[target_unit]
@@ -192,12 +192,11 @@ def convert_time(
         raise ValueError("Invalid time dictionary")
 
 
+# TODO move this method to load _peptides since it specific and not used elswhere?
 def filter_peptides(
     df: nw.DataFrame,
     state: Optional[str] = None,
     exposure: Optional[dict] = None,
-    dropna: bool = True,
-    time_unit: Literal["s", "min", "h"] = "s",
 ) -> nw.DataFrame:
     """
     Convenience function to filter a peptides DataFrame. .
@@ -207,8 +206,6 @@ def filter_peptides(
         state: Name of protein state to select.
         exposure: Exposure value(s) to select. Exposure is given as a :obj:`dict`, with keys "value" or "values" for
             exposure value, and "unit" for the time unit.
-        query: Additional queries to pass to [pandas.DataFrame.query][].
-        dropna: Drop rows with `NaN` or `null` uptake entries.
         time_unit: Time unit for exposure column of supplied dataframe.
 
     Examples:
@@ -220,19 +217,26 @@ def filter_peptides(
     Returns:
         Filtered dataframe.
     """
-
+    raise DeprecationWarning()
     if state is not None:
         df = df.filter(nw.col("state") == state)
 
     if exposure is not None:
-        t_val = convert_time(exposure, time_unit)
+        # NA unit is used when exposure is given as string, in case of HD examiner this can be 'FD'
+        if exposure["unit"] == "NA":
+            t_val = exposure["value"]
+        else:
+            t_val = convert_time(exposure, "s")
         if isinstance(t_val, list):
-            df = df.filter(nw.col("exposure").is_in(t_val))
+            if all(isinstance(v, float) for v in t_val):
+                col = nw.col("exposure")
+            elif all(isinstance(v, str) for v in t_val):
+                col = nw.col("exposure").cast(nw.Float64)
+            else:
+                raise ValueError("Invalid exposure values")
+            df = df.filter(col.is_in(t_val))
         else:
             df = df.filter(nw.col("exposure") == t_val)
-
-    if dropna:
-        df = df.drop_nulls("uptake").filter(~nw.col("uptake").is_nan())
 
     return df
 
@@ -261,3 +265,77 @@ def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile
         data_files[name] = datafile
 
     return data_files
+
+
+def aggregate(df: nw.DataFrame) -> nw.DataFrame:
+    assert df["state"].n_unique() == 1, (
+        "DataFrame must be filtered to a single state before aggregation."
+    )
+
+    # columns which are intesity weighed averaged
+    intensity_wt_avg_columns = ["centroid_mz", "centroid_mass", "rt"]
+
+    output_columns = df.columns
+
+    for col in intensity_wt_avg_columns:
+        col_idx = output_columns.index(col)
+        output_columns.insert(col_idx + 1, f"{col}_sd")
+    output_columns += ["n_replicates", "n_cluster"]
+
+    output = {k: [] for k in output_columns}
+    groups = df.group_by(["start", "end", "exposure"])
+    for (start, end, exposure), df_group in groups:
+        record = {}
+        record["start"] = start
+        record["end"] = end
+        record["exposure"] = exposure
+        record["n_replicates"] = df_group["file"].n_unique()
+        record["n_cluster"] = len(df_group)
+
+        # add intensity-weighted average columns
+        for col in intensity_wt_avg_columns:
+            val = ufloat_stats(df_group[col], df_group["intensity"])
+            record[col] = val.nominal_value
+            record[f"{col}_sd"] = val.std_dev
+
+        # add other columns, taking the first value if unique, otherwise None
+        other_columns = set(df.columns) - record.keys()
+        for col in other_columns:
+            if df_group[col].n_unique() == 1:
+                record[col] = df_group[col][0]
+            else:
+                record[col] = None
+
+        # add record to output
+        assert output.keys() == record.keys()
+        for k in record:
+            output[k].append(record[k])
+
+    agg_df = nw.from_dict(output, backend=BACKEND)
+
+    return agg_df
+
+
+def sort(df: nw.DataFrame) -> nw.DataFrame:
+    """Sorts the DataFrame by state, exposure, start, end, file."""
+    all_by = ["state", "exposure", "start", "end", "file"]
+    by = [col for col in all_by if col in df.columns]
+    return df.sort(by=by)
+
+
+def drop_null_columns(df: nw.DataFrame) -> nw.DataFrame:
+    """Drop columns that are all null from the DataFrame."""
+    all_null_columns = [col for col in df.columns if df[col].is_null().all()]
+    return df.drop(all_null_columns)
+
+
+def filter_from_spec(df, **filters):
+    exprs = []
+    for col, val in filters.items():
+        if isinstance(val, list):
+            expr = nw.col(col).is_in(val)
+        else:
+            expr = nw.col(col) == val
+        exprs.append(expr)
+    f_expr = reduce(and_, exprs)
+    return df.filter(f_expr)

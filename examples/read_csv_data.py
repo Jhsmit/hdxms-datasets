@@ -23,6 +23,8 @@ state = "SecA1-901 wt apo"
 cluster_data = cluster_data.filter(nw.col("state") == state)
 
 converted_state_data = dynamx_cluster_to_state(cluster_data)
-converted_state_data.to_native()
+df_out = converted_state_data.to_native()
+
+print(df_out)
 
 # %%

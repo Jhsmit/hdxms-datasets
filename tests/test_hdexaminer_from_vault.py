@@ -1,0 +1,65 @@
+import textwrap
+
+from hdxms_datasets.datasets import DataSet, create_dataset
+from hdxms_datasets.datavault import DataVault, RemoteDataVault
+from pathlib import Path
+import pytest
+import yaml
+import polars as pl
+import narwhals as nw
+from polars.testing import assert_frame_equal
+
+TEST_PTH = Path(__file__).parent
+DATA_ID = "1745478702_hd_examiner_example_Sharpe"
+
+
+@pytest.fixture()
+def hdx_spec():
+    hdx_spec = yaml.safe_load((TEST_PTH / "datasets" / DATA_ID / "hdx_spec.yaml").read_text())
+
+    yield hdx_spec
+
+
+@pytest.fixture()
+def dataset():
+    vault = DataVault(cache_dir=TEST_PTH / "datasets")
+    ds = vault.load_dataset(DATA_ID)
+    yield ds
+
+
+def test_dataset(dataset: DataSet):
+    assert isinstance(dataset, DataSet)
+    assert dataset.states == ["D90", "D80"]
+    assert dataset.peptides_per_state["D90"] == [
+        "partially_deuterated",
+        "fully_deuterated",
+        "non_deuterated",
+    ]
+    assert dataset.peptides_per_state["D80"] == [
+        "partially_deuterated",
+        "fully_deuterated",
+        "non_deuterated",
+    ]
+
+    df = dataset.peptides[("D90", "partially_deuterated")].load()
+    assert isinstance(df, nw.DataFrame)
+    assert len(df) == 244
+
+    fd_control = dataset.peptides[("D90", "fully_deuterated")].load()
+    assert len(fd_control) == 61
+
+    nd_control = dataset.peptides[("D90", "non_deuterated")].load()
+    assert len(nd_control) == 61
+
+    s = """
+    D90:
+      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
+      fully_deuterated: 'Total peptides: 61, timepoints: FD'
+      non_deuterated: 'Total peptides: 61, timepoints: 0.0'
+    D80:
+      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
+      fully_deuterated: 'Total peptides: 61, timepoints: FD'
+      non_deuterated: 'Total peptides: 61, timepoints: 0.0'
+    """
+
+    assert textwrap.dedent(s.lstrip("\n")) == dataset.describe()

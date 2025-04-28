@@ -7,9 +7,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Union, Literal, IO, Optional
 
+from narwhals.exceptions import InvalidOperationError
 
 from hdxms_datasets.backend import BACKEND
 import narwhals as nw
+
+from hdxms_datasets.process import ufloat_stats
 
 
 def read_csv(filepath_or_buffer) -> nw.DataFrame:
@@ -63,5 +66,116 @@ def read_dynamx(
         time_lut = {"h": 3600, "min": 60, "s": 1}
         time_factor = time_lut[time_conversion[0]] / time_lut[time_conversion[1]]
         df = df.with_columns((nw.col("exposure") * time_factor))
+
+    return df
+
+
+# TODO MOVE, reuse in read dynamx
+PROTON_MASS = 1.0072764665789
+mass_expr = (nw.col("charge") * (nw.col("centroid_mz") - PROTON_MASS)).alias("centroid_mass")
+
+
+def convert_rt(rt_str: str) -> float:
+    """convert hd examiner rt string to float
+    example: "7.44-7.65" -> 7.545
+    """
+    lower, upper = rt_str.split("-")
+    mean = (float(lower) + float(upper)) / 2.0
+    return mean
+
+
+def cast_exposure(df):
+    try:
+        df = df.with_columns(nw.col("exposure").str.strip_chars("s").cast(nw.Float64))
+    except InvalidOperationError:
+        pass
+    return df
+
+
+# move to module 'convert'
+def from_hdexaminer(
+    hd_examiner_df: nw.DataFrame,
+) -> nw.DataFrame:
+    # TODO keep nonstandardized columns !
+    column_mapping = {
+        "Protein State": "state",
+        "Deut Time": "exposure",
+        "Start": "start",
+        "End": "end",
+        "Sequence": "sequence",
+        "Experiment": "file",
+        "Charge": "charge",
+        "Exp Cent": "centroid_mz",
+        "Max Inty": "intensity",
+    }
+
+    column_order = list(column_mapping.values())
+    column_order.insert(column_order.index("charge") + 1, "centroid_mass")
+    column_order.append("rt")
+
+    rt_values = [convert_rt(rt_str) for rt_str in hd_examiner_df["Actual RT"]]
+    rt_series = nw.new_series(values=rt_values, name="rt", backend=BACKEND)
+
+    df = (
+        hd_examiner_df.rename(column_mapping)
+        .with_columns([mass_expr, rt_series])
+        .select(column_order)
+        .sort(by=["state", "exposure", "start", "end", "file"])
+    )
+
+    return cast_exposure(df)
+
+
+def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
+    column_mapping = {
+        "State": "state",
+        "Exposure": "exposure",
+        "Start": "start",
+        "End": "end",
+        "Sequence": "sequence",
+        "File": "file",
+        "z": "charge",
+        "Center": "centroid_mz",
+        "Inten": "intensity",
+        "RT": "rt",
+    }
+
+    column_order = list(column_mapping.values())
+    column_order.insert(column_order.index("charge") + 1, "centroid_mass")
+
+    df = (
+        dynamx_df.rename(column_mapping)
+        .with_columns([mass_expr, nw.col("exposure") * 60.0])
+        .select(column_order)
+        .sort(by=["state", "exposure", "start", "end", "file"])
+    )
+
+    return df
+
+
+def from_dynamx_state(dynamx_df: nw.DataFrame) -> nw.DataFrame:
+    column_mapping = {
+        "State": "state",
+        "Exposure": "exposure",
+        "Start": "start",
+        "End": "end",
+        "Sequence": "sequence",
+        "Uptake": "uptake",
+        "Uptake SD": "uptake_sd",
+        # "File": "file",
+        # "z": "charge",
+        "Center": "centroid_mz",
+        "RT": "rt",
+        "RT SD": "rt_sd",
+    }
+
+    column_order = list(column_mapping.values())
+
+    df = (
+        dynamx_df.rename(column_mapping)
+        .with_columns([nw.col("exposure") * 60.0])
+        .select(column_order)
+        .sort(by=["state", "exposure", "start", "end"])
+    )
 
     return df
