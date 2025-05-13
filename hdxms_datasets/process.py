@@ -4,14 +4,15 @@ from collections import defaultdict
 from functools import reduce
 from operator import and_
 from pathlib import Path
-from typing import Literal, Optional, TypedDict, Union, TYPE_CHECKING
+from typing import Iterable, Literal, Optional, TypedDict, Union, TYPE_CHECKING
+import warnings
 
 import narwhals as nw
 from statsmodels.stats.weightstats import DescrStatsW
 from uncertainties import ufloat, Variable
 
 from hdxms_datasets.backend import BACKEND
-
+import hdxms_datasets.expr as hdx_expr
 
 if TYPE_CHECKING:
     from hdxms_datasets import DataFile
@@ -192,6 +193,12 @@ def convert_time(
         raise ValueError("Invalid time dictionary")
 
 
+def filter_df(df: nw.DataFrame, **filters) -> nw.DataFrame:
+    exprs = [nw.col(k) == val for k, val in filters.items()]
+    f_expr = reduce(and_, exprs)
+    return df.filter(f_expr)
+
+
 # TODO move this method to load _peptides since it specific and not used elswhere?
 def filter_peptides(
     df: nw.DataFrame,
@@ -267,6 +274,32 @@ def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile
     return data_files
 
 
+def aggregate_columns(
+    df: nw.DataFrame, columns: list[str], by: list[str] = ["start", "end", "exposure"]
+):
+    """
+    Aggregate the DataFrame the specified columns by intensity-weighted average.
+    """
+    groups = df.group_by(by)
+    output = {k: [] for k in by}
+    for col in columns:
+        output[col] = []
+        output[f"{col}_sd"] = []
+
+    for (start, end, exposure), df_group in groups:
+        output["start"].append(start)
+        output["end"].append(end)
+        output["exposure"].append(exposure)
+
+        for col in columns:
+            val = ufloat_stats(df_group[col], df_group["intensity"])
+            output[col].append(val.nominal_value)
+            output[f"{col}_sd"].append(val.std_dev)
+
+    agg_df = nw.from_dict(output, backend=BACKEND)
+    return agg_df
+
+
 def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     assert df["state"].n_unique() == 1, (
         "DataFrame must be filtered to a single state before aggregation."
@@ -339,3 +372,70 @@ def filter_from_spec(df, **filters):
         exprs.append(expr)
     f_expr = reduce(and_, exprs)
     return df.filter(f_expr)
+
+
+def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = True):
+    select = [nw.col("start"), nw.col("end")]
+    select.append(nw.col(column).alias(f"{prefix}_{column}"))
+    if include_sd:
+        select.append(nw.col(f"{column}_sd").alias(f"{prefix}_{column}_sd"))
+
+    merge = df_left.join(
+        df_right.select(select),
+        on=["start", "end"],
+        how="left",  # 'left' join ensures all rows from pd_peptides are kept
+    )
+
+    return merge
+
+
+def merge_peptides(
+    pd_peptides: nw.DataFrame,
+    column: Optional[str] = None,
+    nd_peptides: Optional[nw.DataFrame] = None,
+    fd_peptides: Optional[nw.DataFrame] = None,
+) -> nw.DataFrame:
+    if column is not None:
+        join_column = column
+    elif "centroid_mass" in pd_peptides.columns:
+        join_column = "centroid_mass"
+    elif "uptake" in pd_peptides.columns:
+        join_column = "uptake"
+
+    output = pd_peptides
+    if nd_peptides is not None:
+        output = left_join(output, nd_peptides, column=join_column, prefix="nd")
+    if fd_peptides is not None:
+        output = left_join(output, fd_peptides, column=join_column, prefix="fd")
+    return output
+
+
+def compute_uptake_metrics(df: nw.DataFrame, exception="raise") -> nw.DataFrame:
+    """
+    Tries to add derived columns to the DataFrame.
+    Possible columns to add are: uptake, uptake_sd, fd_uptake, fd_uptake_sd, rfu, max_uptake.
+    """
+    all_columns = {
+        "uptake": hdx_expr.uptake,
+        "uptake_sd": hdx_expr.uptake_sd,
+        "fd_uptake": hdx_expr.fd_uptake,
+        "fd_uptake_sd": hdx_expr.fd_uptake_sd,
+        "rfu": hdx_expr.rfu,
+        "max_uptake": hdx_expr.max_uptake,
+    }
+
+    for col, expr in all_columns.items():
+        if col not in df.columns:
+            try:
+                df = df.with_columns(expr)
+            except Exception as e:
+                if exception == "raise":
+                    raise e
+                elif exception == "warn":
+                    warnings.warn(f"Failed to add column {col}: {e}")
+                elif exception == "ignore":
+                    pass
+                else:
+                    raise ValueError("Invalid exception handling option")
+
+    return df

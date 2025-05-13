@@ -12,6 +12,7 @@ from narwhals.exceptions import InvalidOperationError
 from hdxms_datasets.backend import BACKEND
 import narwhals as nw
 
+from hdxms_datasets.expr import centroid_mass
 from hdxms_datasets.process import ufloat_stats
 
 
@@ -70,11 +71,6 @@ def read_dynamx(
     return df
 
 
-# TODO MOVE, reuse in read dynamx
-PROTON_MASS = 1.0072764665789
-mass_expr = (nw.col("charge") * (nw.col("centroid_mz") - PROTON_MASS)).alias("centroid_mass")
-
-
 def convert_rt(rt_str: str) -> float:
     """convert hd examiner rt string to float
     example: "7.44-7.65" -> 7.545
@@ -95,8 +91,8 @@ def cast_exposure(df):
 # move to module 'convert'
 def from_hdexaminer(
     hd_examiner_df: nw.DataFrame,
+    extra_columns: Optional[list[str] | dict[str, str] | str] = None,
 ) -> nw.DataFrame:
-    # TODO keep nonstandardized columns !
     column_mapping = {
         "Protein State": "state",
         "Deut Time": "exposure",
@@ -113,12 +109,28 @@ def from_hdexaminer(
     column_order.insert(column_order.index("charge") + 1, "centroid_mass")
     column_order.append("rt")
 
+    if isinstance(extra_columns, dict):
+        cols = extra_columns
+    elif isinstance(extra_columns, list):
+        cols = {col: col for col in extra_columns}
+    elif isinstance(extra_columns, str):
+        cols = {extra_columns: extra_columns}
+    elif extra_columns is None:
+        cols = {}
+    else:
+        raise ValueError(
+            "additional_columns must be a list or dict, not {}".format(type(extra_columns))
+        )
+
+    column_mapping.update(cols)
+    column_order.extend(cols.values())
+
     rt_values = [convert_rt(rt_str) for rt_str in hd_examiner_df["Actual RT"]]
     rt_series = nw.new_series(values=rt_values, name="rt", backend=BACKEND)
 
     df = (
         hd_examiner_df.rename(column_mapping)
-        .with_columns([mass_expr, rt_series])
+        .with_columns([centroid_mass, rt_series])
         .select(column_order)
         .sort(by=["state", "exposure", "start", "end", "file"])
     )
@@ -145,7 +157,7 @@ def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
 
     df = (
         dynamx_df.rename(column_mapping)
-        .with_columns([mass_expr, nw.col("exposure") * 60.0])
+        .with_columns([centroid_mass, nw.col("exposure") * 60.0])
         .select(column_order)
         .sort(by=["state", "exposure", "start", "end", "file"])
     )

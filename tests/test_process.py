@@ -6,9 +6,7 @@ import pytest
 
 from hdxms_datasets.process import (
     convert_temperature,
-    convert_time,
     dynamx_cluster_to_state,
-    filter_peptides,
 )
 from hdxms_datasets.reader import read_dynamx
 

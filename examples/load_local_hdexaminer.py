@@ -2,8 +2,9 @@
 from hdxms_datasets import DataVault
 from pathlib import Path
 
-from hdxms_datasets.datasets import Peptides
+from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
 
+# %%
 test_pth = Path(__file__).parent.parent / "tests"
 data_pth = test_pth / "datasets"
 
@@ -16,6 +17,8 @@ ds = vault.load_dataset("1745478702_hd_examiner_example_Sharpe")
 # %%
 # Print a string describing the states in the dataset
 print(ds.describe())
+
+nd_control = ds.get_peptides(0, "non_deuterated").load()
 
 # Load FD control peptides as a narwhals DataFrame
 fd_control = ds.get_peptides(0, "fully_deuterated").load()
@@ -30,6 +33,9 @@ pd_peptides = ds.get_peptides(0, "partially_deuterated").load(
 pd_peptides.columns
 
 # %%
+merged = merge_peptides(pd_peptides, nd_peptides=nd_control, fd_peptides=fd_control)
 
-pd_peptides["exposure"]
+# %%
+processed = compute_uptake_metrics(merged)
+processed.to_native()
 # %%
