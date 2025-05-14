@@ -6,32 +6,44 @@ database to a local cache dir, as well as parse those locally saved peptide sets
 ## Basic usage
 
 ```python
-from hdxms_datasets import DataVault
 
-# Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
-vault = DataVault()
+# Creating a RemoveDataVault, specifying a chache dir, using the default remote database
+vault = RemoteDataVault(
+    cache_dir=".cache",
+)
+vault.get_index().to_native()
 
-# Download a remote dataset to the local cache
-vault.fetch_dataset("20221007_1530_SecA_Krishnamurthy")
+#%%
+# Fetch a dataset by ID
+vault.fetch_dataset("1704204434_SecB_Krishnamurthy")
 
 # Load the dataset
-ds = vault.load_dataset("20221007_1530_SecA_Krishnamurthy")
+ds = vault.load_dataset("1704204434_SecB_Krishnamurthy")
 
 # Print a string describing the states in the dataset
 print(ds.describe())
 
-# Load FD control peptides as a narwhals DataFrame
-fd_control = ds.load_peptides(0, "FD_control") 
+# Load ND control peptides as a narwhals DataFrame
+nd_control = ds.get_peptides(0, "non_deuterated").load()
+
+# # Load FD control peptides as a narwhals DataFrame
+fd_control = ds.get_peptides(0, "fully_deuterated").load()
 
 # Load experimental peptides as narwhals dataframe
-peptides = ds.load_peptides(0, 'experiment')
+pd_peptides = ds.get_peptides(0, "partially_deuterated").load()
+pd_peptides
+# %%
+# Merge peptides, matching each partially dueterated peptide timepoint with nd/fd control uptake or mass
+merged = merge_peptides(pd_peptides, nd_peptides=nd_control, fd_peptides=fd_control)
+
+# %%
+
+# compute d-uptake, max uptake, full deuteration uptake, RFU
+processed = compute_uptake_metrics(merged)
+processed.to_native()
 
 ```
 
-The code above initiates a `DataVault` object, thereby creating a cache directory in the default location 
-(`~/.hdxms_datasets/datasets`) if it does not yet exist. Then the dataset `"20221007_1530_SecA_Krishnamurthy"` is fetched 
-from the database and stored in the cache dir.
+The code above creates a `RemoteDataVault`, thereby creating a cache directory. Then the dataset `"1704204434_SecB_Krishnamurthy"` is fetched  from the database and stored in the cache dir.
 
-`Datavault.load_dataset` loads the dataset which is returned as `HDXDataSet` object. From the `HDXDataSet` object, 
-users can load peptides from the available states. In the example, the Fully Deuterated control peptides are loaded
-from the first HDX state as a narwhals `DataFrame`. The experimental peptides are loaded in the same way.
+From here, HDX-MS data can be loaded and processed. 
