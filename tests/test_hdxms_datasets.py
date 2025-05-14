@@ -7,10 +7,26 @@ import pytest
 import yaml
 import polars as pl
 import narwhals as nw
-from polars.testing import assert_frame_equal
 
+
+# # %%
 TEST_PTH = Path(__file__).parent
 DATA_ID = "1665149400_SecA_Krishnamurthy"
+
+# vault = DataVault(cache_dir=TEST_PTH / "datasets")
+# assert len(vault.datasets) == 3
+
+# ds = vault.load_dataset(DATA_ID)
+# assert isinstance(ds, DataSet)
+
+# states = ds.states
+# assert states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
+
+# key = ("SecA_monomer", "partially_deuterated")
+# assert key in ds.peptides
+
+
+# %%
 
 
 @pytest.fixture()
@@ -122,7 +138,12 @@ def test_vault():
 
     df = ds[key].load()
     assert isinstance(df, nw.DataFrame)
-    ref_df = pl.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv")
+    df = ds[key].load()
+    assert isinstance(df, nw.DataFrame)
+    ref_df = pl.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv").sort(
+        by=["start", "end", "exposure"]
+    )
 
-    print("TODO fix this test")
-    # assert_frame_equal(df.to_polars(), ref_df[:, 1:])
+    test_df = df.to_native().sort(by=["start", "end", "exposure"])
+    for col in set(test_df.columns) & set(ref_df.columns):
+        pl.testing.assert_series_equal(test_df[col], ref_df[col], check_exact=True)

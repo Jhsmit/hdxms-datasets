@@ -64,7 +64,6 @@ class RemoteDataVault(DataVault):
     def __init__(self, cache_dir: Union[Path, str], remote_url: str = DATABASE_URL):
         super().__init__(cache_dir)
         self.remote_url = remote_url
-        # self.get_index()
 
     def get_index(self) -> nw.DataFrame:
         """Retrieves the index of available datasets

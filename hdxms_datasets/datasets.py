@@ -1,11 +1,9 @@
 from __future__ import annotations
-from operator import and_
 import shutil
 import time
 
 import uuid
 from dataclasses import dataclass, field
-from functools import cached_property, reduce
 from io import StringIO
 from pathlib import Path
 from string import Template
@@ -236,57 +234,10 @@ class DataSet:
     def states(self) -> list[str]:
         return list(self.state_spec.keys())
 
-    # def get_metadata(self, state: Union[str, int], peptides: str) -> dict:
-    #     """
-    #     Returns metadata for a given state
-    #     """
-
-    #     state = self.states[state] if isinstance(state, int) else state
-    #     return {**self.hdx_specification.get("metadata", {}), **self.state_spec[state].get("metadata", {})}
-
     @property
     def peptides_per_state(self) -> dict[str, list[str]]:
         """Dictionary of state names and list of peptide sets for each state"""
         return {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
-
-    # @property
-    # def peptide_sets(self) -> dict[str, dict[str, nw.DataFrame]]:
-    #     peptides_dfs = {}
-    #     peptides_per_state = {
-    #         state: list(spec["peptides"]) for state, spec in self.state_spec.items()
-    #     }
-    #     for state, peptides in peptides_per_state.items():
-    #         peptides_dfs[state] = {
-    #             peptide_set: self.load_peptides(state, peptide_set) for peptide_set in peptides
-    #         }
-
-    #     return peptides_dfs
-
-    # def load(self) -> dict[str, dict[str, nw.DataFrame]]:
-    #     """
-    #     Loads all peptide sets for all states.
-
-    #     Returns:
-    #         Dictionary of state names and dictionary of peptide sets for each state.
-    #     """
-    #     return {state: self.load_state(state) for state in self.states}
-
-    # def load_state(self, state: Union[str, int]) -> dict[str, nw.DataFrame]:
-    #     """
-    #     Load all peptide sets for a given state.
-
-    #     Args:
-    #         state: State name or index of state in the HDX specification file.
-
-    #     Returns:
-    #         Dictionary of peptide sets for a given state.
-    #     """
-
-    #     state = self.states[state] if isinstance(state, int) else state
-    #     return {
-    #         peptide_set: self.load_peptides(state, peptide_set)
-    #         for peptide_set in self.state_spec[state]["peptides"].keys()
-    #     }
 
     def get_peptides(self, state: str | int, peptide_set: str) -> Peptides:
         """
@@ -302,66 +253,6 @@ class DataSet:
         """
         state = self.states[state] if isinstance(state, int) else state
         return self.peptides[(state, peptide_set)]
-
-    # def load_peptides(
-    #     self,
-    #     state: str | int,
-    #     peptides: str,
-    #     convert=True,
-    #     aggregate=True,
-    #     sort=True,
-    #     drop_null=True,
-    # ) -> nw.DataFrame:
-    #     """
-    #     Load a single set of peptides for a given state.
-
-    #     Returned dataframes are cached for faster subsequent access.
-
-    #     Args:
-    #         state: State name.
-    #         peptides: Name of the peptide set.
-    #         convert: Whether to convert the data to open-hdxms standard
-    #         aggregate: Whether to aggregate the data. must be converted first.
-    #         sort: Whether to sort the data. must be converted first.
-    #         drop_null: Whether to drop all-null columns.
-
-    #     Returns:
-    #         DataFrame with peptide data.
-
-    #     """
-
-    #     state = self.states[state] if isinstance(state, int) else state
-    #     peptide_spec = self.state_spec[state]["peptides"][peptides]
-    #     data_file = self.data_files[peptide_spec["data_file"]]
-
-    #     df = process.filter_from_spec(data_file.read(), **peptide_spec["filters"])
-
-    #     if not convert and aggregate:
-    #         warnings.warn("Cannot aggregate data without conversion. Aggeregation will be skipped.")
-    #         aggregate = False
-
-    #     if not convert and sort:
-    #         warnings.warn("Cannot sort data without conversion. Sorting will be skipped.")
-    #         sort = False
-
-    #     if convert:
-    #         if data_file.format == "HDExaminer_v3":
-    #             df = from_hdexaminer(df)
-    #         elif data_file.format == "DynamX_v3_cluster":
-    #             df = from_dynamx(df)
-    #         else:
-    #             raise ValueError(f"Invalid format {data_file.format!r}")
-
-    #     if aggregate:
-    #         df = process.aggregate(df)
-
-    #     if sort:
-    #         df = process.sort(df)
-
-    #     if drop_null:
-    #         df = process.drop_null_columns(df)
-
-    #     return df
 
     def describe(
         self,
@@ -414,7 +305,3 @@ class DataSet:
 
     def __len__(self) -> int:
         return len(self.states)
-
-
-# was refactored to DataSet
-HDXDataSet = DataSet

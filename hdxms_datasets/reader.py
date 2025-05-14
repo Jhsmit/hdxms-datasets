@@ -13,7 +13,6 @@ from hdxms_datasets.backend import BACKEND
 import narwhals as nw
 
 from hdxms_datasets.expr import centroid_mass
-from hdxms_datasets.process import ufloat_stats
 
 
 def read_csv(filepath_or_buffer) -> nw.DataFrame:

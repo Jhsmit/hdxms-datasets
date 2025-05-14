@@ -13,6 +13,7 @@ from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
 import ultraplot as uplt
 import numpy as np
 import polars as pl
+import narwhals as nw
 
 
 # %%
@@ -95,11 +96,6 @@ matching_numerical = [
 len(matching_numerical)
 # %%
 
-
-# %%
-
-# %%
-
 col = "uptake"
 abs_diff = np.abs(combined[col] - combined[f"{col}_state"])
 
@@ -144,7 +140,6 @@ for ax, col in zip(axes, matching_numerical):
     ax.hist(diffs, bins=bins)
     ax.format(title=col)
 # %%
-
 
 combined.to_polars().describe()
 # %%

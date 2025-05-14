@@ -1,18 +1,18 @@
 from __future__ import annotations
 
+import warnings
 from collections import defaultdict
 from functools import reduce
 from operator import and_
 from pathlib import Path
-from typing import Iterable, Literal, Optional, TypedDict, Union, TYPE_CHECKING
-import warnings
+from typing import TYPE_CHECKING, Literal, Optional, TypedDict, Union
 
 import narwhals as nw
 from statsmodels.stats.weightstats import DescrStatsW
-from uncertainties import ufloat, Variable
+from uncertainties import Variable, ufloat
 
-from hdxms_datasets.backend import BACKEND
 import hdxms_datasets.expr as hdx_expr
+from hdxms_datasets.backend import BACKEND
 
 if TYPE_CHECKING:
     from hdxms_datasets import DataFile

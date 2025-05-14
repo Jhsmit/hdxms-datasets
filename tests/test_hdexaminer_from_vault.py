@@ -1,13 +1,11 @@
 import textwrap
 
-from hdxms_datasets.datasets import DataSet, create_dataset
-from hdxms_datasets.datavault import DataVault, RemoteDataVault
+from hdxms_datasets.datasets import DataSet
+from hdxms_datasets.datavault import DataVault
 from pathlib import Path
 import pytest
 import yaml
-import polars as pl
 import narwhals as nw
-from polars.testing import assert_frame_equal
 
 TEST_PTH = Path(__file__).parent
 DATA_ID = "1745478702_hd_examiner_example_Sharpe"
