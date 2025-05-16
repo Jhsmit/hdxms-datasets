@@ -5,38 +5,40 @@ Reader functions for various file formats
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union, Literal, IO, Optional
+from typing import Literal, IO, Optional
 
 from narwhals.exceptions import InvalidOperationError
 
 from hdxms_datasets.backend import BACKEND
 import narwhals as nw
 
-from hdxms_datasets.expr import centroid_mass
 
+def read_csv(source: Path | str | IO | bytes) -> nw.DataFrame:
+    if isinstance(source, str):
+        return nw.read_csv(source, backend=BACKEND)
+    elif isinstance(source, Path):
+        return nw.read_csv(source.as_posix(), backend=BACKEND)
+    elif isinstance(source, bytes):
+        import polars as pl
 
-def read_csv(filepath_or_buffer) -> nw.DataFrame:
-    if isinstance(filepath_or_buffer, str):
-        return nw.read_csv(filepath_or_buffer, backend=BACKEND)
-    elif isinstance(filepath_or_buffer, Path):
-        return nw.read_csv(filepath_or_buffer.as_posix(), backend=BACKEND)
+        return nw.from_native(pl.read_csv(source))
     else:
         try:
             import polars as pl
 
-            return nw.from_native(pl.read_csv(filepath_or_buffer))
+            return nw.from_native(pl.read_csv(source))
         except ImportError:
             pass
         try:
             import pandas as pd
 
-            return nw.from_native(pd.read_csv(filepath_or_buffer))
+            return nw.from_native(pd.read_csv(source))
         except ImportError:
-            raise ValueError("No suitable backend found for reading file-like objects.")
+            raise ValueError("No suitable backend found for reading file-like objects or bytes.")
 
 
 def read_dynamx(
-    filepath_or_buffer: Union[Path, str, IO],
+    filepath_or_buffer: Path | str | IO | bytes,
     time_conversion: Optional[tuple[Literal["h", "min", "s"], Literal["h", "min", "s"]]] = (
         "min",
         "s",
@@ -70,15 +72,6 @@ def read_dynamx(
     return df
 
 
-def convert_rt(rt_str: str) -> float:
-    """convert hd examiner rt string to float
-    example: "7.44-7.65" -> 7.545
-    """
-    lower, upper = rt_str.split("-")
-    mean = (float(lower) + float(upper)) / 2.0
-    return mean
-
-
 def cast_exposure(df):
     try:
         df = df.with_columns(nw.col("exposure").str.strip_chars("s").cast(nw.Float64))
@@ -88,105 +81,3 @@ def cast_exposure(df):
 
 
 # move to module 'convert'
-def from_hdexaminer(
-    hd_examiner_df: nw.DataFrame,
-    extra_columns: Optional[list[str] | dict[str, str] | str] = None,
-) -> nw.DataFrame:
-    column_mapping = {
-        "Protein State": "state",
-        "Deut Time": "exposure",
-        "Start": "start",
-        "End": "end",
-        "Sequence": "sequence",
-        "Experiment": "file",
-        "Charge": "charge",
-        "Exp Cent": "centroid_mz",
-        "Max Inty": "intensity",
-    }
-
-    column_order = list(column_mapping.values())
-    column_order.insert(column_order.index("charge") + 1, "centroid_mass")
-    column_order.append("rt")
-
-    if isinstance(extra_columns, dict):
-        cols = extra_columns
-    elif isinstance(extra_columns, list):
-        cols = {col: col for col in extra_columns}
-    elif isinstance(extra_columns, str):
-        cols = {extra_columns: extra_columns}
-    elif extra_columns is None:
-        cols = {}
-    else:
-        raise ValueError(
-            "additional_columns must be a list or dict, not {}".format(type(extra_columns))
-        )
-
-    column_mapping.update(cols)
-    column_order.extend(cols.values())
-
-    rt_values = [convert_rt(rt_str) for rt_str in hd_examiner_df["Actual RT"]]
-    rt_series = nw.new_series(values=rt_values, name="rt", backend=BACKEND)
-
-    df = (
-        hd_examiner_df.rename(column_mapping)
-        .with_columns([centroid_mass, rt_series])
-        .select(column_order)
-        .sort(by=["state", "exposure", "start", "end", "file"])
-    )
-
-    return cast_exposure(df)
-
-
-def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
-    column_mapping = {
-        "State": "state",
-        "Exposure": "exposure",
-        "Start": "start",
-        "End": "end",
-        "Sequence": "sequence",
-        "File": "file",
-        "z": "charge",
-        "Center": "centroid_mz",
-        "Inten": "intensity",
-        "RT": "rt",
-    }
-
-    column_order = list(column_mapping.values())
-    column_order.insert(column_order.index("charge") + 1, "centroid_mass")
-
-    df = (
-        dynamx_df.rename(column_mapping)
-        .with_columns([centroid_mass, nw.col("exposure") * 60.0])
-        .select(column_order)
-        .sort(by=["state", "exposure", "start", "end", "file"])
-    )
-
-    return df
-
-
-def from_dynamx_state(dynamx_df: nw.DataFrame) -> nw.DataFrame:
-    column_mapping = {
-        "State": "state",
-        "Exposure": "exposure",
-        "Start": "start",
-        "End": "end",
-        "Sequence": "sequence",
-        "Uptake": "uptake",
-        "Uptake SD": "uptake_sd",
-        # "File": "file",
-        # "z": "charge",
-        "Center": "centroid_mz",
-        "RT": "rt",
-        "RT SD": "rt_sd",
-    }
-
-    column_order = list(column_mapping.values())
-
-    df = (
-        dynamx_df.rename(column_mapping)
-        .with_columns([nw.col("exposure") * 60.0])
-        .select(column_order)
-        .sort(by=["state", "exposure", "start", "end"])
-    )
-
-    return df

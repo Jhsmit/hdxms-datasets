@@ -14,8 +14,9 @@ import narwhals as nw
 import yaml
 
 # from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
+from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
 import hdxms_datasets.process as process
-from hdxms_datasets.reader import from_dynamx_cluster, from_hdexaminer, read_csv, from_dynamx_state
+from hdxms_datasets.reader import read_csv
 
 
 TEMPLATE_DIR = Path(__file__).parent / "template"
@@ -61,7 +62,7 @@ def create_dataset(
 class DataFile:
     name: str
 
-    format: Literal["DynamX", "HDExaminer_v3", "DynamX_v3_state", "DynamX_v3_cluster"]  # TOOD fix
+    format: Literal["HDExaminer_v3", "DynamX_v3_state", "DynamX_v3_cluster"]
 
     filepath_or_buffer: Union[Path, StringIO]
 
@@ -79,19 +80,6 @@ class DataFile:
             return read_csv(self.filepath_or_buffer)
         else:
             raise ValueError(f"Invalid file extension {self.extension!r}")
-
-        # TODO convert time after reading
-        # if self.format in ["DynamX_v3_state", "DynamX_v3_cluster"]:
-        #     data = read_dynamx(self.filepath_or_buffer, time_conversion=self.time_conversion)
-        # elif self.format == "HDExaminer_v3":
-        #     data = read_hdexaminer(self.filepath_or_buffer)
-        # else:
-        #     raise ValueError(f"Invalid format {self.format!r}")
-
-        # if isinstance(self.filepath_or_buffer, StringIO):
-        #     self.filepath_or_buffer.seek(0)
-
-        # return data
 
 
 ValueType = str | float | int

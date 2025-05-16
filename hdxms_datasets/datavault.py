@@ -9,6 +9,7 @@ from typing import Union
 import requests
 import yaml
 
+from hdxms_datasets.backend import BACKEND
 from hdxms_datasets.datasets import DataSet
 import narwhals as nw
 
@@ -78,7 +79,7 @@ class RemoteDataVault(DataVault):
 
         if response.ok:
             (self.cache_dir / "index.csv").write_bytes(response.content)
-            return nw.read_csv(str(self.cache_dir / "index.csv"))
+            return nw.read_csv(str(self.cache_dir / "index.csv"), backend=BACKEND)
         else:
             raise urllib.error.HTTPError(
                 url,
