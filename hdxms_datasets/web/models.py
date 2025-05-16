@@ -30,6 +30,7 @@ class PeptideInfo:
     )
 
     state: str | None = None
+    filename: str | None = None
     exposure: str | float | None = None  # used for fd, nd
     exposure_values: list[float] | list[str] = field(default_factory=list)  # used for pd
 
@@ -38,6 +39,10 @@ class PeptideInfo:
     d_percentage: Optional[float] = 90.0
 
     def validate(self) -> tuple[bool, str]:
+        if self.state is None:
+            return False, "State must be provided"
+        if self.filename is None:
+            return False, "Filename must be provided"
         if self.type not in PEPTIDE_TYPES:
             return False, f"Type must be one of {PEPTIDE_TYPES}"
         if self.pH is not None and (self.pH < 0 or self.pH > 14):

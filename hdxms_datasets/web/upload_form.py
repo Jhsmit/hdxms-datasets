@@ -142,7 +142,7 @@ def get_converted_df(upload_file: UploadFile) -> pl.DataFrame:
 
 PEPTIDES_INITIAL_TESTING = {
     "state1": [
-        PeptideInfo(type="partially_deuterated", state="state1"),
+        PeptideInfo(type="partially_deuterated", state="state1", filename="SecA"),
         PeptideInfo(type="fully_deuterated", state="state1"),
         PeptideInfo(type="non_deuterated", state="state1"),
     ],
@@ -159,10 +159,16 @@ peptide_selection = solara.reactive(cast(tuple[str | None, int | None], (None, N
 
 @solara.component
 def PeptideList(state: str, peptides: ListStore[PeptideInfo]):
-    selected_peptide = solara.use_reactive(cast(int | None, None))
-    # solara.Text(str(selected_peptide.value))
+    selected_state, selected_peptide = peptide_selection.value
+
+    def set_peptide_selection(idx: int | None):
+        print("settings", idx)
+        peptide_selection.set((state, idx))
+
     with solara.v.List(dense=True, nav=True):
-        with solara.v.ListItemGroup(multiple=False, on_v_model=selected_peptide.set):
+        with solara.v.ListItemGroup(
+            multiple=False, v_model=selected_peptide, on_v_model=set_peptide_selection
+        ):
             for idx, f in enumerate(peptides.value):
                 with solara.v.ListItem():
                     solara.v.ListItemContent(children=[f.type])
@@ -211,9 +217,6 @@ def StatePanels():
                 with solara.v.ExpansionPanelContent():
                     PeptideList(state, peptides)
 
-    # solara.Text(str(selected.value))
-    # solara.Text(str(peptide_store.value))
-
 
 def PeptideInfoForm(peptide_info: PeptideInfo, on_submit: solara.Callable[[PeptideInfo], None]):
     file_name = solara.use_reactive(cast(str | None, None))
@@ -221,10 +224,14 @@ def PeptideInfoForm(peptide_info: PeptideInfo, on_submit: solara.Callable[[Pepti
     local_peptide_info = solara.use_reactive(replace(peptide_info))
 
     subtitle = f"Editing: {local_peptide_info.value.state}  / {local_peptide_info.value.type}"
-    with solara.Card(f"Peptides metadata", subtitle=subtitle):
+    with solara.Card("Peptides metadata", subtitle=subtitle):
         # solara.Markdown(f"**Protein State**: {local_peptide_info.value.state}")
         # solara.Markdown(f"**Peptide type**: {local_peptide_info.value.type}")
-        solara.Select(label="Choose file", values=[ufile.name for ufile in ufiles], value=file_name)
+        solara.Select(
+            label="Choose file",
+            values=[ufile.name for ufile in ufiles],
+            value=Ref(local_peptide_info.fields.filename),
+        )
         # solara.Select(label="Type", values=PEPTIDE_TYPES, value=Ref(peptide.fields.type))
 
         # if upload_file is not None:
@@ -301,10 +308,15 @@ def PeptideInfoForm(peptide_info: PeptideInfo, on_submit: solara.Callable[[Pepti
 @solara.component
 def Main():
     new_state_name = solara.use_reactive("")
-    selected_state = peptide_selection.value[0]
+    selected_state, selected_peptides = peptide_selection.value
     peptide_type = solara.use_reactive(PEPTIDE_TYPES[0])
 
     peptide_tooltip = "Add new peptide" if selected_state else "Select a state to add peptides"
+
+    if selected_state is not None and selected_peptides is not None:
+        peptides = peptide_store[selected_state][selected_peptides]
+    else:
+        peptides = None
 
     Snackbar()
     with solara.ColumnsResponsive([5, 7]):
@@ -353,7 +365,8 @@ def Main():
                         )
 
             # if editing:
-            PeptideInfoForm(PeptideInfo(type=peptide_type.value), on_submit=lambda x: None)
+            if peptides is not None:
+                PeptideInfoForm(peptides, on_submit=lambda x: None)
 
     # if converted_df is not None:
     #     solara.DataFrame(converted_df)
