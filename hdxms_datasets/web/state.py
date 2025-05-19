@@ -21,7 +21,7 @@ import polars as pl
 import solara
 from solara.toestand import merge_state
 
-from hdxms_datasets.web.models import PeptideInfo
+from hdxms_datasets.web.models import PeptideInfo, PeptideType
 
 
 T = TypeVar("T")
@@ -228,23 +228,27 @@ class DictStore(Store[dict[K, V]]):
         return item
 
 
-# move to state file
 snackbar = SnackbarStore()
 
 
 class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
-    def add_peptide(self, state: str | None, peptide_type: str):  # TODO type ppetide_type
-        if state is None:
-            snackbar.info("Select a state to add peptides")
-            return
-
-        current_peptide_types = [p.type for p in self[state].value]
-        if peptide_type in current_peptide_types:
-            snackbar.warning(f"Peptide type {peptide_type!r} already exists in state {state!r}")
-            return
+    def add_peptide(self, state: str | None, peptide_type: PeptideType):  # TODO type ppetide_type
+        # current_peptide_types = [p.type for p in self[state].value]
+        # if peptide_type in current_peptide_types:
+        #     snackbar.warning(f"Peptide type {peptide_type!r} already exists in state {state!r}")
+        #     return
 
         new_peptide = PeptideInfo(type=peptide_type)
         self[state].append(new_peptide)
+
+    def update_peptide(self, state: str, peptide_idx: int, peptide: PeptideInfo):
+        if state is None:
+            snackbar.info("Select a state to update peptides")
+            return
+
+        new_peptides = self[state]
+        new_peptides.set_item(peptide_idx, peptide)
+        self.set_item(state, new_peptides)
 
     def remove_peptide(self, state: str, peptide_idx: int):
         new_peptides = self.value[state]
@@ -252,11 +256,4 @@ class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
         self.set_item(state, new_peptides)
 
     def add_state(self, state: str):
-        if not state:
-            snackbar.warning("State name cannot be empty")
-            return
-
-        if state in self.value:
-            snackbar.warning(f"State {state!r} already exists")
-            return
         self.set_item(state, ListStore[PeptideInfo]([]))

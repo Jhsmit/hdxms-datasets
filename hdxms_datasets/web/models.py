@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, get_args
 from hdxms_datasets.formats import HDXFormat
 
 
@@ -8,11 +8,8 @@ import polars as pl
 from dataclasses import dataclass, field
 
 
-PEPTIDE_TYPES = [
-    "partially_deuterated",
-    "fully_deuterated",
-    "non_deuterated",
-]
+PeptideType = Literal["partially_deuterated", "fully_deuterated", "non_deuterated"]
+PEPTIDE_TYPES = list(get_args(PeptideType))
 
 
 @dataclass
@@ -22,12 +19,18 @@ class UploadFile:
     dataframe: pl.DataFrame
     extension: str = ".csv"
 
+    @property
+    def states(self) -> list[str]:
+        return self.dataframe[self.format.state_name].unique().to_list()
+
+    @property
+    def exposures(self) -> list[str | float]:
+        return self.dataframe[self.format.exposure_name].unique().to_list()
+
 
 @dataclass
 class PeptideInfo:
-    type: Literal["partially_deuterated", "fully_deuterated", "non_deuterated"] = (
-        "partially_deuterated"
-    )
+    type: PeptideType = "partially_deuterated"
 
     state: str | None = None
     filename: str | None = None
