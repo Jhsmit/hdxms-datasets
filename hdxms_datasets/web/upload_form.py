@@ -204,27 +204,30 @@ def StatePanels():
         new_peptide_selection = (state, None)
         peptide_selection.set(new_peptide_selection)
 
-    with solara.v.ExpansionPanels(v_model=selected_idx, on_v_model=update_state):
+    def remove_state(state: str):
+        if unsaved_changes.value:
+            snackbar.info("Please save or discard your changes before removing a state")
+            return
+
+        peptide_selection.set((None, None))
+        peptide_store.remove_state(state)
+
+    with solara.v.ExpansionPanels(v_model=selected_idx, on_v_model=update_state, focusable=True):
         for i, (state, peptides) in enumerate(peptide_store.items()):
             with solara.v.ExpansionPanel():
                 style = "" if i != selected_idx else "font-weight: bold"
-                solara.v.ExpansionPanelHeader(children=[state], style_=style)
+                with solara.v.ExpansionPanelHeader(style_=style):
+                    solara.Text(state)
                 with solara.v.ExpansionPanelContent():
                     PeptideList(state, peptides)
-
-
-counter = 0
-
-# check out https://solara.dev/ for documentation
-# or https://github.com/widgetti/solara/
-# And check out https://py.cafe/maartenbreddels for more examples
-import solara
-import dataclasses
-from solara.toestand import Ref
-# reactive variables will trigger a component rerender
-# when changed.
-# When you change the default (now 0), hit the embedded browser
-# refresh button to reset the state
+                    solara.Button(
+                        "Remove state",
+                        on_click=partial(remove_state, state),
+                        block=True,
+                        outlined=True,
+                        dense=True,
+                        small=True,
+                    )
 
 
 @solara.component
@@ -396,19 +399,24 @@ def Main():
             return
         peptide_store.add_state(state)
         new_state_name.set("")
+        peptide_selection.set((state, None))
 
     def add_peptide():
-        state = peptide_selection.value[0]
-        if state is None:
+        selected_state = peptide_selection.value[0]
+        if selected_state is None:
             snackbar.info("Select a state to add peptides")
             return
 
-        current_peptide_types = [p.type for p in peptide_store[state].value]
+        current_peptide_types = [p.type for p in peptide_store[selected_state].value]
         if peptide_type in current_peptide_types:
-            snackbar.warning(f"Peptide type {peptide_type!r} already exists in state {state!r}")
+            snackbar.warning(
+                f"Peptide type {peptide_type!r} already exists in state {selected_state!r}"
+            )
             return
 
-        peptide_store.add_peptide(peptide_selection.value[0], peptide_type.value)
+        peptide_idx = len(peptide_store[selected_state])
+        peptide_store.add_peptide(selected_state, peptide_type.value)
+        peptide_selection.set((selected_state, peptide_idx))
 
     def on_cancel():
         # reset the peptide selection

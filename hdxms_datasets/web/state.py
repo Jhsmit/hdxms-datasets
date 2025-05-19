@@ -253,7 +253,12 @@ class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
         self.set_item(state, new_peptides)
 
     def add_state(self, state: str):
-        self.set_item(state, ListStore[PeptideInfo]([]))
+        # prepend the new state to the dict
+        new_value = {state: ListStore[PeptideInfo]([])} | self.value
+        self.set(new_value)
+
+    def remove_state(self, state: str):
+        self.pop(state)
 
 
 peptide_store = PeptideStore({k: ListStore(v) for k, v in PEPTIDES_INITIAL_TESTING.items()})
