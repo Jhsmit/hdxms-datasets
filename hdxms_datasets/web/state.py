@@ -19,13 +19,13 @@ from hdxms_datasets.web.models import PeptideInfo, PeptideType
 PEPTIDES_INITIAL_TESTING = {
     "state1": [
         PeptideInfo(type="partially_deuterated", state="state1", filename="SecA"),
-        PeptideInfo(type="fully_deuterated", state="state1"),
-        PeptideInfo(type="non_deuterated", state="state1"),
+        PeptideInfo(type="fully_deuterated", state="state1", filename="SecA"),
+        PeptideInfo(type="non_deuterated", state="state1", filename="SecA"),
     ],
-    "state2": [PeptideInfo(type="partially_deuterated", state="state2")],
+    "state2": [PeptideInfo(type="partially_deuterated", state="state2", filename="SecA_cluster")],
     "state3": [
-        PeptideInfo(type="partially_deuterated", state="state3"),
-        PeptideInfo(type="fully_deuterated", state="state3"),
+        PeptideInfo(type="partially_deuterated", state="state3", filename="data_file"),
+        PeptideInfo(type="fully_deuterated", state="state3", filename="data_file"),
     ],
 }
 
@@ -208,7 +208,8 @@ class DictStore(Store[dict[K, V]]):
         return self._reactive.value[key]
 
     def __setitem__(self, key, value):
-        new_value = self._reactive.value.copy()
+        # new_value = self._reactive.value.copy()
+        new_value = {k: v for k, v in self.items()}
         new_value[key] = value
         self._reactive.value = new_value
 

@@ -21,11 +21,11 @@ class UploadFile:
 
     @property
     def states(self) -> list[str]:
-        return self.dataframe[self.format.state_name].unique().to_list()
+        return sorted(self.dataframe[self.format.state_name].unique().to_list())
 
     @property
     def exposures(self) -> list[str | float]:
-        return self.dataframe[self.format.exposure_name].unique().to_list()
+        return sorted(self.dataframe[self.format.exposure_name].unique().to_list())
 
 
 @dataclass
@@ -60,3 +60,25 @@ class PeptideInfo:
         if self.d_percentage is not None and (self.d_percentage < 0 or self.d_percentage > 100):
             return False, "Deuteration percentage must be between 0 and 100"
         return True, ""
+
+    def to_dict(self, format: HDXFormat):
+        p_dict = {}
+        p_dict["data_file"] = self.filename
+
+        f_dict = {}
+        f_dict[format.state_name] = self.state
+        if self.exposure is not None:
+            f_dict[format.exposure_name] = self.exposure
+        elif self.exposure_values:
+            f_dict[format.exposure_name] = self.exposure_values
+        p_dict["filters"] = f_dict
+
+        if self.type == "partially_deuterated":
+            m_dict = {}
+            m_dict["pH"] = self.pH
+            assert self.temperature is not None
+            m_dict["temperature"] = {"value": self.temperature + 273.15, "unit": "K"}
+            m_dict["d_percentage"] = self.d_percentage
+            p_dict["metadata"] = m_dict
+
+        return p_dict

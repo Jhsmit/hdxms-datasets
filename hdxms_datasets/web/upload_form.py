@@ -3,10 +3,11 @@ from dataclasses import replace
 from functools import partial
 import solara
 import solara.lab
-
+import reacton.core
 from typing import Callable, cast
 from solara.components.file_drop import FileInfo
 from solara.toestand import Ref
+import yaml
 from hdxms_datasets.formats import identify_format
 from pathlib import Path
 import polars as pl
@@ -127,11 +128,6 @@ def FileInputForm():
 
     solara.Text(str(file_selection.value))
     solara.Text(str(len(data_files.value)))
-    # if data_files.items:
-    #     f = data_files.items[0]
-    #     solara.Text(f"File: {f.name}")
-    #     solara.Text(f"Format: {f.format}")
-    #     solara.DataFrame(f.dataframe)
 
 
 @nw.narwhalify
@@ -161,9 +157,10 @@ def PeptideList(state: str, peptides: ListStore[PeptideInfo]):
             snackbar.info("Please save or discard your changes before deleting a peptide")
             return
 
-        peptide_store.remove_peptide(state, idx)
         # reset the peptide selection
         peptide_selection.set((state, None))
+        # remove the peptide
+        peptide_store.remove_peptide(state, idx)
         # reset the unsaved changes
         unsaved_changes.set(False)
 
@@ -233,6 +230,7 @@ def StatePanels():
 @solara.component
 def PeptideInfoForm(
     peptide_info: PeptideInfo,
+    peptide_state: str,
     on_save: Callable[[PeptideInfo], None],
     on_cancel: Callable[[], None],
 ):
@@ -283,7 +281,7 @@ def PeptideInfoForm(
 
             def auto_state():
                 most_similar_state = max(
-                    state_values, key=lambda state: diff_sequence(test_state, state)
+                    state_values, key=lambda state: diff_sequence(peptide_state, state)
                 )
                 local_peptide_info.update(state=most_similar_state)
 
@@ -292,7 +290,7 @@ def PeptideInfoForm(
         if local_peptide_info.value.type == "partially_deuterated":
 
             def auto_exposure():
-                nulls = ["0s", "0", 0.0, pl.nan, None, "None", "n/a"]
+                nulls = ["0s", "0", 0.0, None, "None", "n/a", "FD"]
                 non_null_exposure_values = [v for v in exposure_values if v not in nulls]
                 local_peptide_info.update(exposure_values=non_null_exposure_values)
 
@@ -367,14 +365,18 @@ def Main():
 
     all_states = {state for ufile in data_files.value for state in ufile.states}
     available_states = sorted(all_states - set(peptide_store.keys()))
-    solara.Text(new_state_name.value)
 
     if selected_state is not None and selected_peptides is not None:
-        peptides = peptide_store[selected_state][selected_peptides]
-        update_peptide = partial(peptide_store.update_peptide, selected_state, selected_peptides)
+        try:
+            peptides = peptide_store[selected_state][selected_peptides]
+        except IndexError:
+            # in principle deleting peptides first sets selected peptie to none
+            # but it looks like somewhere it being kept as the previous index
+
+            # print(f"Invalid peptide index {selected_peptides} for state {selected_state}")
+            peptides = None
     else:
         peptides = None
-        # update_peptide = lambda *args: None
 
     def update_peptide(peptide: PeptideInfo):
         if selected_state is None or selected_peptides is None:
@@ -407,10 +409,10 @@ def Main():
             snackbar.info("Select a state to add peptides")
             return
 
-        current_peptide_types = [p.type for p in peptide_store[selected_state].value]
-        if peptide_type in current_peptide_types:
+        current_peptide_types = [p.type for p in peptide_store[selected_state]]
+        if peptide_type.value in current_peptide_types:
             snackbar.warning(
-                f"Peptide type {peptide_type!r} already exists in state {selected_state!r}"
+                f"Peptide type {peptide_type.value!r} already exists in state {selected_state!r}"
             )
             return
 
@@ -423,6 +425,29 @@ def Main():
         peptide_selection.set((selected_state, None))
         # reset the unsaved changes
         unsaved_changes.set(False)
+
+    def make_yaml_export() -> str:
+        output = {}
+        for state, peptides in peptide_store.items():
+            if not peptides:
+                continue
+
+            s_dict = {}
+            for p in peptides:
+                upload_file = data_files.find_item(name=p.filename)
+                assert upload_file is not None
+
+                fmt = upload_file.format
+                p_dict = p.to_dict(fmt)
+                s_dict[p.type] = p_dict
+            output[state] = s_dict
+
+        class NoAliasDumper(yaml.Dumper):
+            def ignore_aliases(self, data):
+                return True
+
+        s = yaml.dump(output, Dumper=NoAliasDumper, sort_keys=False)
+        return s
 
     Snackbar()
     with solara.ColumnsResponsive([5, 7]):
@@ -437,6 +462,7 @@ def Main():
                             items=available_states,
                             v_model=new_state_name.value,
                             on_v_model=new_state_name.set,
+                            # continuous_update=True, this doesnt exist
                         )
                     solara.IconButton(
                         "mdi-plus",
@@ -450,10 +476,8 @@ def Main():
                 StatePanels()
 
             with solara.Card("Export"):
-                solara.Button(
-                    "Export .yaml File", color="primary", on_click=lambda: None, block=True
-                )
-
+                with solara.FileDownload(make_yaml_export, "hdx_spec.yaml"):
+                    solara.Button("Export .yaml File", color="primary", block=True)
         with solara.Column():
             # todo check for duplicate peptide type
             with solara.Card("Add new peptides"):
@@ -474,8 +498,10 @@ def Main():
                             on_click=add_peptide,
                         )
 
-            if peptides is not None:
-                PeptideInfoForm(peptides, on_save=update_peptide, on_cancel=on_cancel)
+            if peptides is not None and selected_state is not None:
+                PeptideInfoForm(
+                    peptides, selected_state, on_save=update_peptide, on_cancel=on_cancel
+                )
 
 
 @solara.component
