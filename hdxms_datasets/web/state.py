@@ -1,27 +1,33 @@
 from __future__ import annotations
 
-import dataclasses
-import uuid
-import warnings
-from collections import UserList
-from dataclasses import dataclass, field, make_dataclass, replace
-from pathlib import Path
+from dataclasses import dataclass
 from typing import (
     Callable,
     ContextManager,
     Generic,
     Optional,
-    Tuple,
-    TypedDict,
     TypeVar,
+    cast,
 )
 
-import numpy as np
-import polars as pl
 import solara
 from solara.toestand import merge_state
 
 from hdxms_datasets.web.models import PeptideInfo, PeptideType
+
+
+PEPTIDES_INITIAL_TESTING = {
+    "state1": [
+        PeptideInfo(type="partially_deuterated", state="state1", filename="SecA"),
+        PeptideInfo(type="fully_deuterated", state="state1"),
+        PeptideInfo(type="non_deuterated", state="state1"),
+    ],
+    "state2": [PeptideInfo(type="partially_deuterated", state="state2")],
+    "state3": [
+        PeptideInfo(type="partially_deuterated", state="state3"),
+        PeptideInfo(type="fully_deuterated", state="state3"),
+    ],
+}
 
 
 T = TypeVar("T")
@@ -233,19 +239,10 @@ snackbar = SnackbarStore()
 
 class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
     def add_peptide(self, state: str | None, peptide_type: PeptideType):  # TODO type ppetide_type
-        # current_peptide_types = [p.type for p in self[state].value]
-        # if peptide_type in current_peptide_types:
-        #     snackbar.warning(f"Peptide type {peptide_type!r} already exists in state {state!r}")
-        #     return
-
         new_peptide = PeptideInfo(type=peptide_type)
         self[state].append(new_peptide)
 
     def update_peptide(self, state: str, peptide_idx: int, peptide: PeptideInfo):
-        if state is None:
-            snackbar.info("Select a state to update peptides")
-            return
-
         new_peptides = self[state]
         new_peptides.set_item(peptide_idx, peptide)
         self.set_item(state, new_peptides)
@@ -257,3 +254,8 @@ class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
 
     def add_state(self, state: str):
         self.set_item(state, ListStore[PeptideInfo]([]))
+
+
+peptide_store = PeptideStore({k: ListStore(v) for k, v in PEPTIDES_INITIAL_TESTING.items()})
+peptide_selection = solara.reactive(cast(tuple[str | None, int | None], (None, None)))
+unsaved_changes = solara.reactive(False)

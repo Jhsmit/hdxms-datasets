@@ -1,20 +1,23 @@
 # %%
 from dataclasses import replace
 from functools import partial
-import itertools
 import solara
 import solara.lab
 
-from typing import Callable, Optional, cast
+from typing import Callable, cast
 from solara.components.file_drop import FileInfo
 from solara.toestand import Ref
-from hdxms_datasets.reader import read_csv
 from hdxms_datasets.formats import identify_format
-from hdxms_datasets.convert import from_dynamx_state, from_dynamx_cluster, from_hdexaminer
 from pathlib import Path
 import polars as pl
-from hdxms_datasets.web.state import ListStore, PeptideStore, snackbar
-from hdxms_datasets.web.components import Snackbar, strong, td, th, tr, h2
+from hdxms_datasets.web.state import (
+    ListStore,
+    peptide_selection,
+    peptide_store,
+    snackbar,
+    unsaved_changes,
+)
+from hdxms_datasets.web.components import InputNumeric, Snackbar, td, th, tr
 from hdxms_datasets.web.models import PeptideInfo, UploadFile, PEPTIDE_TYPES
 import narwhals as nw
 from narwhals import typing as nwt
@@ -52,27 +55,6 @@ for f in files:
 ufiles
 
 data_files = ListStore[UploadFile](ufiles)
-
-
-# %%
-
-all_states = list({state for ufile in data_files for state in ufile.states})
-
-
-# %%
-
-test_state = "SecA Monomer ADP"
-
-
-state_similarity = [diff_sequence(test_state, state) for state in all_states]
-for r, state_name in zip(state_similarity, all_states):
-    print(f"{state_name}: {r:.2f}")
-
-# get the index of the max value
-max_index = state_similarity.index(max(state_similarity))
-max_index
-
-all_states[max_index]
 
 # %%
 
@@ -163,25 +145,6 @@ def get_converted_df(upload_file: UploadFile) -> pl.DataFrame:
     return df_openhdx.to_native()
 
 
-PEPTIDES_INITIAL_TESTING = {
-    "state1": [
-        PeptideInfo(type="partially_deuterated", state="state1", filename="SecA"),
-        PeptideInfo(type="fully_deuterated", state="state1"),
-        PeptideInfo(type="non_deuterated", state="state1"),
-    ],
-    "state2": [PeptideInfo(type="partially_deuterated", state="state2")],
-    "state3": [
-        PeptideInfo(type="partially_deuterated", state="state3"),
-        PeptideInfo(type="fully_deuterated", state="state3"),
-    ],
-}
-
-peptide_store = PeptideStore({k: ListStore(v) for k, v in PEPTIDES_INITIAL_TESTING.items()})
-peptide_selection = solara.reactive(cast(tuple[str | None, int | None], (None, None)))
-
-unsaved_changes = solara.reactive(False)
-
-
 @solara.component
 def PeptideList(state: str, peptides: ListStore[PeptideInfo]):
     selected_state, selected_peptide = peptide_selection.value
@@ -250,13 +213,27 @@ def StatePanels():
                     PeptideList(state, peptides)
 
 
+counter = 0
+
+# check out https://solara.dev/ for documentation
+# or https://github.com/widgetti/solara/
+# And check out https://py.cafe/maartenbreddels for more examples
+import solara
+import dataclasses
+from solara.toestand import Ref
+# reactive variables will trigger a component rerender
+# when changed.
+# When you change the default (now 0), hit the embedded browser
+# refresh button to reset the state
+
+
 @solara.component
 def PeptideInfoForm(
     peptide_info: PeptideInfo,
-    on_submit: Callable[[PeptideInfo], None],
+    on_save: Callable[[PeptideInfo], None],
     on_cancel: Callable[[], None],
 ):
-    local_peptide_info = solara.use_reactive(replace(peptide_info))
+    local_peptide_info = solara.use_reactive(solara.use_memo(lambda: replace(peptide_info)))
     upload_file = data_files.find_item(name=local_peptide_info.value.filename)
 
     # check if there are unsaved changes, if so set the reactive
@@ -344,19 +321,31 @@ def PeptideInfoForm(
             solara.Div(style={"height": "30px"})
             solara.Text("Experimental metadata:")
 
+            # issue continous_update: https://py.cafe/jhsmit/solara-dataclass-ref-continous
+            continuous_update = False
             solara.InputFloat(
-                label="Temperature °C", value=Ref(local_peptide_info.fields.temperature)
+                label="Temperature °C",
+                value=Ref(local_peptide_info.fields.temperature),
+                continuous_update=continuous_update,
             )
-            solara.InputFloat(label="pH", value=Ref(local_peptide_info.fields.pH))
+            with solara.Tooltip("Uncorrected pH value (pH read)"):
+                solara.InputFloat(
+                    label="pH",
+                    value=Ref(local_peptide_info.fields.pH),
+                    continuous_update=continuous_update,
+                )
             solara.InputFloat(
-                label="Deuteration percentage", value=Ref(local_peptide_info.fields.d_percentage)
+                label="Deuteration percentage",
+                value=Ref(local_peptide_info.fields.d_percentage),
+                continuous_update=continuous_update,
             )
 
         with solara.CardActions():
             solara.Button(
-                "Submit",
+                "Save",
                 color="primary",
-                on_click=lambda: on_submit(local_peptide_info.value),
+                on_click=lambda: on_save(local_peptide_info.value),
+                disabled=not unsaved_changes.value,
             )
             solara.Button(
                 "Cancel",
@@ -379,10 +368,23 @@ def Main():
 
     if selected_state is not None and selected_peptides is not None:
         peptides = peptide_store[selected_state][selected_peptides]
-        on_submit = partial(peptide_store.update_peptide, selected_state, selected_peptides)
+        update_peptide = partial(peptide_store.update_peptide, selected_state, selected_peptides)
     else:
         peptides = None
-        on_submit = lambda *args: None
+        # update_peptide = lambda *args: None
+
+    def update_peptide(peptide: PeptideInfo):
+        if selected_state is None or selected_peptides is None:
+            snackbar.info("Select a state/peptide to update peptides")
+            # should be impossible to reach this point
+            return
+
+        valid, msg = peptide.validate()
+        if not valid:
+            snackbar.warning(msg)
+            return
+
+        peptide_store.update_peptide(selected_state, selected_peptides, peptide)
 
     def add_state():
         state = new_state_name.value
@@ -464,9 +466,8 @@ def Main():
                             on_click=add_peptide,
                         )
 
-            # if editing:
             if peptides is not None:
-                PeptideInfoForm(peptides, on_submit=on_submit, on_cancel=on_cancel)
+                PeptideInfoForm(peptides, on_save=update_peptide, on_cancel=on_cancel)
 
 
 @solara.component
