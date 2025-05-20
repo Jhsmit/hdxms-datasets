@@ -29,6 +29,16 @@ class UploadFile:
 
 
 @dataclass
+class PeptideMetaData:
+    pH: float = 7.5
+    temperature: float = 20.0
+    d_percentage: float = 90.0
+
+
+DEFAULT_METADATA = PeptideMetaData()
+
+
+@dataclass
 class PeptideInfo:
     type: PeptideType = "partially_deuterated"
 
@@ -38,9 +48,9 @@ class PeptideInfo:
     exposure_values: list[float] | list[str] = field(default_factory=list)  # used for pd
 
     # values are ignored for fd, nd
-    pH: Optional[float] = 7.5
-    temperature: Optional[float] = 25.0
-    d_percentage: Optional[float] = 90.0
+    pH: float = DEFAULT_METADATA.pH
+    temperature: float = DEFAULT_METADATA.temperature
+    d_percentage: float = DEFAULT_METADATA.d_percentage
 
     def validate(self) -> tuple[bool, str]:
         if self.state is None:
