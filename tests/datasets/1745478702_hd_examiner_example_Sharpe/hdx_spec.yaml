@@ -1,0 +1,116 @@
+data_files:
+  data_file:
+    filename: data\data_file.csv
+    format: HDExaminer_v3
+
+
+protein:
+  n_term: 1
+  c_term: 250
+  
+
+peptides:
+  D90:
+    fully_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D90
+        Deut Time: FD
+    non_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D90
+        Deut Time: 0s
+    partially_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D90
+        Deut Time:
+        - 15.00s
+        - 150.00s
+        - 1500.00s
+        - 15000.00s
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  D80:
+    fully_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D80
+        Deut Time: FD
+    non_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D80
+        Deut Time: 0s
+    partially_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D80
+        Deut Time:
+        - 15.00s
+        - 150.00s
+        - 1500.00s
+        - 15000.00s
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  D60:
+    fully_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D60
+        Deut Time: FD
+    non_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D60
+        Deut Time: 0s
+    partially_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D60
+        Deut Time:
+        - 15.00s
+        - 150.00s
+        - 1500.00s
+        - 15000.00s
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  D70:
+    fully_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D70
+        Deut Time: FD
+    non_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D70
+        Deut Time: 0s
+    partially_deuterated:
+      data_file: data_file
+      filters:
+        Protein State: D70
+        Deut Time:
+        - 15.00s
+        - 150.00s
+        - 1500.00s
+        - 15000.00s
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0

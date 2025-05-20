@@ -1,5 +1,5 @@
 data_files:
-  data_1:
+  SecA_cluster:
     filename: data\SecA_cluster.csv
     format: DynamX_v3_cluster
 
@@ -12,42 +12,178 @@ protein:
   concentration: 4e-6
 
 
-states:
-  SecA_monomer:  # Short human-readable identifier for this protein HDX state
-    protein:      # override global protein data
-      sequence: MLIKLLTKVFGSRNDRTLRRMRKVVNIINAMEPEMEKLSDEELKGKTAEFRARLEKGEVLENLIPEAFAVVREASKRVFGMRHFDVQLLGGMVLNERCIAEMRTGEGKTLTATLPAYLNALTGKGVHVVTVNDYLAQRDAENNRPLFEFLGLTVGINLPGMPAPAKREAYAADITYGTNNEYGFDYLRDNMAFSPEERVQRKLHYALVDEVDSILIDEARTPLIISGPAEDSSEMYKRVNKIIPHLIRQEKEDSETFQGEGHFSVDEKSRQVNLTERGLVLIEELLVKEGIMDEGESLYSPANIMLMHHVTAALRAHALFTRDVDYIVKDGEVIIVDEHTGRTMQGRRWSDGLHQAVEAKEGVQIQNENQTLASITFQNYFRLYEKLAGMTGTADTEAFEFSSIYKLDTVVVPTNRPMIRKDLPDLVYMTEAEKIQAIIEDIKERTAKGQPVLVGTISIEKSELVSNELTKAGIKHNVLNAKFHANEAAIVAQAGYPAAVTIATNMAGRGTDIVLGGSWQAEVAALENPTAEQIEKIKADWQVRHDAVLEAGGLHIIGTERHESRRIDNQLRGRSGRQGDAGSSRFYLSMEDALMRIFASDRVSGMMRKLGMKPGEAIEHPWVTKAIANAQRKVESRNFDIRKQLLEYDDVANDQRRAIYSQRNELLDVSDVSETINSIREDVFKATIDAYIPPQSLEEMWDIPGLQERLKNDFDLDLPIAEWLDKEPELHEETLRERILAQSIEVYQRKEEVVGAEMMRHFEKGVMLQTLDSLWKEHLAAMDYLRQGIHLRGYAQKDPKQEYKRESFSMFAAMLESLKYEVISTLSKVQVRMPEEVEELEQQRRMEAERLAQMQQLSHQDDDSAAAAALAAQTGERKVGRNDPCPCGSGKKYKQCHGRLQ
-      oligomeric_state: 2
-    peptides:
-      partially_deuterated:  # Dictionary of peptides defined for this HDX state (typically partially dueterated, fully_deuterated, non_deuterated)
-        data_file: data_1
-        filters:
-          State: "SecA-monomer"
-          Exposure:
-            - 0.167
-            - 0.5
-            - 1.0
-            - 2.0
-            - 5.0
-            - 10.00
-            - 30.000002
-        metadata: # experimental details for this peptide set
-          pH: 7.5  # pH_read, uncorrected
-          d_percentage: 90.
-          temperature:
-            value: 293.15
-            unit: K
-      fully_deuterated:
-        data_file: data_1
-        filters:
-          "State": "Full Deuteration control"
-          "Exposure": 0.167
-        metadata:
-          method: 6M Urea-d4 (98% D, Sigma) overnight at room temperature
-          DOI: 10.1016/j.str.2021.03.015
-      non_deuterated:
-        data_file: data_1
-        filters:
-          "State": "SecA-monomer"
-          "Exposure": 0.0
-
-
+peptides:
+  WT ADP:
+    fully_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: Full Deuteration control
+        Exposure: 0.167
+    non_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA wt ADP
+        Exposure: 0
+    partially_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA wt ADP
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 2.0
+        - 5.0
+        - 10.0
+        - 30.000002
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  Monomer ADP:
+    fully_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: Full Deuteration control
+        Exposure: 0.167
+    non_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA mono ADP
+        Exposure: 0
+    partially_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA mono ADP
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 2.0
+        - 5.0
+        - 10.0
+        - 30.000002
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  1-834 ADP:
+    fully_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: Full Deuteration control
+        Exposure: 0.167
+    non_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA 1-834 ADP
+        Exposure: 0
+    partially_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA 1-834 ADP
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 2.0
+        - 5.0
+        - 10.0
+        - 30.000002
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  WT apo:
+    fully_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: Full Deuteration control
+        Exposure: 0.167
+    non_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA1-834 apo
+        Exposure: 0
+    partially_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA1-834 apo
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 2.0
+        - 5.0
+        - 10.0
+        - 30.000002
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  Monomer apo:
+    fully_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: Full Deuteration control
+        Exposure: 0.167
+    non_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA-monomer
+        Exposure: 0
+    partially_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA-monomer
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 2.0
+        - 5.0
+        - 10.0
+        - 30.000002
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
+  1-834 apo:
+    fully_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: Full Deuteration control
+        Exposure: 0.167
+    non_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA1-834 apo
+        Exposure: 0
+    partially_deuterated:
+      data_file: SecA_cluster
+      filters:
+        State: SecA1-834 apo
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 2.0
+        - 5.0
+        - 10.0
+        - 30.000002
+      metadata:
+        pH: 7.5
+        temperature:
+          value: 293.15
+          unit: K
+        d_percentage: 90.0
