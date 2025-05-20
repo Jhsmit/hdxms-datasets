@@ -1,4 +1,5 @@
 # %%
+import asyncio
 from dataclasses import replace
 from functools import partial
 import solara
@@ -18,7 +19,7 @@ from hdxms_datasets.web.state import (
     snackbar,
     unsaved_changes,
 )
-from hdxms_datasets.web.components import InputNumeric, Snackbar, td, th, tr
+from hdxms_datasets.web.components import Snackbar, td, th, tr
 from hdxms_datasets.web.models import PeptideInfo, UploadFile, PEPTIDE_TYPES
 import narwhals as nw
 from narwhals import typing as nwt
@@ -27,20 +28,22 @@ from hdxms_datasets.web.utils import diff_sequence
 
 # %%
 
+USE_AUTOSAVE = True
+
+# %%
 dynamx_state = Path("1665149400_SecA_Krishnamurthy/data/SecA.csv")
 dynamx_cluster = Path("1744801204_SecA_cluster_Krishnamurthy/data/SecA_cluster.csv")
 hd_examiner = Path("1745478702_hd_examiner_example_Sharpe/data/data_file.csv")
 
 # %%
 ROOT_DIR = Path(*Path(__file__).parts[:-3])
-# %%
 TEST_DIR = ROOT_DIR / "tests" / "datasets"
 
 f1 = TEST_DIR / dynamx_state
 f2 = TEST_DIR / dynamx_cluster
 f3 = TEST_DIR / hd_examiner
 # %%
-files = [f1, f2, f3]
+files = [f1]  # , f2, f3]
 ufiles = []
 for f in files:
     df = pl.read_csv(f)
@@ -52,10 +55,13 @@ for f in files:
         dataframe=df,
     )
     ufiles.append(ufile)
-
+    print(df["State"].unique())
 ufiles
 
 data_files = ListStore[UploadFile](ufiles)
+
+# %%
+
 
 # %%
 
@@ -83,8 +89,6 @@ def FileInputForm():
                 dataframe=dataframe,
             )
             files.append(f)
-
-        # data_files.set(files)
 
     load_task = solara.lab.use_task(load_files, dependencies=[file_info.value])
 
@@ -355,6 +359,31 @@ def PeptideInfoForm(
             )
 
 
+# TODO move elsewhere
+def make_yaml_export() -> str:
+    output = {}
+    for state, peptides in peptide_store.items():
+        if not peptides:
+            continue
+
+        s_dict = {}
+        for p in peptides:
+            upload_file = data_files.find_item(name=p.filename)
+            assert upload_file is not None
+
+            fmt = upload_file.format
+            p_dict = p.to_dict(fmt)
+            s_dict[p.type] = p_dict
+        output[state] = s_dict
+
+    class NoAliasDumper(yaml.Dumper):
+        def ignore_aliases(self, data):
+            return True
+
+    s = yaml.dump(output, Dumper=NoAliasDumper, sort_keys=False)
+    return s
+
+
 @solara.component
 def Main():
     new_state_name = solara.use_reactive("")
@@ -426,29 +455,6 @@ def Main():
         # reset the unsaved changes
         unsaved_changes.set(False)
 
-    def make_yaml_export() -> str:
-        output = {}
-        for state, peptides in peptide_store.items():
-            if not peptides:
-                continue
-
-            s_dict = {}
-            for p in peptides:
-                upload_file = data_files.find_item(name=p.filename)
-                assert upload_file is not None
-
-                fmt = upload_file.format
-                p_dict = p.to_dict(fmt)
-                s_dict[p.type] = p_dict
-            output[state] = s_dict
-
-        class NoAliasDumper(yaml.Dumper):
-            def ignore_aliases(self, data):
-                return True
-
-        s = yaml.dump(output, Dumper=NoAliasDumper, sort_keys=False)
-        return s
-
     Snackbar()
     with solara.ColumnsResponsive([5, 7]):
         with solara.Column():
@@ -476,8 +482,12 @@ def Main():
                 StatePanels()
 
             with solara.Card("Export"):
-                with solara.FileDownload(make_yaml_export, "hdx_spec.yaml"):
-                    solara.Button("Export .yaml File", color="primary", block=True)
+                with solara.Column():
+                    with solara.FileDownload(make_yaml_export, "hdx_spec.yaml"):
+                        solara.Button("Export .yaml File", color="primary", block=True)
+                    if USE_AUTOSAVE:
+                        AutoSaveButton()
+
         with solara.Column():
             # todo check for duplicate peptide type
             with solara.Card("Add new peptides"):
@@ -502,6 +512,77 @@ def Main():
                 PeptideInfoForm(
                     peptides, selected_state, on_save=update_peptide, on_cancel=on_cancel
                 )
+
+
+@solara.component
+def AutoSaveButton():
+    open_dialog = solara.use_reactive(False)
+    enable_autosave = solara.use_reactive(True)
+    selected_file = solara.use_reactive(cast(Path | None, None))
+
+    def filter(pth: Path):
+        if pth.is_dir():
+            return True
+        if pth.suffix == ".yaml":
+            return True
+        return False
+
+    async def do_autosave():
+        if selected_file.value is None:
+            return
+        if not enable_autosave.value:
+            return
+
+        while True:
+            errors = peptide_store.validate()
+            if errors:
+                continue
+
+            try:
+                yaml_str = make_yaml_export()
+                selected_file.value.write_text(yaml_str)
+            except AssertionError:
+                pass
+            try:
+                await asyncio.sleep(1.0)
+            except asyncio.CancelledError:
+                break
+
+    solara.lab.use_task(do_autosave, dependencies=[selected_file.value, enable_autosave.value])  # noqa: SH101
+
+    autosave_on = enable_autosave.value and selected_file.value is not None
+    color = "green" if autosave_on else "grey"
+    label = "Autosave ON" if autosave_on else "Enable autosave"
+
+    solara.Button(label, on_click=lambda: open_dialog.set(True), color=color)
+
+    def try_set_file(pth):
+        if pth is None:
+            selected_file.set(pth)
+            return
+        if pth.is_dir():
+            return
+
+        selected_file.set(pth)
+
+    with solara.v.Dialog(
+        v_model=open_dialog.value,
+        on_v_model=open_dialog.set,
+    ):
+        with solara.Div(style={"width": "100%", "overflow-x": "hidden"}):
+            with solara.Card("Choose file for autosave"):
+                solara.FileBrowser(
+                    can_select=True,
+                    filter=filter,
+                    on_path_select=try_set_file,
+                )
+                solara.Switch(label="Enable autosave", value=enable_autosave)
+                solara.Text("Selected file: " + str(selected_file.value))
+                with solara.CardActions():
+                    solara.Button(
+                        label="Close",
+                        on_click=lambda: open_dialog.set(False),
+                    )
 
 
 @solara.component
