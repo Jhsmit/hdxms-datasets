@@ -12,31 +12,10 @@ from hdxms_datasets.formats import HDXFormat, identify_format
 from hdxms_datasets.convert import from_dynamx_state, from_dynamx_cluster, from_hdexaminer
 from pathlib import Path
 import polars as pl
-from hdxms_datasets.web.state import ListStore
-from hdxms_datasets.web.models import PeptideInfo, PeptideType
+from hdxms_datasets.web.state import ListStore, peptide_store
+from hdxms_datasets.web.models import PeptideInfo, UploadFile
 
 #%%
-
-kwargs = {'pH': 7.5, 'temperature': 25.0, 'd_percentage': 90.0}
-
-p1 = PeptideInfo(**kwargs)
-p2 = PeptideInfo(**kwargs)
-
-p2.state = "test"
-
-p1 == p2
-
-#%%
-PEPTIDE_TYPES = [
-    "partially_deuterated",
-    "fully_deuterated",
-    "non_deuterated",
-]
-
-
-peptide_types = Literal["partially_deuterated", "fully_deuterated", "non_deuterated"]
-
-peptide_types
 
 # %%
 
@@ -48,22 +27,9 @@ dynamx_cluster = Path("1744801204_SecA_cluster_Krishnamurthy/data/SecA_cluster.c
 hd_examiner = Path("1745478702_hd_examiner_example_Sharpe/data/data_file.csv")
 
 # %%
-
 f1 = TEST_DIR / dynamx_state
 f2 = TEST_DIR / dynamx_cluster
 f3 = TEST_DIR / hd_examiner
-# columns = read_csv(f).columns
-
-# %%
-
-
-@dataclass
-class UploadFile:
-    name: str
-    format: HDXFormat
-    dataframe: pl.DataFrame
-    extension: str = ".csv"
-
 
 # %%
 files = [f1, f2, f3]
@@ -81,15 +47,67 @@ for f in files:
 
 ufiles
 
-# %%
+#%%
 
-
-# create a list of UploadFile objects for testing
-
-
-# %%
 data_files = ListStore[UploadFile](ufiles)
 
+peptide_store.value
+
+peptides  = peptide_store['state1']
+p = peptides.value[0]
+
+#%%
+
+str.title("fully_deuterated").replace("_", " ")
+print('todo cont update new state')
+#%%
+
+output = {}
+
+for state, peptides in peptide_store.items():
+    if not peptides:
+        continue
+
+    s_dict = {}
+    for p in peptides:
+        upload_file = data_files.find_item(name=p.filename)
+        assert upload_file is not None
+
+        fmt = upload_file.format
+        p_dict = p.to_dict(fmt)
+        s_dict[p.type] = p_dict
+    output[state] = s_dict
+
+output
+
+
+
+#%%
+
+p_dict = {}
+p_dict['data_file'] = p.filename
+
+f_dict = {}
+f_dict[fmt.state_name] = p.state
+f_dict[fmt.exposure_name] = p.exposure or p.exposure_values
+p_dict['filters'] = f_dict
+
+m_dict = {}
+m_dict['pH'] = p.pH
+assert p.temperature is not None
+m_dict['temperature'] = {'value': p.temperature + 273.15, 'unit': 'K'}
+m_dict['d_percentage'] = p.d_percentage
+p_dict['metadata'] = m_dict
+
+p_dict
+# %%
+
+
+
+
+
+
+#%%
 
 @solara.component
 def Page():

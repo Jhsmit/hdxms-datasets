@@ -261,7 +261,38 @@ class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
     def remove_state(self, state: str):
         self.pop(state)
 
+    def validate(self) -> dict[str, tuple[bool, str, str]]:
+        """validate all peptides in the store"""
+        errors = {}
+        for state, peptides in self.items():
+            for idx, peptide in enumerate(peptides):
+                is_valid, error = peptide.validate()
+                if not is_valid:
+                    errors[state] = (idx, peptide.type, error)
+        return errors
 
-peptide_store = PeptideStore({k: ListStore(v) for k, v in PEPTIDES_INITIAL_TESTING.items()})
+
+state_names = [
+    "D90",
+    "D80",
+    "D60",
+    "D70",
+]
+
+fname = "data_file"
+
+
+def mk_peptides(state: str):
+    items = [
+        PeptideInfo(type="fully_deuterated", filename=fname),
+        PeptideInfo(type="non_deuterated", filename=fname),
+        PeptideInfo(type="partially_deuterated", filename=fname),
+    ]
+    return ListStore(items)
+
+
+# peptide_store = PeptideStore({k: ListStore(v) for k, v in PEPTIDES_INITIAL_TESTING.items()})
+peptide_store = PeptideStore({k: mk_peptides(k) for k in state_names})
+# peptide_store = PeptideStore({})
 peptide_selection = solara.reactive(cast(tuple[str | None, int | None], (None, None)))
 unsaved_changes = solara.reactive(False)

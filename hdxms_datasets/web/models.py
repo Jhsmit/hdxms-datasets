@@ -23,9 +23,12 @@ class UploadFile:
     def states(self) -> list[str]:
         return sorted(self.dataframe[self.format.state_name].unique().to_list())
 
-    @property
-    def exposures(self) -> list[str | float]:
-        return sorted(self.dataframe[self.format.exposure_name].unique().to_list())
+    def get_exposures(self, state: str | None) -> list[str | float]:
+        if state is None:
+            df_f = self.dataframe
+        else:
+            df_f = self.dataframe.filter(pl.col(self.format.state_name) == state)
+        return sorted(df_f[self.format.exposure_name].unique().to_list())
 
 
 @dataclass

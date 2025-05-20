@@ -173,9 +173,9 @@ class DataSet:
     def __post_init__(self):
         # create peptide dictionary
         peptides = {}
-        for state, state_spec in self.hdx_specification["states"].items():
-            for peptide_set, peptide_spec in state_spec["peptides"].items():
-                peptides[(state, peptide_set)] = Peptides(
+        for state_name, state_peptides in self.hdx_specification["peptides"].items():
+            for peptides_type, peptide_spec in state_peptides.items():
+                peptides[(state_name, peptides_type)] = Peptides(
                     data_file=self.data_files[peptide_spec["data_file"]],
                     filters=peptide_spec["filters"],
                     metadata=peptide_spec.get("metadata", {}),
@@ -215,17 +215,17 @@ class DataSet:
         )
 
     @property
-    def state_spec(self) -> dict:
-        return self.hdx_specification["states"]
+    def peptide_spec(self) -> dict:
+        return self.hdx_specification["peptides"]
 
     @property
     def states(self) -> list[str]:
-        return list(self.state_spec.keys())
+        return list(self.peptide_spec.keys())
 
     @property
     def peptides_per_state(self) -> dict[str, list[str]]:
         """Dictionary of state names and list of peptide sets for each state"""
-        return {state: list(spec["peptides"]) for state, spec in self.state_spec.items()}
+        return {state: list(spec) for state, spec in self.peptide_spec.items()}
 
     def get_peptides(self, state: str | int, peptide_set: str) -> Peptides:
         """

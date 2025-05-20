@@ -34,6 +34,7 @@ merged = merge_peptides(pd_peptides, nd_peptides=nd_control, fd_peptides=fd_cont
 
 # %%
 processed = compute_uptake_metrics(merged)
-processed.to_native()
+df = processed.to_native()
+print(df)
 
 # %%
