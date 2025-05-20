@@ -11,7 +11,7 @@ from hdxms_datasets.process import (
     compute_uptake_metrics,
     merge_peptides,
 )
-from hdxms_datasets.reader import from_hdexaminer
+from hdxms_datasets.convert import from_hdexaminer
 
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
