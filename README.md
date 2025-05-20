@@ -3,16 +3,18 @@
 
 * Free software: MIT license
 
-### Installation
+## Installation
 
 ```bash
 $ pip install hdxms-datasets
 ```
 
-### HDX-MS database
+## HDX-MS database
 
 Currently a beta test database is set up at:
 https://github.com/Jhsmit/HDX-MS-datasets
+
+## Using HDX-MS datasets
 
 ### Example code
 
@@ -41,3 +43,11 @@ peptides = ds.load_peptides(0, "experiment")
 
 ```
 
+## Web infterface
+
+To run the web interface:
+(requires a local clone of the code)
+
+```bash
+solara run hdxms_datasets/web/upload_form.py --production
+```
