@@ -111,3 +111,7 @@ tests/test_data/hd_examiner_example.csv # example data, not public
 
 # local testing graveyard dir
 examples/_rxiv/
+
+autosave.yaml
+temp.md
+TODO.md
