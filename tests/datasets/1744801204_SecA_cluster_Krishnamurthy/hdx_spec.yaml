@@ -37,9 +37,9 @@ peptides:
         - 10.0
         - 30.000002
       metadata:
-        pH: 7.5
+        pH: 8.0
         temperature:
-          value: 293.15
+          value: 303.15
           unit: K
         d_percentage: 90.0
   Monomer ADP:
@@ -66,9 +66,9 @@ peptides:
         - 10.0
         - 30.000002
       metadata:
-        pH: 7.5
+        pH: 8.0
         temperature:
-          value: 293.15
+          value: 303.15
           unit: K
         d_percentage: 90.0
   1-834 ADP:
@@ -95,9 +95,9 @@ peptides:
         - 10.0
         - 30.000002
       metadata:
-        pH: 7.5
+        pH: 8.0
         temperature:
-          value: 293.15
+          value: 303.15
           unit: K
         d_percentage: 90.0
   WT apo:
@@ -124,9 +124,9 @@ peptides:
         - 10.0
         - 30.000002
       metadata:
-        pH: 7.5
+        pH: 8.0
         temperature:
-          value: 293.15
+          value: 303.15
           unit: K
         d_percentage: 90.0
   Monomer apo:
@@ -153,9 +153,9 @@ peptides:
         - 10.0
         - 30.000002
       metadata:
-        pH: 7.5
+        pH: 8.0
         temperature:
-          value: 293.15
+          value: 303.15
           unit: K
         d_percentage: 90.0
   1-834 apo:
@@ -182,8 +182,8 @@ peptides:
         - 10.0
         - 30.000002
       metadata:
-        pH: 7.5
+        pH: 8.0
         temperature:
-          value: 293.15
+          value: 303.15
           unit: K
         d_percentage: 90.0
