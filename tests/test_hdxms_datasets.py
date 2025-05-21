@@ -1,3 +1,4 @@
+# %%
 import textwrap
 
 from hdxms_datasets.datasets import DataSet, create_dataset
@@ -6,25 +7,23 @@ from pathlib import Path
 import pytest
 import yaml
 import polars as pl
+import polars.testing as pl_testing
 import narwhals as nw
 
 
-# # %%
+# %%
+
 TEST_PTH = Path(__file__).parent
 DATA_ID = "1665149400_SecA_Krishnamurthy"
 
-# vault = DataVault(cache_dir=TEST_PTH / "datasets")
-# assert len(vault.datasets) == 3
-
-# ds = vault.load_dataset(DATA_ID)
-# assert isinstance(ds, DataSet)
-
-# states = ds.states
-# assert states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
-
-# key = ("SecA_monomer", "partially_deuterated")
-# assert key in ds.peptides
-
+SecA_STATES = [
+    "WT ADP",
+    "Monomer ADP",
+    "1-834 ADP",
+    "WT apo",
+    "Monomer apo",
+    "1-834 apo",
+]
 
 # %%
 
@@ -45,38 +44,46 @@ def dataset():
 
 def test_dataset(dataset: DataSet):
     assert isinstance(dataset, DataSet)
-    assert dataset.states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
-    assert dataset.peptides_per_state["SecA_monomer"] == [
-        "fully_deuterated",
-        "partially_deuterated",
-    ]
-    assert dataset.peptides_per_state["SecA_monomer_ADP"] == [
-        "fully_deuterated",
-        "partially_deuterated",
-    ]
-    assert dataset.peptides_per_state["SecA_WT"] == ["fully_deuterated", "partially_deuterated"]
+    assert dataset.states == SecA_STATES
 
-    df = dataset.peptides["SecA_monomer", "partially_deuterated"].load()
+    for state in dataset.states:
+        peptide_types = dataset.peptides_per_state[state]
+        assert set(peptide_types) == set(["fully_deuterated", "partially_deuterated"])
+
+    df = dataset.peptides["Monomer apo", "partially_deuterated"].load()
     assert isinstance(df, nw.DataFrame)
 
-    df_control = dataset["SecA_monomer", "fully_deuterated"].load()
+    df_control = dataset["Monomer apo", "fully_deuterated"].load()
     assert len(df_control) == 188
 
-    df_control = dataset.peptides["SecA_WT", "fully_deuterated"].load()
+    df_control = dataset.peptides["WT apo", "fully_deuterated"].load()
     assert len(df_control) == 188
+    df_control = dataset.peptides["1-834 apo", "fully_deuterated"].load()
 
     s = """
-    SecA_monomer:
+    WT ADP:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1273, timepoints: 10.0, 30.0, 60.0, 120.0,
+      partially_deuterated: 'Total peptides: 1316, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
-    SecA_monomer_ADP:
+    Monomer ADP:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
       partially_deuterated: 'Total peptides: 1267, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
-    SecA_WT:
+    1-834 ADP:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1316, timepoints: 10.0, 30.0, 60.0, 120.0,
+      partially_deuterated: 'Total peptides: 1250, timepoints: 10.0, 30.0, 60.0, 120.0,
+        300.0, 600.0, 1800.0'
+    WT apo:
+      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
+      partially_deuterated: 'Total peptides: 1253, timepoints: 10.0, 30.0, 60.0, 120.0,
+        300.0, 600.0, 1800.0'
+    Monomer apo:
+      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
+      partially_deuterated: 'Total peptides: 1273, timepoints: 10.0, 30.0, 60.0, 120.0,
+        300.0, 600.0, 1800.0'
+    1-834 apo:
+      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
+      partially_deuterated: 'Total peptides: 1253, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
     """
 
@@ -106,7 +113,9 @@ def test_metadata(dataset: DataSet):
     assert dataset.metadata["authors"][0]["name"] == "Srinath Krishnamurthy"
 
 
-TEST_URL = "https://raw.githubusercontent.com/Jhsmit/hdxms-datasets/tree/master/tests/datasets"
+TEST_URL = (
+    "https://raw.githubusercontent.com/Jhsmit/hdxms-datasets/refs/heads/master/tests/datasets/"
+)
 
 
 def test_fetch_dataset_vault(tmp_path):
@@ -115,7 +124,6 @@ def test_fetch_dataset_vault(tmp_path):
 
     assert vault.fetch_dataset(DATA_ID)
     assert DATA_ID in vault.datasets
-
     ds = vault.load_dataset(DATA_ID)
     assert isinstance(ds, DataSet)
 
@@ -125,15 +133,14 @@ def test_fetch_dataset_vault(tmp_path):
 
 def test_vault():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    assert len(vault.datasets) == 3
+    assert len(vault.datasets) == 4
 
     ds = vault.load_dataset(DATA_ID)
     assert isinstance(ds, DataSet)
 
-    states = ds.states
-    assert states == ["SecA_monomer", "SecA_monomer_ADP", "SecA_WT"]
+    assert ds.states == SecA_STATES
 
-    key = ("SecA_monomer", "partially_deuterated")
+    key = ("Monomer apo", "partially_deuterated")
     assert key in ds.peptides
 
     df = ds[key].load()
@@ -146,4 +153,4 @@ def test_vault():
 
     test_df = df.to_native().sort(by=["start", "end", "exposure"])
     for col in set(test_df.columns) & set(ref_df.columns):
-        pl.testing.assert_series_equal(test_df[col], ref_df[col], check_exact=True)
+        pl_testing.assert_series_equal(test_df[col], ref_df[col], check_exact=True)

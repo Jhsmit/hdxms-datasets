@@ -27,17 +27,21 @@ def dataset():
 
 def test_dataset(dataset: DataSet):
     assert isinstance(dataset, DataSet)
-    assert dataset.states == ["D90", "D80"]
-    assert dataset.peptides_per_state["D90"] == [
-        "partially_deuterated",
-        "fully_deuterated",
-        "non_deuterated",
-    ]
-    assert dataset.peptides_per_state["D80"] == [
-        "partially_deuterated",
-        "fully_deuterated",
-        "non_deuterated",
-    ]
+    assert dataset.states == ["D90", "D80", "D60", "D70"]
+    assert set(dataset.peptides_per_state["D90"]) == set(
+        [
+            "partially_deuterated",
+            "fully_deuterated",
+            "non_deuterated",
+        ]
+    )
+    assert set(dataset.peptides_per_state["D80"]) == set(
+        [
+            "partially_deuterated",
+            "fully_deuterated",
+            "non_deuterated",
+        ]
+    )
 
     df = dataset.peptides[("D90", "partially_deuterated")].load()
     assert isinstance(df, nw.DataFrame)
@@ -51,13 +55,21 @@ def test_dataset(dataset: DataSet):
 
     s = """
     D90:
-      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
       fully_deuterated: 'Total peptides: 61, timepoints: FD'
       non_deuterated: 'Total peptides: 61, timepoints: 0.0'
+      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
     D80:
-      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
       fully_deuterated: 'Total peptides: 61, timepoints: FD'
       non_deuterated: 'Total peptides: 61, timepoints: 0.0'
+      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
+    D60:
+      fully_deuterated: 'Total peptides: 61, timepoints: FD'
+      non_deuterated: 'Total peptides: 61, timepoints: 0.0'
+      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
+    D70:
+      fully_deuterated: 'Total peptides: 61, timepoints: FD'
+      non_deuterated: 'Total peptides: 61, timepoints: 0.0'
+      partially_deuterated: 'Total peptides: 244, timepoints: 15.0, 150.0, 1500.0, 15000.0'
     """
 
     assert textwrap.dedent(s.lstrip("\n")) == dataset.describe()
