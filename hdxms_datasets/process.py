@@ -394,23 +394,23 @@ def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = Tr
 
 
 def merge_peptides(
-    pd_peptides: nw.DataFrame,
+    partially_deuterated: nw.DataFrame,
     column: Optional[str] = None,
-    nd_peptides: Optional[nw.DataFrame] = None,
-    fd_peptides: Optional[nw.DataFrame] = None,
+    non_deuterated: Optional[nw.DataFrame] = None,
+    fully_deuterated: Optional[nw.DataFrame] = None,
 ) -> nw.DataFrame:
     if column is not None:
         join_column = column
-    elif "centroid_mass" in pd_peptides.columns:
+    elif "centroid_mass" in partially_deuterated.columns:
         join_column = "centroid_mass"
-    elif "uptake" in pd_peptides.columns:
+    elif "uptake" in partially_deuterated.columns:
         join_column = "uptake"
 
-    output = pd_peptides
-    if nd_peptides is not None:
-        output = left_join(output, nd_peptides, column=join_column, prefix="nd")
-    if fd_peptides is not None:
-        output = left_join(output, fd_peptides, column=join_column, prefix="fd")
+    output = partially_deuterated
+    if non_deuterated is not None:
+        output = left_join(output, non_deuterated, column=join_column, prefix="nd")
+    if fully_deuterated is not None:
+        output = left_join(output, fully_deuterated, column=join_column, prefix="fd")
     return output
 
 

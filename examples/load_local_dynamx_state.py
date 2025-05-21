@@ -26,7 +26,7 @@ pd_peptides = ds.get_peptides(0, "partially_deuterated").load(aggregate=False)
 
 
 # %%
-merged = merge_peptides(pd_peptides, fd_peptides=fd_control)
+merged = merge_peptides(pd_peptides, fully_deuterated=fd_control)
 merged.to_native()
 
 # %%
@@ -35,3 +35,9 @@ processed = compute_uptake_metrics(merged)
 processed.to_native()
 
 # %%
+
+# do the previous two steps in one go
+processed = ds.compute_uptake_metrics(0).to_polars()
+processed.write_parquet(
+    "dynamx_state.pq",
+)

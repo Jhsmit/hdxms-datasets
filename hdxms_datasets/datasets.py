@@ -283,6 +283,38 @@ class DataSet:
         else:
             raise TypeError(f"Invalid return type {return_type!r}")
 
+    def compute_uptake_metrics(self, state: str | int) -> nw.DataFrame:
+        """
+        Computes uptake metrics for a given state. Depending on the available peptide types,
+           peptides are merged with fully deuterated and non-deuterated peptides, after which uptake and/rfu
+           values are calculated.
+
+        Returns:
+            DataFrame with the processed data.
+
+        """
+        state = self.states[state] if isinstance(state, int) else state
+        peptide_types = self.peptides_per_state[state]
+
+        if "fully_deuterated" in peptide_types:
+            fd = self.get_peptides(state, "fully_deuterated").load()
+        else:
+            fd = None
+
+        if "non_deuterated" in peptide_types:
+            nd = self.get_peptides(state, "non_deuterated").load()
+        else:
+            nd = None
+
+        pd = self.get_peptides(state, "partially_deuterated").load()
+
+        merged = process.merge_peptides(
+            partially_deuterated=pd, fully_deuterated=fd, non_deuterated=nd
+        )
+        processed = process.compute_uptake_metrics(merged)
+
+        return processed
+
     def cite(self) -> str:
         """
         Returns citation information

@@ -28,7 +28,7 @@ nd_control = ds.get_peptides(0, "non_deuterated").load()
 fd_control = ds.get_peptides(0, "fully_deuterated").load()
 pd_peptides = ds.get_peptides(0, "partially_deuterated").load()
 
-merged = merge_peptides(pd_peptides, nd_peptides=nd_control, fd_peptides=fd_control)
+merged = merge_peptides(pd_peptides, non_deuterated=nd_control, fully_deuterated=fd_control)
 processed_cluster = compute_uptake_metrics(merged)
 processed_cluster.to_native()
 
@@ -37,7 +37,7 @@ ds = vault.load_dataset("1665149400_SecA_Krishnamurthy")
 fd_control = ds.get_peptides(0, "fully_deuterated").load()
 pd_peptides = ds.get_peptides(0, "partially_deuterated").load()
 
-merged = merge_peptides(pd_peptides, fd_peptides=fd_control)
+merged = merge_peptides(pd_peptides, fully_deuterated=fd_control)
 processed_state = compute_uptake_metrics(merged)
 processed_state.to_native()
 

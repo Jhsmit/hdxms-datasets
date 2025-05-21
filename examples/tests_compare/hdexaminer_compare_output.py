@@ -35,7 +35,7 @@ pd_peptides = ds.get_peptides(0, "partially_deuterated").load(
     convert=True, aggregate=True, sort=True
 )
 # %%
-merged = merge_peptides(pd_peptides, nd_peptides=nd_control, fd_peptides=fd_control)
+merged = merge_peptides(pd_peptides, non_deuterated=nd_control, fully_deuterated=fd_control)
 
 # %%
 processed = compute_uptake_metrics(merged)
