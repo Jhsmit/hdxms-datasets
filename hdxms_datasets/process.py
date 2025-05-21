@@ -13,6 +13,7 @@ from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.backend import BACKEND
+from hdxms_datasets.formats import FMT_LUT
 
 if TYPE_CHECKING:
     from hdxms_datasets import DataFile
@@ -264,10 +265,13 @@ def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile
 
     data_files = {}
     for name, spec in data_file_spec.items():
+        format = FMT_LUT.get(spec["format"], None)
+
         datafile = DataFile(
             name=name,
             filepath_or_buffer=Path(data_dir / spec["filename"]),
-            **{k: v for k, v in spec.items() if k != "filename"},
+            format=format,
+            # extension=... # at the moment always .csv
         )
         data_files[name] = datafile
 
@@ -308,7 +312,7 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     # columns which are intesity weighed averaged
     intensity_wt_avg_columns = ["centroid_mz", "centroid_mass", "rt"]
 
-    output_columns = df.columns
+    output_columns = df.columns[:]
 
     for col in intensity_wt_avg_columns:
         col_idx = output_columns.index(col)

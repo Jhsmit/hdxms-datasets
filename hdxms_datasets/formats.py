@@ -7,6 +7,7 @@ class HDXFormat(Protocol):
     columns: list[str]
     state_name: str
     exposure_name: str
+    aggregated: bool = False  # whether the data is aggregated or expanded as multiple replicates
 
     def convert(self, df: nw.DataFrame) -> nw.DataFrame:
         """
@@ -15,7 +16,40 @@ class HDXFormat(Protocol):
         ...
 
 
-class DynamX_v3_state:
+class DynamX_vx_state:
+    """There are also DynamX state data files which do not have 'Modification' and 'Fragment' columns.
+    not sure which version this is.
+    """
+
+    columns = [
+        "Protein",
+        "Start",
+        "End",
+        "Sequence",
+        "MaxUptake",
+        "MHP",
+        "State",
+        "Exposure",
+        "Center",
+        "Center SD",
+        "Uptake",
+        "Uptake SD",
+        "RT",
+        "RT SD",
+    ]
+
+    state_name = "State"
+    exposure_name = "Exposure"
+    aggregated = True
+
+    def convert(self, df: nw.DataFrame) -> nw.DataFrame:
+        """
+        Convert the DataFrame to a standard format.
+        """
+        return from_dynamx_state(df)
+
+
+class DynamX_v3_state(DynamX_vx_state):
     columns = [
         "Protein",
         "Start",
@@ -34,14 +68,14 @@ class DynamX_v3_state:
         "RT",
         "RT SD",
     ]
-    state_name = "State"
-    exposure_name = "Exposure"
+    # state_name = "State"
+    # exposure_name = "Exposure"
 
-    def convert(self, df: nw.DataFrame) -> nw.DataFrame:
-        """
-        Convert the DataFrame to a standard format.
-        """
-        return from_dynamx_state(df)
+    # def convert(self, df: nw.DataFrame) -> nw.DataFrame:
+    #     """
+    #     Convert the DataFrame to a standard format.
+    #     """
+    #     return from_dynamx_state(df)
 
 
 class DynamX_v3_cluster:
@@ -64,6 +98,7 @@ class DynamX_v3_cluster:
     ]
     state_name = "State"
     exposure_name = "Exposure"
+    aggregated = False
 
     def convert(self, df: nw.DataFrame) -> nw.DataFrame:
         """
@@ -97,6 +132,7 @@ class HDExaminer_v3:
     ]
     state_name = "Protein State"
     exposure_name = "Deut Time"
+    aggregated = False
 
     def convert(self, df: nw.DataFrame) -> nw.DataFrame:
         """
@@ -107,10 +143,14 @@ class HDExaminer_v3:
 
 # Define a registry of known formats
 HDX_FORMATS: list[HDXFormat] = [
+    DynamX_vx_state(),
     DynamX_v3_state(),
     DynamX_v3_cluster(),
     HDExaminer_v3(),
 ]
+
+# lookup table to get instance from name
+FMT_LUT = {fmt.__class__.__name__: fmt for fmt in HDX_FORMATS}
 
 
 def identify_format(cols: list[str], *, exact: bool = True) -> Optional[HDXFormat]:

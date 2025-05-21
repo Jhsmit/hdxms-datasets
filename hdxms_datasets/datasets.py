@@ -15,6 +15,7 @@ import yaml
 
 # from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
 from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
+from hdxms_datasets.formats import HDXFormat, identify_format
 import hdxms_datasets.process as process
 from hdxms_datasets.reader import read_csv
 
@@ -62,9 +63,9 @@ def create_dataset(
 class DataFile:
     name: str
 
-    format: Literal["HDExaminer_v3", "DynamX_v3_state", "DynamX_v3_cluster"]
-
     filepath_or_buffer: Union[Path, StringIO]
+
+    format: Optional[HDXFormat] = None
 
     extension: Optional[str] = None
     """File extension, e.g. .csv, in case of a file-like object"""
@@ -104,8 +105,9 @@ class Peptides:
 
         df = process.filter_from_spec(self.data_file.read(), **self.filters)
 
-        if aggregate and self.data_file.format == "DynamX_v3_state":
-            warnings.warn("DynamX_v3_state format is pre-aggregated. Aggregation will be skipped.")
+        is_aggregated = getattr(self.data_file.format, "aggregated", False)
+        if aggregate and is_aggregated:
+            warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
             aggregate = False
 
         if not convert and aggregate:
@@ -117,14 +119,16 @@ class Peptides:
             sort = False
 
         if convert:
-            if self.data_file.format == "HDExaminer_v3":
-                df = from_hdexaminer(df)
-            elif self.data_file.format == "DynamX_v3_cluster":
-                df = from_dynamx_cluster(df)
-            elif self.data_file.format == "DynamX_v3_state":
-                df = from_dynamx_state(df)
+            if self.data_file.format is None:
+                print("is none", self.data_file.name)
+                format = identify_format(df.columns)
             else:
-                raise ValueError(f"Invalid format {self.data_file.format!r}")
+                format = self.data_file.format
+
+            if format is None:
+                raise ValueError("Could not identify format")
+
+            df = format.convert(df)
 
         if aggregate:
             df = process.aggregate(df)
@@ -206,7 +210,6 @@ class DataSet:
     ):
         data_id = data_id or uuid.uuid4().hex
         data_files = process.parse_data_files(hdx_spec["data_files"], data_dir)
-
         return cls(
             data_id=data_id,
             data_files=data_files,

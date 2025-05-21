@@ -33,8 +33,8 @@ class UploadFile:
 
 @dataclass
 class PeptideMetaData:
-    pH: float = 7.5
-    temperature: float = 20.0
+    pH: float = 8.0
+    temperature: float = 30.0
     d_percentage: float = 90.0
 
 
