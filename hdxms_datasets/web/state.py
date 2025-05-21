@@ -254,8 +254,8 @@ class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
         self.set_item(state, new_peptides)
 
     def add_state(self, state: str):
-        # prepend the new state to the dict
-        new_value = {state: ListStore[PeptideInfo]([])} | self.value
+        # append the new state to the dict
+        new_value = self.value | {state: ListStore[PeptideInfo]([])}
         self.set(new_value)
 
     def remove_state(self, state: str):
@@ -272,27 +272,25 @@ class PeptideStore(DictStore[str, ListStore[PeptideInfo]]):
         return errors
 
 
-state_names = [
-    "D90",
-    "D80",
-    "D60",
-    "D70",
-]
-
-fname = "data_file"
+# state_names = [
+#     "D90",
+#     "D80",
+#     "D60",
+#     "D70",
+# ]
 
 
-def mk_peptides(state: str):
-    items = [
-        PeptideInfo(type="fully_deuterated", filename=fname),
-        PeptideInfo(type="non_deuterated", filename=fname),
-        PeptideInfo(type="partially_deuterated", filename=fname),
-    ]
-    return ListStore(items)
+# def mk_peptides(state: str):
+#     items = [
+#         PeptideInfo(type="fully_deuterated", filename=fname),
+#         # PeptideInfo(type="non_deuterated", filename=fname),
+#         PeptideInfo(type="partially_deuterated", filename=fname),
+#     ]
+#     return ListStore(items)
 
 
 # peptide_store = PeptideStore({k: ListStore(v) for k, v in PEPTIDES_INITIAL_TESTING.items()})
-peptide_store = PeptideStore({k: mk_peptides(k) for k in state_names})
-# peptide_store = PeptideStore({})
+# peptide_store = PeptideStore({k: mk_peptides(k) for k in state_names})
+peptide_store = PeptideStore({})
 peptide_selection = solara.reactive(cast(tuple[str | None, int | None], (None, None)))
 unsaved_changes = solara.reactive(False)
