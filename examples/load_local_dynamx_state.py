@@ -5,6 +5,8 @@ from pathlib import Path
 
 from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
 
+DATASET = "1665149400_SecA_Krishnamurthy"
+
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
 data_pth = test_pth / "datasets"
@@ -13,7 +15,7 @@ data_pth = test_pth / "datasets"
 vault = DataVault(data_pth)
 
 # Load the dataset
-ds = vault.load_dataset("1665149400_SecA_Krishnamurthy")
+ds = vault.load_dataset(DATASET)
 print(ds.describe())
 # %%
 
