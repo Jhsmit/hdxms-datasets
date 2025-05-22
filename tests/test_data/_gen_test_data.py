@@ -5,10 +5,8 @@ This script generates test data for the HDXMS datasets.
 # %%
 
 from pathlib import Path
-from typing import Any
 
 
-from hdxms_datasets.backend import BACKEND
 from hdxms_datasets.datasets import DataSet
 from hdxms_datasets.datavault import DataVault
 from hdxms_datasets.reader import read_dynamx

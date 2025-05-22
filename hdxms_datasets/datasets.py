@@ -1,26 +1,24 @@
 from __future__ import annotations
+
 import shutil
 import time
-
 import uuid
+import warnings
 from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from string import Template
-from typing import Union, Literal, Optional, Type
-import warnings
-import narwhals as nw
+from typing import Any, NotRequired, Optional, Type, TypedDict, Union
 
+import narwhals as nw
 import yaml
 
-# from hdxms_datasets.process import filter_peptides, convert_temperature, parse_data_files
-from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
-from hdxms_datasets.formats import HDXFormat, identify_format
 import hdxms_datasets.process as process
+from hdxms_datasets.formats import HDXFormat, identify_format
 from hdxms_datasets.reader import read_csv
 
-
 TEMPLATE_DIR = Path(__file__).parent / "template"
+ValueType = str | float | int
 
 
 def create_dataset(
@@ -83,7 +81,17 @@ class DataFile:
             raise ValueError(f"Invalid file extension {self.extension!r}")
 
 
-ValueType = str | float | int
+class ProteinInfo(TypedDict):
+    """TypedDict for protein information in a state"""
+
+    sequence: str  # Amino acid sequence
+    n_term: int  # N-terminal residue number
+    c_term: int  # C-terminal residue number
+    mutations: NotRequired[list[str]]  # Optional list of mutations
+    oligomeric_state: NotRequired[int]  # Optional oligomeric state
+    ligand: NotRequired[str]  # Optional bound ligand information
+    uniprot_id: NotRequired[str]  # Optional UniProt ID
+    molecular_weight: NotRequired[float]  # Optional molecular weight in Da
 
 
 @dataclass
@@ -92,7 +100,6 @@ class Peptides:
     filters: dict[str, ValueType | list[ValueType]]
 
     metadata: dict  #
-    protein: dict
 
     _cache: dict[tuple[bool, bool, bool, bool], nw.DataFrame] = field(
         init=False, default_factory=dict
@@ -160,6 +167,14 @@ class Peptides:
 
 
 @dataclass
+class DataState:
+    peptides: dict[str, Peptides]
+    """Dictionary of peptide sets"""
+
+    protein: ProteinInfo
+
+
+@dataclass
 class DataSet:
     data_id: str
     """Unique identifier for the dataset"""
@@ -170,7 +185,7 @@ class DataSet:
     hdx_specification: dict
     """Dictionary with HDX-MS state specification"""
 
-    metadata: dict = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)  # author, publication, etc
 
     peptides: dict[tuple[str, str], Peptides] = field(init=False, default_factory=dict)
 
@@ -183,7 +198,6 @@ class DataSet:
                     data_file=self.data_files[peptide_spec["data_file"]],
                     filters=peptide_spec["filters"],
                     metadata=peptide_spec.get("metadata", {}),
-                    protein=peptide_spec.get("protein", {}),
                 )
         self.peptides = peptides
 
@@ -218,12 +232,60 @@ class DataSet:
         )
 
     @property
-    def peptide_spec(self) -> dict:
-        return self.hdx_specification["peptides"]
-
-    @property
     def states(self) -> list[str]:
         return list(self.peptide_spec.keys())
+
+    @property
+    def protein_spec(self) -> dict[str, ProteinInfo]:
+        """Access the protein section of the specification"""
+        return self.hdx_specification.get("protein", {})
+
+    def get_protein(self, state: str | int) -> ProteinInfo:
+        """
+        Get protein information for a specific state.
+
+        Args:
+            state: State name or index.
+
+        Returns:
+            Dictionary with protein information for the specified state.
+
+        Raises:
+            KeyError: If the state doesn't exist in the protein section.
+        """
+        state_name = self.states[state] if isinstance(state, int) else state
+        try:
+            return self.protein_spec[state_name]
+        except KeyError:
+            raise KeyError(f"No protein information found for state '{state_name}'")
+
+    def get_protein_property(self, state: str | int, property_name: str) -> Any:
+        """
+        Get a specific property from the protein information for a state.
+
+        Args:
+            state: State name or index.
+            property_name: Name of the property to get.
+
+        Returns:
+            The property value.
+
+        Raises:
+            KeyError: If the property doesn't exist for the specified state.
+        """
+        protein_info = self.get_protein(state)
+        try:
+            return protein_info[property_name]
+        except KeyError:
+            raise KeyError(f"Property '{property_name}' not found for state '{state}'")
+
+    def get_sequence(self, state: str | int) -> str:
+        """Get the protein sequence for a specific state."""
+        return self.get_protein_property(state, "sequence")
+
+    @property
+    def peptide_spec(self) -> dict:
+        return self.hdx_specification["peptides"]
 
     @property
     def peptides_per_state(self) -> dict[str, list[str]]:

@@ -1,0 +1,79 @@
+data_files:
+  ecSecB_apo:
+    filename: data/ecSecB_apo.csv
+    format: DynamX_v3_state
+
+  ecSecB_dimer:
+    filename: data/ecSecB_dimer.csv
+    format: DynamX_v3_state
+
+  SecB_structure:
+    filename: data/SecB_structure.pdb
+    format: PDB
+
+protein:
+  SecB dimer:
+    sequence: MSEQNNTEMTFQIQRIYTKDISFEAPNAPHVFQKDWQPEVKLDLDTASSQLADDVYEVVLRVTVTASLGEETAFLCEVQQGGIFSIAGIEGTQMAHCLGAYCPNILFPAARECIASMVARGTFPQLNLAPVNFDALFMNYLQQQAGEGTEEHQDA  # FASTA Sequence including deletions and mutations, tags
+    n_term: 1  # Residue number of the N terminal residue (can be negative)
+    c_term: 155 # Residue number of the C terminal residue
+    oligomeric_state: 2 # Oligomeric state of the protein during H/D labelling
+    structure_file: SecB_structure # Name of the structure file in the data_files section
+    mutations:
+      - Y109A
+      - T115A
+      - S119A
+  SecB WT:
+    sequence: MSEQNNTEMTFQIQRIYTKDISFEAPNAPHVFQKDWQPEVKLDLDTASSQLADDVYEVVLRVTVTASLGEETAFLCEVQQGGIFSIAGIEGTQMAHCLGAYCPNILFPYARECITSMVSRGTFPQLNLAPVNFDALFMNYLQQQAGEGTEEHQDA  # FASTA Sequence including deletions and mutations, tags
+    n_term: 1  # Residue number of the N terminal residue (can be negative)
+    c_term: 155 # Residue number of the C terminal residue
+    oligomeric_state: 2 # Oligomeric state of the protein during H/D labelling
+
+    structure_file: SecB_structure # Name of the structure file in the data_files section
+
+peptides:
+  SecB dimer:
+    partially_deuterated:
+      data_file: ecSecB_dimer
+      filters:
+        State: SecB his dimer apo
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 5.0
+        - 10.0
+        - 100.000008
+      metadata:
+        pH: 8.0
+        temperature:
+          value: 303.15
+          unit: K
+        d_percentage: 90.0
+    fully_deuterated:
+      data_file: ecSecB_apo
+      filters:
+        State: Full deuteration control
+        Exposure: 0.167
+  SecB WT:
+    fully_deuterated:
+      data_file: ecSecB_apo
+      filters:
+        State: Full deuteration control
+        Exposure: 0.167
+    partially_deuterated:
+      data_file: ecSecB_apo
+      filters:
+        State: SecB WT apo
+        Exposure:
+        - 0.167
+        - 0.5
+        - 1.0
+        - 5.0
+        - 10.0
+        - 100.000008
+      metadata:
+        pH: 8.0
+        temperature:
+          value: 303.15
+          unit: K
+        d_percentage: 90.0
