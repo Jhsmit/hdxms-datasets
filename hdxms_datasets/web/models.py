@@ -89,8 +89,7 @@ class PeptideInfo:
         if self.type == "partially_deuterated":
             m_dict = {}
             m_dict["pH"] = self.pH
-            assert self.temperature is not None
-            m_dict["temperature"] = {"value": self.temperature + 273.15, "unit": "K"}
+            m_dict["temperature"] = self.temperature
             m_dict["d_percentage"] = self.d_percentage
             p_dict["metadata"] = m_dict
 

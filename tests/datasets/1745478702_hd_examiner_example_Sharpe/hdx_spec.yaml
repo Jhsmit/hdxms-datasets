@@ -32,9 +32,7 @@ peptides:
         - 15000.00s
       metadata:
         pH: 7.5
-        temperature:
-          value: 293.15
-          unit: K
+        temperature: 293.15
         d_percentage: 90.0
   D80:
     fully_deuterated:
@@ -58,9 +56,7 @@ peptides:
         - 15000.00s
       metadata:
         pH: 7.5
-        temperature:
-          value: 293.15
-          unit: K
+        temperature: 293.15
         d_percentage: 90.0
   D60:
     fully_deuterated:
@@ -84,9 +80,7 @@ peptides:
         - 15000.00s
       metadata:
         pH: 7.5
-        temperature:
-          value: 293.15
-          unit: K
+        temperature: 293.15
         d_percentage: 90.0
   D70:
     fully_deuterated:
@@ -110,7 +104,5 @@ peptides:
         - 15000.00s
       metadata:
         pH: 7.5
-        temperature:
-          value: 293.15
-          unit: K
+        temperature: 293.15
         d_percentage: 90.0

@@ -45,9 +45,7 @@ peptides:
         - 100.000008
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0
     fully_deuterated:
       data_file: ecSecB_apo
@@ -73,7 +71,5 @@ peptides:
         - 100.000008
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0

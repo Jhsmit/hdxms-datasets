@@ -112,12 +112,20 @@ class ProteinInfo(TypedDict):
     molecular_weight: NotRequired[float]  # Optional molecular weight in Da
 
 
+class PeptideMetadata(TypedDict):
+    """TypedDict for peptide metadata"""
+
+    pH: float  # pH of the experiment (pH read, uncorrected)
+    temperature: float  # Temperature of the experiment (K)
+    d_percentage: Optional[float]  # Deuteration percentage
+
+
 @dataclass
 class Peptides:
     data_file: DataFile
     filters: dict[str, ValueType | list[ValueType]]
 
-    metadata: dict  #
+    metadata: PeptideMetadata | None
 
     _cache: dict[tuple[bool, bool, bool, bool], nw.DataFrame] = field(
         init=False, default_factory=dict
@@ -168,20 +176,24 @@ class Peptides:
 
         return df
 
-    def get_temperature(self, unit="K") -> Optional[float]:
+    def get_temperature(self) -> Optional[float]:
         """Get the temperature of the experiment"""
-        try:
-            temperature = self.metadata["temperature"]
-            return process.convert_temperature(temperature, unit)
-        except KeyError:
+
+        if self.metadata is None:
             return None
+        elif "temperature" not in self.metadata:
+            return None
+
+        temperature = self.metadata["temperature"]
+        return temperature
 
     def get_pH(self) -> Optional[float]:
         """Get the pH of the experiment"""
-        try:
-            return self.metadata["pH"]
-        except KeyError:
+        if self.metadata is None:
             return None
+        elif "pH" not in self.metadata:
+            return None
+        return self.metadata["pH"]
 
 
 @dataclass
@@ -263,7 +275,7 @@ class DataSet:
                 peptide_obj = Peptides(
                     data_file=self.data_files[peptide_spec["data_file"]],
                     filters=peptide_spec["filters"],
-                    metadata=peptide_spec.get("metadata", {}),
+                    metadata=peptide_spec.get("metadata", None),
                 )
 
                 # Add to state-specific dictionary

@@ -38,9 +38,7 @@ peptides:
         - 30.000002
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0
   Monomer ADP:
     fully_deuterated:
@@ -67,9 +65,7 @@ peptides:
         - 30.000002
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0
   1-834 ADP:
     fully_deuterated:
@@ -96,9 +92,7 @@ peptides:
         - 30.000002
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0
   WT apo:
     fully_deuterated:
@@ -125,9 +119,7 @@ peptides:
         - 30.000002
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0
   Monomer apo:
     fully_deuterated:
@@ -154,9 +146,7 @@ peptides:
         - 30.000002
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0
   1-834 apo:
     fully_deuterated:
@@ -183,7 +173,5 @@ peptides:
         - 30.000002
       metadata:
         pH: 8.0
-        temperature:
-          value: 303.15
-          unit: K
+        temperature: 303.15
         d_percentage: 90.0

@@ -24,43 +24,73 @@ from hdxms_datasets.web.models import PeptideInfo, UploadFile, PEPTIDE_TYPES
 import narwhals as nw
 from narwhals import typing as nwt
 
-from hdxms_datasets.web.utils import diff_sequence
+from hdxms_datasets.utils import diff_sequence
 
 # %%
 
 USE_AUTOSAVE = True
 
 # %%
-dynamx_state = Path("1665149400_SecA_Krishnamurthy/data/SecA.csv")
-dynamx_cluster = Path("1744801204_SecA_cluster_Krishnamurthy/data/SecA_cluster.csv")
-hd_examiner = Path("1745478702_hd_examiner_example_Sharpe/data/data_file.csv")
+
 
 # %%
+# dynamx_state = Path("1665149400_SecA_Krishnamurthy/data/SecA.csv")
+# dynamx_cluster = Path("1744801204_SecA_cluster_Krishnamurthy/data/SecA_cluster.csv")
+# hd_examiner = Path("1745478702_hd_examiner_example_Sharpe/data/data_file.csv")
+secb_data = Path("1704204434_SecB_Krishnamurthy_fmt_v2")
+
+# # %%
 ROOT_DIR = Path(*Path(__file__).parts[:-3])
+
+data_dir = ROOT_DIR / "seca_data"
+
+
 TEST_DIR = ROOT_DIR / "tests" / "datasets"
 
-f1 = TEST_DIR / dynamx_state
-f2 = TEST_DIR / dynamx_cluster
-f3 = TEST_DIR / hd_examiner
+data_dir = TEST_DIR / secb_data / "data"
+files = list(data_dir.iterdir())
+
+
+# f1 = TEST_DIR / dynamx_state
+# f2 = TEST_DIR / dynamx_cluster
+# f3 = TEST_DIR / hd_examiner
 # %%
-files = [f3]  # , f2, f3]
+# files = [f3]  # , f2, f3]
+print(files)
 ufiles = []
 for f in files:
     df = pl.read_csv(f)
     format = identify_format(df.columns, exact=False)
-    assert format
+    if format is None:
+        print(df.columns)
+    assert format, f
+    print(format, f.stem)
     ufile = UploadFile(
         name=f.stem,
         format=format,
         dataframe=df,
     )
     ufiles.append(ufile)
-    print(df["Protein State"].unique())
+    print(df["State"].unique())
 ufiles
 
 data_files = ListStore[UploadFile](ufiles)
 
+
 # %%
+def make_dict(f: Path):
+    df = pl.read_csv(f)
+    format = identify_format(df.columns, exact=False)
+    return {"filename": (Path("data") / f.name).as_posix(), "format": format.__class__.__name__}
+
+
+data_files_spec = {f.stem: make_dict(f) for f in files}
+
+s = yaml.dump(data_files_spec, sort_keys=False)
+print(s)
+
+# %%
+format = "DynamX_v3_state"
 
 
 # %%
@@ -213,22 +243,25 @@ def StatePanels():
         peptide_selection.set((None, None))
         peptide_store.remove_state(state)
 
-    with solara.v.ExpansionPanels(v_model=selected_idx, on_v_model=update_state, focusable=True):
-        for i, (state, peptides) in enumerate(peptide_store.items()):
-            with solara.v.ExpansionPanel():
-                style = "" if i != selected_idx else "font-weight: bold"
-                with solara.v.ExpansionPanelHeader(style_=style):
-                    solara.Text(state)
-                with solara.v.ExpansionPanelContent():
-                    PeptideList(state, peptides)
-                    solara.Button(
-                        "Remove state",
-                        on_click=partial(remove_state, state),
-                        block=True,
-                        outlined=True,
-                        dense=True,
-                        small=True,
-                    )
+    with solara.Column(style={"max-height": "500px", "overflow-y": "auto"}):
+        with solara.v.ExpansionPanels(
+            v_model=selected_idx, on_v_model=update_state, focusable=True
+        ):
+            for i, (state, peptides) in enumerate(peptide_store.items()):
+                with solara.v.ExpansionPanel():
+                    style = "" if i != selected_idx else "font-weight: bold"
+                    with solara.v.ExpansionPanelHeader(style_=style):
+                        solara.Text(state)
+                    with solara.v.ExpansionPanelContent():
+                        PeptideList(state, peptides)
+                        solara.Button(
+                            "Remove state",
+                            on_click=partial(remove_state, state),
+                            block=True,
+                            outlined=True,
+                            dense=True,
+                            small=True,
+                        )
 
 
 @solara.component
