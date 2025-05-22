@@ -55,13 +55,13 @@ def test_check_sequence(r_number):
         assert mismatch == (r_number[idx], c1, c2), f"Mismatch at {idx}: expected {c1}, found {c2}"
 
 
-def test_secb_data_seqeunce():
+def test_secb_data_sequence():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
     ds = vault.load_dataset(DATA_ID)
 
-    for state in ds.states:
-        sequence = ds.get_sequence(state)
-        pd_peptides = ds.get_peptides(state, "partially_deuterated").load()
+    for state_name, state in ds.states.items():
+        sequence = state.get_sequence()
+        pd_peptides = state.peptides["partially_deuterated"].load()
 
         mismatches = check_sequence(pd_peptides, sequence, n_term=1)
         assert len(mismatches) == 0

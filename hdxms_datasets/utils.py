@@ -1,5 +1,10 @@
+from __future__ import annotations
 import difflib
 import narwhals as nw
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from hdxms_datasets.datasets import ProteinInfo
 
 
 def diff_sequence(a: str, b: str) -> float:
@@ -23,7 +28,7 @@ def reconstruct_sequence(peptides: nw.DataFrame, known_sequence: str, n_term: in
     """
 
     reconstructed = list(known_sequence)
-    for start, end, sequence in peptides["start", "end", "sequence"].iter_rows():
+    for start, end, sequence in peptides["start", "end", "sequence"].iter_rows():  # type: ignore
         start_idx = start - n_term
         assert end - start + 1 == len(sequence), (
             f"Length mismatch at {start}:{end} with sequence {sequence}"
@@ -60,3 +65,25 @@ def check_sequence(
             mismatches.append((r_number, expected, found))
 
     return mismatches
+
+
+def default_protein_info(peptides: nw.DataFrame) -> ProteinInfo:
+    """Generate minimal protein info from a set of peptides"""
+    # Start with partially deuterated peptides as they're most likely to be present
+
+    # Find minimum start and maximum end positions
+    min_start = peptides["start"].min()
+    max_end = peptides["end"].max()
+
+    # Estimate sequence length
+    sequence_length = max_end - min_start + 1
+
+    placeholder_sequence = "X" * sequence_length
+    sequence = reconstruct_sequence(peptides, placeholder_sequence, n_term=min_start)
+
+    # Create a minimal ProteinInfo
+    return {
+        "sequence": sequence,  # sequence with "X" gaps
+        "n_term": int(min_start),
+        "c_term": int(max_end),
+    }

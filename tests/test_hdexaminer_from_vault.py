@@ -1,6 +1,6 @@
 import textwrap
 
-from hdxms_datasets.datasets import DataSet
+from hdxms_datasets.datasets import DataSet, allow_missing_protein_info
 from hdxms_datasets.datavault import DataVault
 from pathlib import Path
 import pytest
@@ -21,13 +21,14 @@ def hdx_spec():
 @pytest.fixture()
 def dataset():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    ds = vault.load_dataset(DATA_ID)
+    with allow_missing_protein_info():
+        ds = vault.load_dataset(DATA_ID)
     yield ds
 
 
 def test_dataset(dataset: DataSet):
     assert isinstance(dataset, DataSet)
-    assert dataset.states == ["D90", "D80", "D60", "D70"]
+    assert list(dataset.states.keys()) == ["D90", "D80", "D60", "D70"]
     assert set(dataset.peptides_per_state["D90"]) == set(
         [
             "partially_deuterated",
@@ -43,14 +44,14 @@ def test_dataset(dataset: DataSet):
         ]
     )
 
-    df = dataset.peptides[("D90", "partially_deuterated")].load()
+    df = dataset.states["D90"].peptides["partially_deuterated"].load()
     assert isinstance(df, nw.DataFrame)
     assert len(df) == 244
 
-    fd_control = dataset.peptides[("D90", "fully_deuterated")].load()
+    fd_control = dataset.states["D90"].peptides["fully_deuterated"].load()
     assert len(fd_control) == 61
 
-    nd_control = dataset.peptides[("D90", "non_deuterated")].load()
+    nd_control = dataset.states["D90"].peptides["non_deuterated"].load()
     assert len(nd_control) == 61
 
     s = """

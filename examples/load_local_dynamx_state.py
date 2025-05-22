@@ -1,11 +1,15 @@
 # %%
 
+from typing import Iterable
 from hdxms_datasets import DataVault
 from pathlib import Path
 
+from hdxms_datasets.datasets import Peptides, ProteinInfo
 from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
+from hdxms_datasets.utils import reconstruct_sequence
 
 DATASET = "1665149400_SecA_Krishnamurthy"
+DATASET = "1704204434_SecB_Krishnamurthy"
 
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
@@ -16,28 +20,42 @@ vault = DataVault(data_pth)
 
 # Load the dataset
 ds = vault.load_dataset(DATASET)
+
+# Print a string describing the states in the dataset
 print(ds.describe())
-# %%
 
+# Get the seqeunce of the first state
+state = ds.get_state(0)
+sequence = state.get_sequence()
+print(sequence)
+
+# %%
+import narwhals as nw
+
+
+# %%
 # Load FD control peptides as a narwhals DataFrame
-fd_control = ds.get_peptides(0, "fully_deuterated").load(aggregate=False)
+fd_control = state.get_peptides("fully_deuterated").load()
+
 # Load partially deuterated peptides as narwhals dataframe
-pd_peptides = ds.get_peptides(0, "partially_deuterated").load(aggregate=False)
+pd_peptides = state.get_peptides("partially_deuterated").load()
+pd_peptides
+
+pd_peptides.to_native()
 
 
 # %%
+# merge controls with partially deuterated peptides
 merged = merge_peptides(pd_peptides, fully_deuterated=fd_control)
-merged.to_native()
 
-# %%
-
+# compute uptake metrics (uptake, rfu)
 processed = compute_uptake_metrics(merged)
-processed.to_native()
-
-# %%
+df = processed.to_native()
+print(df)
 
 # do the previous two steps in one go
-processed = ds.compute_uptake_metrics(0).to_polars()
-processed.write_parquet(
-    "dynamx_state.pq",
-)
+
+processed = state.compute_uptake_metrics().to_polars()
+processed
+
+# %%

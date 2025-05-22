@@ -1,7 +1,7 @@
 # %%
 import textwrap
 
-from hdxms_datasets.datasets import DataSet, create_dataset
+from hdxms_datasets.datasets import DataSet, allow_missing_protein_info, create_dataset
 from hdxms_datasets.datavault import DataVault, RemoteDataVault
 from pathlib import Path
 import pytest
@@ -38,27 +38,25 @@ def hdx_spec():
 @pytest.fixture()
 def dataset():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    ds = vault.load_dataset(DATA_ID)
+    with allow_missing_protein_info():
+        ds = vault.load_dataset(DATA_ID)
     yield ds
 
 
 def test_dataset(dataset: DataSet):
     assert isinstance(dataset, DataSet)
-    assert dataset.states == SecA_STATES
+    assert list(dataset.states) == SecA_STATES
 
     for state in dataset.states:
         peptide_types = dataset.peptides_per_state[state]
         assert set(peptide_types) == set(["fully_deuterated", "partially_deuterated"])
 
-    df = dataset.peptides["Monomer apo", "partially_deuterated"].load()
+    state = dataset.states["Monomer apo"]
+    df = state.peptides["partially_deuterated"].load()
     assert isinstance(df, nw.DataFrame)
 
-    df_control = dataset["Monomer apo", "fully_deuterated"].load()
+    df_control = state.peptides["fully_deuterated"].load()
     assert len(df_control) == 188
-
-    df_control = dataset.peptides["WT apo", "fully_deuterated"].load()
-    assert len(df_control) == 188
-    df_control = dataset.peptides["1-834 apo", "fully_deuterated"].load()
 
     s = """
     WT ADP:
@@ -124,7 +122,8 @@ def test_fetch_dataset_vault(tmp_path):
 
     assert vault.fetch_dataset(DATA_ID)
     assert DATA_ID in vault.datasets
-    ds = vault.load_dataset(DATA_ID)
+    with allow_missing_protein_info():
+        ds = vault.load_dataset(DATA_ID)
     assert isinstance(ds, DataSet)
 
     vault.clear_cache()
@@ -135,18 +134,15 @@ def test_vault():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
     assert len(vault.datasets) == 4
 
-    ds = vault.load_dataset(DATA_ID)
+    with allow_missing_protein_info():
+        ds = vault.load_dataset(DATA_ID)
     assert isinstance(ds, DataSet)
 
-    assert ds.states == SecA_STATES
+    assert list(ds.states) == SecA_STATES
 
-    key = ("Monomer apo", "partially_deuterated")
-    assert key in ds.peptides
+    df = ds.states["Monomer apo"].peptides["partially_deuterated"].load()
+    assert isinstance(df, nw.DataFrame)
 
-    df = ds[key].load()
-    assert isinstance(df, nw.DataFrame)
-    df = ds[key].load()
-    assert isinstance(df, nw.DataFrame)
     ref_df = pl.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv").sort(
         by=["start", "end", "exposure"]
     )

@@ -16,9 +16,27 @@ import yaml
 import hdxms_datasets.process as process
 from hdxms_datasets.formats import HDXFormat, identify_format
 from hdxms_datasets.reader import read_csv
+from contextlib import contextmanager
+
+from hdxms_datasets.utils import default_protein_info
 
 TEMPLATE_DIR = Path(__file__).parent / "template"
 ValueType = str | float | int
+
+
+ALLOW_MISSING_PROTEIN_INFO = False
+
+
+@contextmanager
+def allow_missing_protein_info(allow=True):
+    """Context manager to temporarily allow missing protein information"""
+    global ALLOW_MISSING_PROTEIN_INFO
+    old_value = ALLOW_MISSING_PROTEIN_INFO
+    ALLOW_MISSING_PROTEIN_INFO = allow
+    try:
+        yield
+    finally:
+        ALLOW_MISSING_PROTEIN_INFO = old_value
 
 
 def create_dataset(
@@ -168,10 +186,55 @@ class Peptides:
 
 @dataclass
 class DataState:
+    """Encapsulates all data for a specific protein state"""
+
+    name: str
+    """Name of the state"""
+
     peptides: dict[str, Peptides]
-    """Dictionary of peptide sets"""
+    """Dictionary of peptide sets for this state"""
 
     protein: ProteinInfo
+    """Protein information for this state"""
+
+    def get_peptides(self, peptide_set: str) -> Peptides:
+        """Get a specific peptide set"""
+        try:
+            return self.peptides[peptide_set]
+        except KeyError:
+            raise KeyError(f"Peptide set '{peptide_set}' not found in state '{self.name}'")
+
+    def get_sequence(self) -> str:
+        """Get the protein sequence for this state"""
+        return self.protein["sequence"]
+
+    def get_protein_property(self, property_name: str) -> Any:
+        """Get a specific protein property"""
+        try:
+            return self.protein[property_name]
+        except KeyError:
+            raise KeyError(f"Property '{property_name}' not found in state '{self.name}'")
+
+    def compute_uptake_metrics(self) -> nw.DataFrame:
+        """Compute uptake metrics for this state"""
+        peptide_types = list(self.peptides.keys())
+
+        if "fully_deuterated" in peptide_types:
+            fd = self.peptides["fully_deuterated"].load()
+        else:
+            fd = None
+
+        if "non_deuterated" in peptide_types:
+            nd = self.peptides["non_deuterated"].load()
+        else:
+            nd = None
+
+        pd = self.peptides["partially_deuterated"].load()
+
+        merged = process.merge_peptides(
+            partially_deuterated=pd, fully_deuterated=fd, non_deuterated=nd
+        )
+        return process.compute_uptake_metrics(merged)
 
 
 @dataclass
@@ -187,32 +250,63 @@ class DataSet:
 
     metadata: dict = field(default_factory=dict)  # author, publication, etc
 
-    peptides: dict[tuple[str, str], Peptides] = field(init=False, default_factory=dict)
+    states: dict[str, DataState] = field(init=False, default_factory=dict)
 
     def __post_init__(self):
-        # create peptide dictionary
-        peptides = {}
+        # Create state objects
         for state_name, state_peptides in self.hdx_specification["peptides"].items():
-            for peptides_type, peptide_spec in state_peptides.items():
-                peptides[(state_name, peptides_type)] = Peptides(
+            # Build peptide dictionary for this state
+            state_peptide_dict = {}
+
+            # Process each peptide set for this state
+            for peptide_type, peptide_spec in state_peptides.items():
+                peptide_obj = Peptides(
                     data_file=self.data_files[peptide_spec["data_file"]],
                     filters=peptide_spec["filters"],
                     metadata=peptide_spec.get("metadata", {}),
                 )
-        self.peptides = peptides
 
-    def __getitem__(self, key: tuple[str, str]) -> Peptides:
+                # Add to state-specific dictionary
+                state_peptide_dict[peptide_type] = peptide_obj
+
+            # Get protein information for this state
+            try:
+                protein_info = self.protein_spec[state_name]
+            except KeyError:
+                # take partially deuterated peptides as default,
+                # if not available, take the first one
+                peptide_df = state_peptide_dict.get(
+                    "partially_deuterated", next(iter(state_peptide_dict.values()))
+                ).load()
+
+                if ALLOW_MISSING_PROTEIN_INFO:
+                    # Generate minimal protein info from peptides
+                    protein_info = default_protein_info(peptide_df)
+                    warnings.warn(
+                        f"Generated minimal protein info for state '{state_name}'. "
+                        f"This is not recommended for production use."
+                    )
+                else:
+                    raise KeyError(
+                        f"No protein information found for state '{state_name}'. "
+                        f"Use 'allow_missing_protein_info()' context manager to generate minimal info."
+                    )
+
+            # Create and store the DataState object
+            self.states[state_name] = DataState(
+                name=state_name, peptides=state_peptide_dict, protein=protein_info
+            )
+
+    def get_state(self, state: str | int) -> DataState:
         """
-        Get the Peptides object for a given state and peptide set.
-
-        Args:
-            key: Tuple of state name and peptide set name.
-
-        Returns:
-            Peptides object for the given state and peptide set.
-
+        Get a specific state by name or index
         """
-        return self.peptides[key]
+        if isinstance(state, int):
+            return self.states[list(self.states.keys())[state]]
+        elif isinstance(state, str):
+            return self.states[state]
+        else:
+            raise TypeError(f"Invalid type {type(state)} for state {state!r}")
 
     @classmethod
     def from_spec(
@@ -232,56 +326,9 @@ class DataSet:
         )
 
     @property
-    def states(self) -> list[str]:
-        return list(self.peptide_spec.keys())
-
-    @property
     def protein_spec(self) -> dict[str, ProteinInfo]:
         """Access the protein section of the specification"""
         return self.hdx_specification.get("protein", {})
-
-    def get_protein(self, state: str | int) -> ProteinInfo:
-        """
-        Get protein information for a specific state.
-
-        Args:
-            state: State name or index.
-
-        Returns:
-            Dictionary with protein information for the specified state.
-
-        Raises:
-            KeyError: If the state doesn't exist in the protein section.
-        """
-        state_name = self.states[state] if isinstance(state, int) else state
-        try:
-            return self.protein_spec[state_name]
-        except KeyError:
-            raise KeyError(f"No protein information found for state '{state_name}'")
-
-    def get_protein_property(self, state: str | int, property_name: str) -> Any:
-        """
-        Get a specific property from the protein information for a state.
-
-        Args:
-            state: State name or index.
-            property_name: Name of the property to get.
-
-        Returns:
-            The property value.
-
-        Raises:
-            KeyError: If the property doesn't exist for the specified state.
-        """
-        protein_info = self.get_protein(state)
-        try:
-            return protein_info[property_name]
-        except KeyError:
-            raise KeyError(f"Property '{property_name}' not found for state '{state}'")
-
-    def get_sequence(self, state: str | int) -> str:
-        """Get the protein sequence for a specific state."""
-        return self.get_protein_property(state, "sequence")
 
     @property
     def peptide_spec(self) -> dict:
@@ -291,21 +338,6 @@ class DataSet:
     def peptides_per_state(self) -> dict[str, list[str]]:
         """Dictionary of state names and list of peptide sets for each state"""
         return {state: list(spec) for state, spec in self.peptide_spec.items()}
-
-    def get_peptides(self, state: str | int, peptide_set: str) -> Peptides:
-        """
-        Get the Peptides object for a given state and peptide set.
-
-        Args:
-            state: State name.
-            peptide_set: Name of the peptide set.
-
-        Returns:
-            Peptides object for the given state and peptide set.
-
-        """
-        state = self.states[state] if isinstance(state, int) else state
-        return self.peptides[(state, peptide_set)]
 
     def describe(
         self,
@@ -321,11 +353,10 @@ class DataSet:
                 raise TypeError(f"Invalid type {type(val)} for value {val!r}")
 
         output_dict = {}
-        for state, peptide_types in self.peptides_per_state.items():
+        for state in self.states.values():
             state_desc = {}
             if peptide_template:
-                for peptide_set_name in peptide_types:
-                    peptides = self.peptides[(state, peptide_set_name)]
+                for peptides_types, peptides in state.peptides.items():
                     peptide_df = peptides.load()
                     timepoints = peptide_df["exposure"].unique()
                     mapping = {
@@ -334,9 +365,9 @@ class DataSet:
                         "timepoints": ", ".join([fmt_t(t) for t in timepoints]),
                     }
                     mapping["timepoints"]
-                    state_desc[peptide_set_name] = Template(peptide_template).substitute(**mapping)
+                    state_desc[peptides_types] = Template(peptide_template).substitute(**mapping)
 
-            output_dict[state] = state_desc
+            output_dict[state.name] = state_desc
 
         if return_type is str:
             return yaml.dump(output_dict, sort_keys=False)
@@ -344,38 +375,6 @@ class DataSet:
             return output_dict
         else:
             raise TypeError(f"Invalid return type {return_type!r}")
-
-    def compute_uptake_metrics(self, state: str | int) -> nw.DataFrame:
-        """
-        Computes uptake metrics for a given state. Depending on the available peptide types,
-           peptides are merged with fully deuterated and non-deuterated peptides, after which uptake and/rfu
-           values are calculated.
-
-        Returns:
-            DataFrame with the processed data.
-
-        """
-        state = self.states[state] if isinstance(state, int) else state
-        peptide_types = self.peptides_per_state[state]
-
-        if "fully_deuterated" in peptide_types:
-            fd = self.get_peptides(state, "fully_deuterated").load()
-        else:
-            fd = None
-
-        if "non_deuterated" in peptide_types:
-            nd = self.get_peptides(state, "non_deuterated").load()
-        else:
-            nd = None
-
-        pd = self.get_peptides(state, "partially_deuterated").load()
-
-        merged = process.merge_peptides(
-            partially_deuterated=pd, fully_deuterated=fd, non_deuterated=nd
-        )
-        processed = process.compute_uptake_metrics(merged)
-
-        return processed
 
     def cite(self) -> str:
         """
