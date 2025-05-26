@@ -117,7 +117,7 @@ class PeptideMetadata(TypedDict):
 
     pH: float  # pH of the experiment (pH read, uncorrected)
     temperature: float  # Temperature of the experiment (K)
-    d_percentage: Optional[float]  # Deuteration percentage
+    d_percentage: float  # Deuteration percentage
 
 
 @dataclass
@@ -127,15 +127,7 @@ class Peptides:
 
     metadata: PeptideMetadata | None
 
-    _cache: dict[tuple[bool, bool, bool, bool], nw.DataFrame] = field(
-        init=False, default_factory=dict
-    )
-
     def load(self, convert=True, aggregate=True, sort=True, drop_null=True) -> nw.DataFrame:
-        cache_key = (convert, aggregate, sort, drop_null)
-        if cache_key in self._cache:
-            return self._cache[cache_key]
-
         df = process.filter_from_spec(self.data_file.read(), **self.filters)
 
         is_aggregated = getattr(self.data_file.format, "aggregated", False)
@@ -171,8 +163,6 @@ class Peptides:
 
         if drop_null:
             df = process.drop_null_columns(df)
-
-        self._cache[cache_key] = df
 
         return df
 
