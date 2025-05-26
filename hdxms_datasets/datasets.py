@@ -127,10 +127,19 @@ class Peptides:
 
     metadata: PeptideMetadata | None
 
-    def load(self, convert=True, aggregate=True, sort=True, drop_null=True) -> nw.DataFrame:
+    def load(
+        self,
+        convert: bool = True,
+        aggregate: bool | None = None,
+        sort: bool = True,
+        drop_null: bool = True,
+    ) -> nw.DataFrame:
         df = process.filter_from_spec(self.data_file.read(), **self.filters)
 
         is_aggregated = getattr(self.data_file.format, "aggregated", False)
+        if aggregate is None:
+            aggregate = not is_aggregated
+
         if aggregate and is_aggregated:
             warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
             aggregate = False
