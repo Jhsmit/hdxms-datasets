@@ -28,7 +28,7 @@ def reconstruct_sequence(peptides: nw.DataFrame, known_sequence: str, n_term: in
     """
 
     reconstructed = list(known_sequence)
-    for start, end, sequence in peptides["start", "end", "sequence"].iter_rows():  # type: ignore
+    for start, end, sequence in peptides.select(["start", "end", "sequence"]).iter_rows():  # type: ignore
         start_idx = start - n_term
         assert end - start + 1 == len(sequence), (
             f"Length mismatch at {start}:{end} with sequence {sequence}"
