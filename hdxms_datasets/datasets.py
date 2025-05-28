@@ -5,7 +5,7 @@ import time
 import uuid
 import warnings
 from dataclasses import dataclass, field
-from io import StringIO
+from io import StringIO, BytesIO
 from pathlib import Path
 from string import Template
 from typing import Any, NotRequired, Optional, Type, TypedDict, Union
@@ -14,7 +14,7 @@ import narwhals as nw
 import yaml
 
 import hdxms_datasets.process as process
-from hdxms_datasets.formats import HDXFormat, identify_format
+from hdxms_datasets.formats import FMT_LUT, HDXFormat, identify_format
 from hdxms_datasets.reader import read_csv
 from contextlib import contextmanager
 
@@ -24,19 +24,19 @@ TEMPLATE_DIR = Path(__file__).parent / "template"
 ValueType = str | float | int
 
 
-ALLOW_MISSING_PROTEIN_INFO = False
+ALLOW_MISSING_FIELDS = False
 
 
 @contextmanager
-def allow_missing_protein_info(allow=True):
+def allow_missing_fields(allow=True):
     """Context manager to temporarily allow missing protein information"""
-    global ALLOW_MISSING_PROTEIN_INFO
-    old_value = ALLOW_MISSING_PROTEIN_INFO
-    ALLOW_MISSING_PROTEIN_INFO = allow
+    global ALLOW_MISSING_FIELDS
+    old_value = ALLOW_MISSING_FIELDS
+    ALLOW_MISSING_FIELDS = allow
     try:
         yield
     finally:
-        ALLOW_MISSING_PROTEIN_INFO = old_value
+        ALLOW_MISSING_FIELDS = old_value
 
 
 def create_dataset(
@@ -77,9 +77,14 @@ def create_dataset(
 
 @dataclass(frozen=True)
 class DataFile:
+    pass
+
+
+@dataclass(frozen=True)
+class PeptideTableFile(DataFile):
     name: str
 
-    filepath_or_buffer: Union[Path, StringIO]
+    filepath_or_buffer: Union[Path, StringIO, BytesIO]
 
     format: Optional[HDXFormat] = None
 
@@ -87,7 +92,7 @@ class DataFile:
     """File extension, e.g. .csv, in case of a file-like object"""
 
     def read(self) -> nw.DataFrame:
-        if isinstance(self.filepath_or_buffer, StringIO):
+        if isinstance(self.filepath_or_buffer, (StringIO, BytesIO)):
             extension = self.extension
             assert isinstance(extension, str), "File-like object must have an extension"
         else:
@@ -97,6 +102,42 @@ class DataFile:
             return read_csv(self.filepath_or_buffer)
         else:
             raise ValueError(f"Invalid file extension {self.extension!r}")
+
+
+@dataclass(frozen=True)
+class StructureFile(DataFile):
+    name: str
+
+    filepath_or_buffer: Union[Path, BytesIO]
+
+    format: str
+
+    extension: Optional[str] = None
+    """File extension, e.g. .pdf, in case of a file-like object"""
+
+    def pdbemolstar_custom_data(self):
+        """
+        Returns a dictionary with custom data for PDBeMolstar visualization.
+        """
+
+        if self.format in ["bcif"]:
+            binary = True
+        else:
+            binary = False
+
+        if isinstance(self.filepath_or_buffer, BytesIO):
+            data = self.filepath_or_buffer.getvalue()
+        elif isinstance(self.filepath_or_buffer, Path):
+            if self.filepath_or_buffer.is_file():
+                data = self.filepath_or_buffer.read_bytes()
+            else:
+                raise ValueError(f"Path {self.filepath_or_buffer} is not a file.")
+
+        return {
+            "data": data,
+            "format": self.format,
+            "binary": binary,
+        }
 
 
 class ProteinInfo(TypedDict):
@@ -110,6 +151,7 @@ class ProteinInfo(TypedDict):
     ligand: NotRequired[str]  # Optional bound ligand information
     uniprot_id: NotRequired[str]  # Optional UniProt ID
     molecular_weight: NotRequired[float]  # Optional molecular weight in Da
+    structure: NotRequired[str]  # Optional structure name, identified in yaml file
 
 
 class PeptideMetadata(TypedDict):
@@ -121,8 +163,159 @@ class PeptideMetadata(TypedDict):
 
 
 @dataclass
+class Structure:
+    data_file: StructureFile
+    chain: list[str] = field(default_factory=list)  # empty list for all chains
+    auth_residue_numbers: bool = field(default=False)
+
+    def pdbemolstar_custom_data(self) -> dict[str, Any]:
+        """
+        Returns a dictionary with custom data for PDBeMolstar visualization.
+        """
+
+        return self.data_file.pdbemolstar_custom_data()
+
+    def pdbemolstar_color_peptide(
+        self, start: int, end: int, color: str = "red", non_selected_color: str = "lightgray"
+    ) -> dict[str, Any]:
+        auth = "auth_" if self.auth_residue_numbers else ""
+
+        r_name = auth + "residue_number"
+        chain_name = "auth_asym_id" if self.auth_residue_numbers else "struct_asym_id"
+        c_dict = {"start_" + r_name: start, "end_" + r_name: end, "color": color}
+
+        if self.chain:
+            data = [c_dict | {chain_name: c} for c in self.chain]
+        else:
+            data = [c_dict]
+
+        color_data = {
+            "data": data,
+            "nonSelectedColor": non_selected_color,
+        }
+
+        return color_data
+
+    @classmethod
+    def null_structure(cls) -> Structure:
+        """
+        Returns a null structure with no data.
+        This is useful for cases where no structure is available.
+        """
+        return cls(
+            data_file=StructureFile(
+                name="null",
+                filepath_or_buffer=BytesIO(),
+                format="null",
+                extension=".null",
+            ),
+            chain=[],
+            auth_residue_numbers=False,
+        )
+
+
+def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile]:
+    """
+    Parse data file specifications from a YAML file.
+
+    Args:
+        data_file_spec: Dictionary with data file specifications.
+        data_dir: Path to data directory.
+
+    Returns:
+        Dictionary with parsed data file specifications.
+    """
+
+    data_files = {}
+    for name, spec in data_file_spec.items():
+        fpath = Path(data_dir / spec["filename"])
+
+        if spec["type"] == "structure":
+            format = spec["format"]
+            data_file = StructureFile(
+                name=name,
+                filepath_or_buffer=fpath,
+                format=format,
+                extension=fpath.suffix,
+            )
+        elif spec["type"] == "peptide_table":
+            format = FMT_LUT.get(spec["format"], None)
+            data_file = PeptideTableFile(
+                name=name,
+                filepath_or_buffer=fpath,
+                format=format,
+                extension=fpath.suffix,
+            )
+        else:
+            raise ValueError(f"Unknown data file type {spec['type']} for {name}.")
+
+        data_files[name] = data_file
+
+    return data_files
+
+
+def parse_peptides(
+    peptides_spec: dict[str, Any], data_files: dict[str, PeptideTableFile]
+) -> dict[str, dict[str, Peptides]]:
+    """
+    Parse the peptides specification and return a dictionary of PeptideTableFile objects.
+
+    Args:
+        peptides_spec: Dictionary containing peptide specifications.
+        data_files: Dictionary of available data files.
+
+    Returns:
+        Dictionary of Peptides dictionaries.
+    """
+    peptides = {}
+    for state_name, state_peptides in peptides_spec.items():
+        # Build peptide dictionary for this state
+        state_peptide_dict = {}
+
+        # Process each peptide set for this state
+        for peptide_type, peptide_spec in state_peptides.items():
+            peptide_obj = Peptides(
+                data_file=data_files[peptide_spec["data_file"]],
+                filters=peptide_spec["filters"],
+                metadata=peptide_spec.get("metadata", None),
+            )
+
+            # Add to state-specific dictionary
+            state_peptide_dict[peptide_type] = peptide_obj
+
+        peptides[state_name] = state_peptide_dict
+
+    return peptides
+
+
+def parse_structures(
+    structures_spec: dict[str, Any], data_files: dict[str, StructureFile]
+) -> dict[str, Structure]:
+    """
+    Parse the structures specification and return a dictionary of Structure objects.
+
+    Args:
+        structures_spec: Dictionary containing structure specifications.
+        data_files: Dictionary of available data files.
+
+    Returns:
+        Dictionary of Structure objects keyed by structure name.
+    """
+    structures = {}
+    for name, spec in structures_spec.items():
+        data_file = data_files[spec["data_file"]]
+        structure = Structure(
+            data_file=data_file,
+            chain=spec.get("chain", []),  # empty list for all chains
+            auth_residue_numbers=spec.get("auth_residue_numbers", False),
+        )
+        structures[name] = structure
+    return structures
+
+
+@dataclass
 class Peptides:
-    data_file: DataFile
+    data_file: PeptideTableFile
     filters: dict[str, ValueType | list[ValueType]]
 
     metadata: PeptideMetadata | None
@@ -208,6 +401,9 @@ class DataState:
     protein: ProteinInfo
     """Protein information for this state"""
 
+    structure: Structure
+    """Optional structure file information for this state"""
+
     def get_peptides(self, peptide_set: str) -> Peptides:
         """Get a specific peptide set"""
         try:
@@ -265,33 +461,42 @@ class DataSet:
 
     def __post_init__(self):
         # Create state objects
-        for state_name, state_peptides in self.hdx_specification["peptides"].items():
-            # Build peptide dictionary for this state
-            state_peptide_dict = {}
 
-            # Process each peptide set for this state
-            for peptide_type, peptide_spec in state_peptides.items():
-                peptide_obj = Peptides(
-                    data_file=self.data_files[peptide_spec["data_file"]],
-                    filters=peptide_spec["filters"],
-                    metadata=peptide_spec.get("metadata", None),
-                )
+        peptide_table_files = {
+            k: f for k, f in self.data_files.items() if isinstance(f, PeptideTableFile)
+        }
+        peptides = parse_peptides(self.hdx_specification["peptides"], peptide_table_files)
 
-                # Add to state-specific dictionary
-                state_peptide_dict[peptide_type] = peptide_obj
+        structure_files = {k: f for k, f in self.data_files.items() if isinstance(f, StructureFile)}
+        structures = parse_structures(self.hdx_specification.get("structures", {}), structure_files)
 
-            # Get protein information for this state
+        for state_name, state_peptide_dict in peptides.items():
+            # for state_name, state_peptides in self.hdx_specification["peptides"].items():
+            #     # Build peptide dictionary for this state
+            #     state_peptide_dict = {}
+
+            #     # Process each peptide set for this state
+            #     for peptide_type, peptide_spec in state_peptides.items():
+            #         peptide_obj = Peptides(
+            #             data_file=self.data_files[peptide_spec["data_file"]],
+            #             filters=peptide_spec["filters"],
+            #             metadata=peptide_spec.get("metadata", None),
+            #         )
+
+            #         # Add to state-specific dictionary
+            #         state_peptide_dict[peptide_type] = peptide_obj
+
+            #     # Get protein information for this state
             try:
                 protein_info = self.protein_spec[state_name]
             except KeyError:
-                # take partially deuterated peptides as default,
-                # if not available, take the first one
-                peptide_df = state_peptide_dict.get(
-                    "partially_deuterated", next(iter(state_peptide_dict.values()))
-                ).load()
-
-                if ALLOW_MISSING_PROTEIN_INFO:
+                if ALLOW_MISSING_FIELDS:
                     # Generate minimal protein info from peptides
+                    # take partially deuterated peptides as default,
+                    # if not available, take the first one
+                    peptide_df = state_peptide_dict.get(
+                        "partially_deuterated", next(iter(state_peptide_dict.values()))
+                    ).load()
                     protein_info = default_protein_info(peptide_df)
                     warnings.warn(
                         f"Generated minimal protein info for state '{state_name}'. "
@@ -303,9 +508,25 @@ class DataSet:
                         f"Use 'allow_missing_protein_info()' context manager to generate minimal info."
                     )
 
+            try:
+                structure_name = protein_info["structure"]  # type: ignore
+                structure = structures[structure_name]
+            except KeyError:
+                if ALLOW_MISSING_FIELDS:
+                    # If no structure is specified, use a null structure
+                    structure = Structure.null_structure()
+                else:
+                    raise KeyError(
+                        f"No structure information found for state '{state_name}'. "
+                        f"Use 'allow_missing_structure_info()' context manager to generate a null structure."
+                    )
+
             # Create and store the DataState object
             self.states[state_name] = DataState(
-                name=state_name, peptides=state_peptide_dict, protein=protein_info
+                name=state_name,
+                peptides=state_peptide_dict,
+                protein=protein_info,
+                structure=structure,
             )
 
     def get_state(self, state: str | int) -> DataState:
@@ -328,7 +549,7 @@ class DataSet:
         metadata: Optional[dict] = None,
     ):
         data_id = data_id or uuid.uuid4().hex
-        data_files = process.parse_data_files(hdx_spec["data_files"], data_dir)
+        data_files = parse_data_files(hdx_spec["data_files"], data_dir)
         return cls(
             data_id=data_id,
             data_files=data_files,

@@ -4,8 +4,7 @@ import warnings
 from collections import defaultdict
 from functools import reduce
 from operator import and_
-from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Optional, TypedDict, Union
+from typing import Literal, Optional, TypedDict, Union
 
 import narwhals as nw
 from statsmodels.stats.weightstats import DescrStatsW
@@ -13,10 +12,6 @@ from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.backend import BACKEND
-from hdxms_datasets.formats import FMT_LUT
-
-if TYPE_CHECKING:
-    from hdxms_datasets import DataFile
 
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
@@ -247,35 +242,6 @@ def filter_peptides(
             df = df.filter(nw.col("exposure") == t_val)
 
     return df
-
-
-def parse_data_files(data_file_spec: dict, data_dir: Path) -> dict[str, DataFile]:
-    """
-    Parse data file specifications from a YAML file.
-
-    Args:
-        data_file_spec: Dictionary with data file specifications.
-        data_dir: Path to data directory.
-
-    Returns:
-        Dictionary with parsed data file specifications.
-    """
-
-    from hdxms_datasets import DataFile
-
-    data_files = {}
-    for name, spec in data_file_spec.items():
-        format = FMT_LUT.get(spec["format"], None)
-
-        datafile = DataFile(
-            name=name,
-            filepath_or_buffer=Path(data_dir / spec["filename"]),
-            format=format,
-            # extension=... # at the moment always .csv
-        )
-        data_files[name] = datafile
-
-    return data_files
 
 
 def aggregate_columns(
