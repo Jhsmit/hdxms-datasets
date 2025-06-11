@@ -9,7 +9,7 @@ from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
 from hdxms_datasets.utils import reconstruct_sequence
 
 DATASET = "1665149400_SecA_Krishnamurthy"
-DATASET = "1704204434_SecB_Krishnamurthy"
+# DATASET = "1704204434_SecB_Krishnamurthy"
 
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
@@ -28,9 +28,6 @@ print(ds.describe())
 state = ds.get_state(0)
 sequence = state.get_sequence()
 print(sequence)
-
-# %%
-import narwhals as nw
 
 
 # %%
@@ -57,5 +54,31 @@ print(df)
 
 processed = state.compute_uptake_metrics().to_polars()
 processed
+
+# %%
+
+# show the first peptide on the structure
+start, end = processed["start", "end"].row(10)
+
+custom_data = state.structure.pdbemolstar_custom_data()
+color_data = state.structure.pdbemolstar_color_peptide(start, end)
+
+from ipymolstar import PDBeMolstar
+
+view = PDBeMolstar(
+    custom_data=custom_data,
+    color_data=color_data,
+    hide_water=True,
+    hide_carbs=True,
+)
+view
+
+# %%
+
+# load all states
+states = [ds.get_state(state) for state in ds.states]
+for state in states:
+    df = state.compute_uptake_metrics()
+    print(df.to_polars())
 
 # %%

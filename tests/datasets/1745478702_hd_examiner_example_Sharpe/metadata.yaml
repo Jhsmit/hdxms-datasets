@@ -1,0 +1,33 @@
+data:
+  description: Single sentence description of the dataset.
+  exchange_type: HD
+
+# required fields are name and uniprot_id
+protein:
+  name: SECB_ECOLI
+  uniprot_id: P0AG86
+  model: 
+    database: pdb
+    entry: 1QYN
+    chain: A/B/C/D
+
+
+#citation.cff author format?
+authors:
+  - name: Kaj Ulrik Linderstrøm-Lang
+    email: null
+    ORCID: null
+    affiliation: null
+
+# List of publications where the datasets are published
+publications:
+  - title: null
+    DOI: null
+    URL: null
+
+# Repositories where the data is also published or where the raw data is deposited
+repositories:
+  - repository: Zenodo
+    DOI: null
+    ULR: null
+    comments: Raw data
