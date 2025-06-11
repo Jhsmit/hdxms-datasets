@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from hdxms_datasets import DataVault
-from hdxms_datasets.datasets import allow_missing_protein_info
+from hdxms_datasets.datasets import allow_missing_fields
 from hdxms_datasets.process import compute_uptake_metrics, merge_peptides
 
 # %%
@@ -17,8 +17,8 @@ data_pth = test_pth / "datasets"
 vault = DataVault(data_pth)
 
 # Load the dataset
-# we allow for missing protein info (sequence information) since this dataset does not define it
-with allow_missing_protein_info():
+# we allow for missing protein info (structural information) since this dataset does not define it
+with allow_missing_fields():
     ds = vault.load_dataset(DATASET)
 
 # %%
