@@ -505,7 +505,7 @@ class DataSet:
                 else:
                     raise KeyError(
                         f"No protein information found for state '{state_name}'. "
-                        f"Use 'allow_missing_protein_info()' context manager to generate minimal info."
+                        f"Use 'allow_missing_fields()' context manager to generate minimal info."
                     )
 
             try:
