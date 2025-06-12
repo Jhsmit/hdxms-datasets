@@ -1,7 +1,7 @@
 # %%
 import textwrap
 
-from hdxms_datasets.datasets import DataSet, allow_missing_protein_info, create_dataset
+from hdxms_datasets.datasets import DataSet, allow_missing_fields, create_dataset
 from hdxms_datasets.datavault import DataVault, RemoteDataVault
 from pathlib import Path
 import pytest
@@ -17,12 +17,12 @@ TEST_PTH = Path(__file__).parent
 DATA_ID = "1665149400_SecA_Krishnamurthy"
 
 SecA_STATES = [
-    "WT ADP",
-    "Monomer ADP",
-    "1-834 ADP",
-    "WT apo",
-    "Monomer apo",
-    "1-834 apo",
+    "SecA-WT_ADP",
+    "SecA-WT_apo",
+    "SecA-monomer_ADP",
+    "SecA-monomer_apo",
+    "SecA-1-834_ADP",
+    "SecA-1-834_apo",
 ]
 
 # %%
@@ -38,7 +38,7 @@ def hdx_spec():
 @pytest.fixture()
 def dataset():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    with allow_missing_protein_info():
+    with allow_missing_fields():
         ds = vault.load_dataset(DATA_ID)
     yield ds
 
@@ -51,7 +51,7 @@ def test_dataset(dataset: DataSet):
         peptide_types = dataset.peptides_per_state[state]
         assert set(peptide_types) == set(["fully_deuterated", "partially_deuterated"])
 
-    state = dataset.states["Monomer apo"]
+    state = dataset.states["SecA-monomer_apo"]
     df = state.peptides["partially_deuterated"].load()
     assert isinstance(df, nw.DataFrame)
 
@@ -59,27 +59,27 @@ def test_dataset(dataset: DataSet):
     assert len(df_control) == 188
 
     s = """
-    WT ADP:
+    SecA-WT_ADP:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
       partially_deuterated: 'Total peptides: 1316, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
-    Monomer ADP:
+    SecA-WT_apo:
+      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
+      partially_deuterated: 'Total peptides: 1316, timepoints: 10.0, 30.0, 60.0, 120.0,
+        300.0, 600.0, 1800.0'
+    SecA-monomer_ADP:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
       partially_deuterated: 'Total peptides: 1267, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
-    1-834 ADP:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1250, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    WT apo:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1253, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    Monomer apo:
+    SecA-monomer_apo:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
       partially_deuterated: 'Total peptides: 1273, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
-    1-834 apo:
+    SecA-1-834_ADP:
+      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
+      partially_deuterated: 'Total peptides: 1250, timepoints: 10.0, 30.0, 60.0, 120.0,
+        300.0, 600.0, 1800.0'
+    SecA-1-834_apo:
       fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
       partially_deuterated: 'Total peptides: 1253, timepoints: 10.0, 30.0, 60.0, 120.0,
         300.0, 600.0, 1800.0'
@@ -122,7 +122,7 @@ def test_fetch_dataset_vault(tmp_path):
 
     assert vault.fetch_dataset(DATA_ID)
     assert DATA_ID in vault.datasets
-    with allow_missing_protein_info():
+    with allow_missing_fields():
         ds = vault.load_dataset(DATA_ID)
     assert isinstance(ds, DataSet)
 
@@ -134,13 +134,13 @@ def test_vault():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
     assert len(vault.datasets) == 4
 
-    with allow_missing_protein_info():
+    with allow_missing_fields():
         ds = vault.load_dataset(DATA_ID)
     assert isinstance(ds, DataSet)
 
     assert list(ds.states) == SecA_STATES
 
-    df = ds.states["Monomer apo"].peptides["partially_deuterated"].load()
+    df = ds.states["SecA-monomer_apo"].peptides["partially_deuterated"].load()
     assert isinstance(df, nw.DataFrame)
 
     ref_df = pl.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv").sort(

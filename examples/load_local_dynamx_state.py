@@ -1,12 +1,9 @@
 # %%
 
-from typing import Iterable
 from hdxms_datasets import DataVault
 from pathlib import Path
 
-from hdxms_datasets.datasets import Peptides, ProteinInfo
 from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
-from hdxms_datasets.utils import reconstruct_sequence
 
 DATASET = "1665149400_SecA_Krishnamurthy"
 # DATASET = "1704204434_SecB_Krishnamurthy"

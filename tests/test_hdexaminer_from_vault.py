@@ -1,6 +1,6 @@
 import textwrap
 
-from hdxms_datasets.datasets import DataSet, allow_missing_protein_info
+from hdxms_datasets.datasets import DataSet, allow_missing_fields
 from hdxms_datasets.datavault import DataVault
 from pathlib import Path
 import pytest
@@ -21,7 +21,7 @@ def hdx_spec():
 @pytest.fixture()
 def dataset():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    with allow_missing_protein_info():
+    with allow_missing_fields():
         ds = vault.load_dataset(DATA_ID)
     yield ds
 
