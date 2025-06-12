@@ -1,4 +1,4 @@
-from typing import Optional, Callable, Protocol, Type
+from typing import Optional, Protocol
 from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
 import narwhals as nw
 

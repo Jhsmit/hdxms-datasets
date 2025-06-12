@@ -1,21 +1,14 @@
-# %%
-%load_ext autoreload
-%autoreload 2
-#%%
-from dataclasses import dataclass
 import solara
 import solara.lab
-from typing import Optional, cast, Literal
+from typing import cast
 from solara.components.file_drop import FileInfo
-from hdxms_datasets.reader import read_csv
-from hdxms_datasets.formats import HDXFormat, identify_format
-from hdxms_datasets.convert import from_dynamx_state, from_dynamx_cluster, from_hdexaminer
+from hdxms_datasets.formats import identify_format
 from pathlib import Path
 import polars as pl
 from hdxms_datasets.web.state import ListStore, peptide_store
-from hdxms_datasets.web.models import PeptideInfo, UploadFile
+from hdxms_datasets.web.models import UploadFile
 
-#%%
+# %%
 
 # %%
 
@@ -47,20 +40,20 @@ for f in files:
 
 ufiles
 
-#%%
+# %%
 
 data_files = ListStore[UploadFile](ufiles)
 
 peptide_store.value
 
-peptides  = peptide_store['state1']
+peptides = peptide_store["state1"]
 p = peptides.value[0]
 
-#%%
+# %%
 
 str.title("fully_deuterated").replace("_", " ")
-print('todo cont update new state')
-#%%
+print("todo cont update new state")
+# %%
 
 output = {}
 
@@ -81,33 +74,29 @@ for state, peptides in peptide_store.items():
 output
 
 
-
-#%%
+# %%
 
 p_dict = {}
-p_dict['data_file'] = p.filename
+p_dict["data_file"] = p.filename
 
 f_dict = {}
 f_dict[fmt.state_name] = p.state
 f_dict[fmt.exposure_name] = p.exposure or p.exposure_values
-p_dict['filters'] = f_dict
+p_dict["filters"] = f_dict
 
 m_dict = {}
-m_dict['pH'] = p.pH
+m_dict["pH"] = p.pH
 assert p.temperature is not None
-m_dict['temperature'] = {'value': p.temperature + 273.15, 'unit': 'K'}
-m_dict['d_percentage'] = p.d_percentage
-p_dict['metadata'] = m_dict
+m_dict["temperature"] = {"value": p.temperature + 273.15, "unit": "K"}
+m_dict["d_percentage"] = p.d_percentage
+p_dict["metadata"] = m_dict
 
 p_dict
 # %%
 
 
+# %%
 
-
-
-
-#%%
 
 @solara.component
 def Page():
