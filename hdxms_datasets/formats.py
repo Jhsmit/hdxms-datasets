@@ -102,14 +102,6 @@ class DynamX_v3_state(DynamX_vx_state):
         "RT",
         "RT SD",
     ]
-    # state_name = "State"
-    # exposure_name = "Exposure"
-
-    # def convert(self, df: nw.DataFrame) -> nw.DataFrame:
-    #     """
-    #     Convert the DataFrame to a standard format.
-    #     """
-    #     return from_dynamx_state(df)
 
 
 class DynamX_v3_cluster:
