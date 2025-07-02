@@ -3,6 +3,40 @@ from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_
 import narwhals as nw
 
 
+# a list of supported columns for open HDX peptide tables
+STANDARD_COLUMNS = [
+    "start",
+    "end",
+    "sequence",
+    "state",
+    "replicate",
+    "exposure",
+    "centroid_mass",
+    "centroid_mass_sd",
+    "centroid_mz",
+    "centroid_mz_sd",
+    "rt",
+    "rt_sd",
+    "charge",
+    "intensity",
+]
+
+OPTIONAL_COLUMNS = [
+    "uptake",
+    "uptake_sd",
+    "max_uptake",
+]
+
+COMPUTED_COLUMS = [
+    "frac_fd_control",
+    "frac_fd_control_sd",
+    "frac_max_uptake",
+    "frac_max_uptake_sd",
+]
+
+OPEN_HDX_COLUMNS = STANDARD_COLUMNS + OPTIONAL_COLUMNS + COMPUTED_COLUMS
+
+
 class HDXFormat(Protocol):
     columns: list[str]
     state_name: str
