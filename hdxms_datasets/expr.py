@@ -7,7 +7,7 @@ PROTON_MASS = 1.0072764665789
 centroid_mass = (nw.col("charge") * (nw.col("centroid_mz") - PROTON_MASS)).alias("centroid_mass")
 
 # calculate max uptake from seqeuence
-max_uptake = nw.col("sequence").str.replace_all("P", "").str.len_chars().alias("max_uptake")
+max_uptake = (nw.col("sequence").str.replace_all("P", "").str.len_chars() - 1).alias("max_uptake")
 
 
 uptake = (nw.col("centroid_mass") - nw.col("nd_centroid_mass")).alias("uptake")
