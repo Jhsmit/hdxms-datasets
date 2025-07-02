@@ -27,5 +27,10 @@ f_sd = nw.col("fd_uptake_sd")
 p = nw.col("uptake")
 p_sd = nw.col(["uptake_sd"])
 
-rfu = (p / f).alias("rfu")
-rfu_sd = (((p_sd**2 / f**2) + ((f_sd**2 * p**2) / f**4)) ** 0.5).alias("rfu_sd")
+frac_fd_control = (p / f).alias("frac_fd_control")
+frac_fd_control_sd = (((p_sd**2 / f**2) + ((f_sd**2 * p**2) / f**4)) ** 0.5).alias(
+    "frac_fd_control_sd"
+)
+
+frac_max_uptake = (p / nw.col("max_uptake")).alias("frac_max_uptake")
+frac_max_uptake_sd = (p_sd / nw.col("max_uptake")).alias("frac_max_uptake_sd")
