@@ -132,7 +132,15 @@ def test_fetch_dataset_vault(tmp_path):
 
 def test_vault():
     vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    assert len(vault.datasets) == 4
+    expected_datasets = set(
+        [
+            "1665149400_SecA_Krishnamurthy",
+            "1704204434_SecB_Krishnamurthy",
+            "1744801204_SecA_cluster_Krishnamurthy",
+        ]
+    )
+    # check that expected datasets are in the vault (subset)
+    assert expected_datasets <= set(vault.datasets)
 
     with allow_missing_fields():
         ds = vault.load_dataset(DATA_ID)

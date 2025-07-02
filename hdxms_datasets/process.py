@@ -292,7 +292,7 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
         record["start"] = start
         record["end"] = end
         record["exposure"] = exposure
-        record["n_replicates"] = df_group["file"].n_unique()
+        record["n_replicates"] = df_group["replicate"].n_unique()
         record["n_cluster"] = len(df_group)
 
         # add intensity-weighted average columns
@@ -321,7 +321,7 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
 
 def sort(df: nw.DataFrame) -> nw.DataFrame:
     """Sorts the DataFrame by state, exposure, start, end, file."""
-    all_by = ["state", "exposure", "start", "end", "file"]
+    all_by = ["state", "exposure", "start", "end", "replicate"]
     by = [col for col in all_by if col in df.columns]
     return df.sort(by=by)
 

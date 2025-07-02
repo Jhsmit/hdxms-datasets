@@ -14,7 +14,7 @@ def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
         "Start": "start",
         "End": "end",
         "Sequence": "sequence",
-        "File": "file",
+        "File": "replicate",
         "z": "charge",
         "Center": "centroid_mz",
         "Inten": "intensity",
@@ -28,7 +28,7 @@ def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
         dynamx_df.rename(column_mapping)
         .with_columns([centroid_mass, nw.col("exposure") * 60.0])
         .select(column_order)
-        .sort(by=["state", "exposure", "start", "end", "file"])
+        .sort(by=["state", "exposure", "start", "end", "replicate"])
     )
 
     return df
@@ -43,8 +43,6 @@ def from_dynamx_state(dynamx_df: nw.DataFrame) -> nw.DataFrame:
         "Sequence": "sequence",
         "Uptake": "uptake",
         "Uptake SD": "uptake_sd",
-        # "File": "file",
-        # "z": "charge",
         "Center": "centroid_mz",
         "RT": "rt",
         "RT SD": "rt_sd",
@@ -81,7 +79,7 @@ def from_hdexaminer(
         "Start": "start",
         "End": "end",
         "Sequence": "sequence",
-        "Experiment": "file",
+        "Experiment": "replicate",
         "Charge": "charge",
         "Exp Cent": "centroid_mz",
         "Max Inty": "intensity",
@@ -114,7 +112,7 @@ def from_hdexaminer(
         hd_examiner_df.rename(column_mapping)
         .with_columns([centroid_mass, rt_series])
         .select(column_order)
-        .sort(by=["state", "exposure", "start", "end", "file"])
+        .sort(by=["state", "exposure", "start", "end", "replicate"])
     )
 
     return cast_exposure(df)
