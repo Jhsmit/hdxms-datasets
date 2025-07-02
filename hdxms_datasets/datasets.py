@@ -324,7 +324,8 @@ class Peptides:
         self,
         convert: bool = True,
         aggregate: bool | None = None,
-        sort: bool = True,
+        sort_rows: bool = True,
+        sort_columns: bool = True,
         drop_null: bool = True,
     ) -> nw.DataFrame:
         df = process.filter_from_spec(self.data_file.read(), **self.filters)
@@ -341,9 +342,13 @@ class Peptides:
             warnings.warn("Cannot aggregate data without conversion. Aggeregation will be skipped.")
             aggregate = False
 
-        if not convert and sort:
-            warnings.warn("Cannot sort data without conversion. Sorting will be skipped.")
-            sort = False
+        if not convert and sort_rows:
+            warnings.warn("Cannot sort rows without conversion. Sorting will be skipped.")
+            sort_rows = False
+
+        if not convert and sort_columns:
+            warnings.warn("Cannot sort columns without conversion. Sorting will be skipped.")
+            sort_columns = False
 
         if convert:
             if self.data_file.format is None:
@@ -360,11 +365,14 @@ class Peptides:
         if aggregate:
             df = process.aggregate(df)
 
-        if sort:
-            df = process.sort(df)
-
         if drop_null:
             df = process.drop_null_columns(df)
+
+        if sort_rows:
+            df = process.sort_rows(df)
+
+        if sort_columns:
+            df = process.sort_columns(df)
 
         return df
 
