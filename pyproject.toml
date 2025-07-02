@@ -29,6 +29,8 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
+plot = ['altair', 'numpy', 'polars', 'cmap']
+web = ['solara']
 docs = [
     "mkdocs>=1.4.2",
     "mkdocstrings[python]>=0.19.1",

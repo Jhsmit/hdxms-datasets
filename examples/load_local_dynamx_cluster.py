@@ -5,7 +5,8 @@ from pathlib import Path
 from hdxms_datasets import DataVault
 from hdxms_datasets.datasets import allow_missing_fields
 from hdxms_datasets.process import compute_uptake_metrics, merge_peptides
-
+from hdxms_datasets.plot import plot_peptides
+import polars as pl
 # %%
 
 DATASET = "1744801204_SecA_cluster_Krishnamurthy"
@@ -53,6 +54,13 @@ print(df)
 # do the previous two steps in one go
 processed = state.compute_uptake_metrics().to_polars()
 processed
+
+# %%
+# plot the uptake values for the first exposure
+exposure_value = processed["exposure"].unique()[0]
+selected = processed.filter(pl.col("exposure") == exposure_value)
+
+plot_peptides(selected, value="uptake")
 
 
 # %%
