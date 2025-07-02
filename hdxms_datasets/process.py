@@ -12,6 +12,7 @@ from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.backend import BACKEND
+from hdxms_datasets.formats import OPEN_HDX_COLUMNS
 
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
@@ -319,11 +320,20 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     return agg_df
 
 
-def sort(df: nw.DataFrame) -> nw.DataFrame:
+def sort_rows(df: nw.DataFrame) -> nw.DataFrame:
     """Sorts the DataFrame by state, exposure, start, end, file."""
     all_by = ["state", "exposure", "start", "end", "replicate"]
     by = [col for col in all_by if col in df.columns]
     return df.sort(by=by)
+
+
+def sort_columns(df: nw.DataFrame, columns: list[str] = OPEN_HDX_COLUMNS) -> nw.DataFrame:
+    matching_columns = [col for col in columns if col in df.columns]
+    other_columns = [col for col in df.columns if col not in matching_columns]
+
+    assert set(df.columns) == set(matching_columns + other_columns)
+
+    return df[matching_columns + other_columns]
 
 
 def drop_null_columns(df: nw.DataFrame) -> nw.DataFrame:
@@ -386,12 +396,15 @@ def compute_uptake_metrics(df: nw.DataFrame, exception="raise") -> nw.DataFrame:
     Possible columns to add are: uptake, uptake_sd, fd_uptake, fd_uptake_sd, rfu, max_uptake.
     """
     all_columns = {
+        "max_uptake": hdx_expr.max_uptake,
         "uptake": hdx_expr.uptake,
         "uptake_sd": hdx_expr.uptake_sd,
         "fd_uptake": hdx_expr.fd_uptake,
         "fd_uptake_sd": hdx_expr.fd_uptake_sd,
-        "rfu": hdx_expr.rfu,
-        "max_uptake": hdx_expr.max_uptake,
+        "frac_fd_control": hdx_expr.frac_fd_control,
+        "frac_fd_control_sd": hdx_expr.frac_fd_control_sd,
+        "frac_max_uptake": hdx_expr.frac_max_uptake,
+        "frac_max_uptake_sd": hdx_expr.frac_max_uptake_sd,
     }
 
     for col, expr in all_columns.items():
