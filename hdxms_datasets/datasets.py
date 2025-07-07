@@ -11,7 +11,6 @@ from pathlib import Path
 from string import Template
 from typing import TYPE_CHECKING, Any, NotRequired, Optional, Type, TypedDict, Union
 
-from cmap import Colormap
 import narwhals as nw
 import yaml
 
@@ -171,43 +170,45 @@ class PeptideMetadata(TypedDict):
     d_percentage: float  # Deuteration percentage
 
 
-@dataclass
-class Structure:
-    data_file: StructureFile
-    chain: list[str] = field(default_factory=list)  # empty list for all chains
-    auth_residue_numbers: bool = field(default=False)
-    auth_chain_labels: bool = field(default=False)
+class PDBeMolstar:
+    def __init__(self, structure: Structure, **kwargs):
+        """
+        Initialize the PDBeMolstar visualization namespace.
 
-    _molstar_kwargs: dict[str, Any] = field(default_factory=dict, init=False)
+        Args:
+            structure: The structure to visualize.
+            **kwargs: Additional keyword arguments for customization.
+        """
+        self.structure = structure
+        self._molstar_kwargs = kwargs
 
     @property
     def residue_name(self) -> str:
         """
         Returns the residue name based on whether auth residue numbers are used.
         """
-        return "auth_residue_number" if self.auth_residue_numbers else "residue_number"
+        return "auth_residue_number" if self.structure.auth_residue_numbers else "residue_number"
 
     @property
     def chain_name(self) -> str:
         """
         Returns the chain name based on whether auth chain labels are used.
         """
-        return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
+        return "auth_asym_id" if self.structure.auth_chain_labels else "struct_asym_id"
 
-    def _augment_chain(self, data: list[dict[str, ValueType]]) -> list[dict[str, ValueType]]:
-        """augment a list of data with chain information"""
-        if self.chain:
-            aug_data = []
-            for elem, chain in itertools.product(data, self.chain):
-                aug_data.append(elem | {self.chain_name: chain})
-        else:
-            aug_data = data
+    def show(self, hide_water=True, **kwargs) -> PDBeMolstar:
+        from ipymolstar import PDBeMolstar
 
-        return aug_data
+        return PDBeMolstar(
+            custom_data=self.structure.data_file.pdbemolstar_custom_data(),
+            hide_water=hide_water,
+            **self._molstar_kwargs,
+            **kwargs,
+        )
 
     def color_peptide(
         self, start: int, end: int, color: str = "red", non_selected_color: str = "lightgray"
-    ) -> Structure:
+    ) -> PDBeMolstar:
         c_dict = {
             "start_" + self.residue_name: start,
             "end_" + self.residue_name: end,
@@ -222,12 +223,12 @@ class Structure:
         }
 
         self._molstar_kwargs["color_data"] = color_data
-
+        self._molstar_kwargs["tooltips"] = None
         return self
 
     def peptide_coverage(
         self, df, start="start", end="end", color="red", non_selected_color: str = "lightgray"
-    ) -> Structure:
+    ) -> PDBeMolstar:
         intervals = contiguous_peptides(df, start=start, end=end)
 
         data = []
@@ -245,6 +246,7 @@ class Structure:
         }
 
         self._molstar_kwargs["color_data"] = color_data
+        self._molstar_kwargs["tooltips"] = None
         return self
 
     def non_overlapping_peptides(
@@ -254,7 +256,7 @@ class Structure:
         end="end",
         colors: list[str] | None = None,
         non_selected_color: str = "lightgray",
-    ) -> Structure:
+    ) -> PDBeMolstar:
         """selects a set of non-overlapping peptides to display on the structure"""
         intervals = non_overlapping_peptides(df, start=start, end=end)
 
@@ -279,6 +281,7 @@ class Structure:
         }
 
         self._molstar_kwargs["color_data"] = color_data
+        self._molstar_kwargs["tooltips"] = None
         return self
 
     def peptide_redundancy(
@@ -288,7 +291,7 @@ class Structure:
         end="end",
         colors: list[str] | None = None,
         non_selected_color: str = "lightgray",
-    ) -> Structure:
+    ) -> PDBeMolstar:
         """selects a set of non-overlapping peptides to display on the structure"""
         r_number, redundancy = peptide_redundancy(df, start=start, end=end)
 
@@ -300,17 +303,22 @@ class Structure:
         color_lut = {i + 1: colors[i] for i in range(len(colors))}
 
         data = []
+        tooltips = []
         for rn, rv in zip(r_number, redundancy.clip(0, len(colors) - 1)):
+            tooltips.append(
+                {
+                    f"{self.residue_name}": int(rn),
+                    "tooltip": f"Redundancy: {rv} peptides",
+                }
+            )
+
             if rv == 0:
                 continue
-            elem = {
-                f"{self.residue_name}": rn,
+            color_elem = {
+                f"{self.residue_name}": int(rn),
                 "color": color_lut[rv],
             }
-            data.append(elem)
-
-        # tooltips:
-        # { 'struct_asym_id': 'A', 'tooltip': 'Custom tooltip for chain A' },
+            data.append(color_elem)
 
         color_data = {
             "data": self._augment_chain(data),
@@ -318,16 +326,38 @@ class Structure:
         }
 
         self._molstar_kwargs["color_data"] = color_data
+        self._molstar_kwargs["tooltips"] = {"data": self._augment_chain(tooltips)}
         return self
 
-    def show(self, hide_water=True, **kwargs) -> PDBeMolstar:
-        from ipymolstar import PDBeMolstar
+    def _augment_chain(self, data: list[dict[str, ValueType]]) -> list[dict[str, ValueType]]:
+        """augment a list of data with chain information"""
+        if self.structure.chain:
+            aug_data = []
+            for elem, chain in itertools.product(data, self.structure.chain):
+                aug_data.append(elem | {self.chain_name: chain})
+        else:
+            aug_data = data
 
-        return PDBeMolstar(
-            custom_data=self.data_file.pdbemolstar_custom_data(),
-            hide_water=hide_water,
-            **self._molstar_kwargs,
-        )
+        return aug_data
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return self.show()._repr_mimebundle_(
+            include=include, exclude=exclude
+        )  # or however ipymolstar handles display
+
+
+@dataclass
+class Structure:
+    data_file: StructureFile
+    chain: list[str] = field(default_factory=list)  # empty list for all chains
+    auth_residue_numbers: bool = field(default=False)
+    auth_chain_labels: bool = field(default=False)
+
+    _molstar_kwargs: dict[str, Any] = field(default_factory=dict, init=False)
+
+    def pdbemolstar(self, **kwargs):
+        """Return a PDBeMolstar visualization namespace."""
+        return PDBeMolstar(self, **kwargs)
 
     @classmethod
     def null_structure(cls) -> Structure:
