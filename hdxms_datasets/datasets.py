@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import shutil
 import time
 import uuid
@@ -8,8 +9,9 @@ from dataclasses import dataclass, field
 from io import StringIO, BytesIO
 from pathlib import Path
 from string import Template
-from typing import Any, NotRequired, Optional, Type, TypedDict, Union
+from typing import TYPE_CHECKING, Any, NotRequired, Optional, Type, TypedDict, Union
 
+from cmap import Colormap
 import narwhals as nw
 import yaml
 
@@ -18,7 +20,15 @@ from hdxms_datasets.formats import FMT_LUT, HDXFormat, identify_format
 from hdxms_datasets.reader import read_csv
 from contextlib import contextmanager
 
-from hdxms_datasets.utils import default_protein_info
+from hdxms_datasets.utils import (
+    contiguous_peptides,
+    default_protein_info,
+    non_overlapping_peptides,
+    peptide_redundancy,
+)
+
+if TYPE_CHECKING:
+    from ipymolstar import PDBeMolstar
 
 TEMPLATE_DIR = Path(__file__).parent / "template"
 ValueType = str | float | int
@@ -151,7 +161,6 @@ class ProteinInfo(TypedDict):
     ligand: NotRequired[str]  # Optional bound ligand information
     uniprot_id: NotRequired[str]  # Optional UniProt ID
     molecular_weight: NotRequired[float]  # Optional molecular weight in Da
-    structure: NotRequired[str]  # Optional structure name, identified in yaml file
 
 
 class PeptideMetadata(TypedDict):
@@ -167,34 +176,158 @@ class Structure:
     data_file: StructureFile
     chain: list[str] = field(default_factory=list)  # empty list for all chains
     auth_residue_numbers: bool = field(default=False)
+    auth_chain_labels: bool = field(default=False)
 
-    def pdbemolstar_custom_data(self) -> dict[str, Any]:
+    _molstar_kwargs: dict[str, Any] = field(default_factory=dict, init=False)
+
+    @property
+    def residue_name(self) -> str:
         """
-        Returns a dictionary with custom data for PDBeMolstar visualization.
+        Returns the residue name based on whether auth residue numbers are used.
         """
+        return "auth_residue_number" if self.auth_residue_numbers else "residue_number"
 
-        return self.data_file.pdbemolstar_custom_data()
+    @property
+    def chain_name(self) -> str:
+        """
+        Returns the chain name based on whether auth chain labels are used.
+        """
+        return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
 
-    def pdbemolstar_color_peptide(
-        self, start: int, end: int, color: str = "red", non_selected_color: str = "lightgray"
-    ) -> dict[str, Any]:
-        auth = "auth_" if self.auth_residue_numbers else ""
-
-        r_name = auth + "residue_number"
-        chain_name = "auth_asym_id" if self.auth_residue_numbers else "struct_asym_id"
-        c_dict = {"start_" + r_name: start, "end_" + r_name: end, "color": color}
-
+    def _augment_chain(self, data: list[dict[str, ValueType]]) -> list[dict[str, ValueType]]:
+        """augment a list of data with chain information"""
         if self.chain:
-            data = [c_dict | {chain_name: c} for c in self.chain]
+            aug_data = []
+            for elem, chain in itertools.product(data, self.chain):
+                aug_data.append(elem | {self.chain_name: chain})
         else:
-            data = [c_dict]
+            aug_data = data
+
+        return aug_data
+
+    def color_peptide(
+        self, start: int, end: int, color: str = "red", non_selected_color: str = "lightgray"
+    ) -> Structure:
+        c_dict = {
+            "start_" + self.residue_name: start,
+            "end_" + self.residue_name: end,
+            "color": color,
+        }
+
+        data = self._augment_chain([c_dict])
 
         color_data = {
             "data": data,
             "nonSelectedColor": non_selected_color,
         }
 
-        return color_data
+        self._molstar_kwargs["color_data"] = color_data
+
+        return self
+
+    def peptide_coverage(
+        self, df, start="start", end="end", color="red", non_selected_color: str = "lightgray"
+    ) -> Structure:
+        intervals = contiguous_peptides(df, start=start, end=end)
+
+        data = []
+        for start, end in intervals:
+            elem = {
+                f"start_{self.residue_name}": start,
+                f"end_{self.residue_name}": end,
+                "color": color,
+            }
+            data.append(elem)
+
+        color_data = {
+            "data": self._augment_chain(data),
+            "nonSelectedColor": non_selected_color,
+        }
+
+        self._molstar_kwargs["color_data"] = color_data
+        return self
+
+    def non_overlapping_peptides(
+        self,
+        df,
+        start="start",
+        end="end",
+        colors: list[str] | None = None,
+        non_selected_color: str = "lightgray",
+    ) -> Structure:
+        """selects a set of non-overlapping peptides to display on the structure"""
+        intervals = non_overlapping_peptides(df, start=start, end=end)
+
+        colors = (
+            colors
+            if colors is not None
+            else ["#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02"]
+        )
+
+        data = []
+        for (start, end), color in zip(intervals, itertools.cycle(colors)):
+            elem = {
+                f"start_{self.residue_name}": start,
+                f"end_{self.residue_name}": end,
+                "color": color,
+            }
+            data.append(elem)
+
+        color_data = {
+            "data": self._augment_chain(data),
+            "nonSelectedColor": non_selected_color,
+        }
+
+        self._molstar_kwargs["color_data"] = color_data
+        return self
+
+    def peptide_redundancy(
+        self,
+        df,
+        start="start",
+        end="end",
+        colors: list[str] | None = None,
+        non_selected_color: str = "lightgray",
+    ) -> Structure:
+        """selects a set of non-overlapping peptides to display on the structure"""
+        r_number, redundancy = peptide_redundancy(df, start=start, end=end)
+
+        colors = (
+            colors
+            if colors is not None
+            else ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
+        )
+        color_lut = {i + 1: colors[i] for i in range(len(colors))}
+
+        data = []
+        for rn, rv in zip(r_number, redundancy.clip(0, len(colors) - 1)):
+            if rv == 0:
+                continue
+            elem = {
+                f"{self.residue_name}": rn,
+                "color": color_lut[rv],
+            }
+            data.append(elem)
+
+        # tooltips:
+        # { 'struct_asym_id': 'A', 'tooltip': 'Custom tooltip for chain A' },
+
+        color_data = {
+            "data": self._augment_chain(data),
+            "nonSelectedColor": non_selected_color,
+        }
+
+        self._molstar_kwargs["color_data"] = color_data
+        return self
+
+    def show(self, hide_water=True, **kwargs) -> PDBeMolstar:
+        from ipymolstar import PDBeMolstar
+
+        return PDBeMolstar(
+            custom_data=self.data_file.pdbemolstar_custom_data(),
+            hide_water=hide_water,
+            **self._molstar_kwargs,
+        )
 
     @classmethod
     def null_structure(cls) -> Structure:
@@ -209,7 +342,6 @@ class Structure:
                 format="null",
                 extension=".null",
             ),
-            chain=[],
             auth_residue_numbers=False,
         )
 
@@ -289,7 +421,7 @@ def parse_peptides(
 
 
 def parse_structures(
-    structures_spec: dict[str, Any], data_files: dict[str, StructureFile]
+    structures_spec: dict[str, Any], data_file: StructureFile
 ) -> dict[str, Structure]:
     """
     Parse the structures specification and return a dictionary of Structure objects.
@@ -303,7 +435,6 @@ def parse_structures(
     """
     structures = {}
     for name, spec in structures_spec.items():
-        data_file = data_files[spec["data_file"]]
         structure = Structure(
             data_file=data_file,
             chain=spec.get("chain", []),  # empty list for all chains
@@ -475,26 +606,12 @@ class DataSet:
         }
         peptides = parse_peptides(self.hdx_specification["peptides"], peptide_table_files)
 
-        structure_files = {k: f for k, f in self.data_files.items() if isinstance(f, StructureFile)}
-        structures = parse_structures(self.hdx_specification.get("structures", {}), structure_files)
+        structure_file = next(
+            (f for f in self.data_files.values() if isinstance(f, StructureFile)), None
+        )
 
         for state_name, state_peptide_dict in peptides.items():
-            # for state_name, state_peptides in self.hdx_specification["peptides"].items():
-            #     # Build peptide dictionary for this state
-            #     state_peptide_dict = {}
-
-            #     # Process each peptide set for this state
-            #     for peptide_type, peptide_spec in state_peptides.items():
-            #         peptide_obj = Peptides(
-            #             data_file=self.data_files[peptide_spec["data_file"]],
-            #             filters=peptide_spec["filters"],
-            #             metadata=peptide_spec.get("metadata", None),
-            #         )
-
-            #         # Add to state-specific dictionary
-            #         state_peptide_dict[peptide_type] = peptide_obj
-
-            #     # Get protein information for this state
+            # Get protein information for this state
             try:
                 protein_info = self.protein_spec[state_name]
             except KeyError:
@@ -515,19 +632,24 @@ class DataSet:
                         f"No protein information found for state '{state_name}'. "
                         f"Use 'allow_missing_fields()' context manager to generate minimal info."
                     )
-
-            try:
-                structure_name = protein_info["structure"]  # type: ignore
-                structure = structures[structure_name]
-            except KeyError:
+            structure_spec = self.hdx_specification.get("structures", {}).get(
+                protein_info.get("structure", ""), None
+            )
+            if structure_spec is None or structure_file is None:
                 if ALLOW_MISSING_FIELDS:
                     # If no structure is specified, use a null structure
                     structure = Structure.null_structure()
                 else:
-                    raise KeyError(
+                    raise ValueError(
                         f"No structure information found for state '{state_name}'. "
-                        f"Use 'allow_missing_structure_info()' context manager to generate a null structure."
+                        f"Use 'allow_missing_fields()' context manager to generate a null structure."
                     )
+            else:
+                structure = Structure(
+                    data_file=structure_file,
+                    chain=structure_spec.get("chain", []),  # empty list for all chains
+                    auth_residue_numbers=structure_spec.get("auth_residue_numbers", False),
+                )
 
             # Create and store the DataState object
             self.states[state_name] = DataState(
