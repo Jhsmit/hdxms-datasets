@@ -56,19 +56,20 @@ processed
 # %%
 # show the first peptide on the structure
 start, end = processed["start", "end"].row(10)
-view = state.structure.color_peptide(start, end).show()
+view = state.structure.pdbemolstar().color_peptide(start, end)
 view
 
 # %%
 # show regions of the structure that are covered by peptides
-view = state.structure.peptide_coverage(processed, color="blue").show()
+pdbemolstar = state.structure.pdbemolstar()
+view = pdbemolstar.peptide_coverage(processed, color="blue")
 view
 
 # %%
 # show a set of non-overlapping peptides on the structure
-view = state.structure.non_overlapping_peptides(processed).show()
+view = pdbemolstar.non_overlapping_peptides(processed)
 view
 
 # %%
-view = state.structure.peptide_redundancy(processed).show()
+view = pdbemolstar.peptide_redundancy(processed)
 view
