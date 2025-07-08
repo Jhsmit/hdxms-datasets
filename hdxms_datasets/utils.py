@@ -43,7 +43,7 @@ def reconstruct_sequence(peptides: nw.DataFrame, known_sequence: str, n_term: in
     return "".join(reconstructed)
 
 
-def check_sequence(
+def verify_sequence(
     peptides: nw.DataFrame, known_sequence: str, n_term: int = 1
 ) -> list[tuple[int, str, str]]:
     """
