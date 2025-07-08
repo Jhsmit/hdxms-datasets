@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from io import StringIO, BytesIO
 from pathlib import Path
 from string import Template
-from typing import TYPE_CHECKING, Any, NotRequired, Optional, Type, TypedDict, Union
+from typing import Any, NotRequired, Optional, Type, TypedDict, Union
 
 import narwhals as nw
 import yaml
@@ -515,7 +515,10 @@ class Peptides:
             sort_columns = False
 
         if convert:
-            df = format.convert(df)
+            assert self.data_file.format is not None, (
+                "Data file format must be set before conversion"
+            )
+            df = self.data_file.format.convert(df)
 
         if aggregate:
             df = process.aggregate(df)
