@@ -481,9 +481,8 @@ def parse_structures(
 @dataclass
 class Peptides:
     data_file: PeptideTableFile
-    filters: dict[str, ValueType | list[ValueType]]
-
-    metadata: PeptideMetadata | None
+    filters: dict[str, ValueType | list[ValueType]] = field(default_factory=dict)
+    metadata: PeptideMetadata | None = None
 
     def load(
         self,
@@ -516,15 +515,6 @@ class Peptides:
             sort_columns = False
 
         if convert:
-            if self.data_file.format is None:
-                print("is none", self.data_file.name)
-                format = identify_format(df.columns)
-            else:
-                format = self.data_file.format
-
-            if format is None:
-                raise ValueError("Could not identify format")
-
             df = format.convert(df)
 
         if aggregate:
