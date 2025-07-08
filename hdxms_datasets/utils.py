@@ -14,6 +14,7 @@ def diff_sequence(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
+@nw.narwhalify
 def reconstruct_sequence(peptides: nw.DataFrame, known_sequence: str, n_term: int = 1) -> str:
     """
     Reconstruct the sequence form a dataframe of peptides with sequence information.
@@ -43,11 +44,12 @@ def reconstruct_sequence(peptides: nw.DataFrame, known_sequence: str, n_term: in
     return "".join(reconstructed)
 
 
-def verify_sequence(
-    peptides: nw.DataFrame, known_sequence: str, n_term: int = 1
+@nw.narwhalify
+def validate_sequence(
+    peptides: IntoFrame, known_sequence: str, n_term: int = 1
 ) -> list[tuple[int, str, str]]:
     """
-    Check the sequence of peptides against the given sequence.
+    Verify the sequence of peptides against the given sequence.
 
     Args:
         peptides: DataFrame containing peptide information.
@@ -70,13 +72,13 @@ def verify_sequence(
     return mismatches
 
 
-def default_protein_info(peptides: nw.DataFrame) -> ProteinInfo:
+@nw.narwhalify
+def default_protein_info(peptides: IntoFrame) -> ProteinInfo:
     """Generate minimal protein info from a set of peptides"""
-    # Start with partially deuterated peptides as they're most likely to be present
 
     # Find minimum start and maximum end positions
-    min_start = peptides["start"].min()
-    max_end = peptides["end"].max()
+    min_start = peptides["start"].min()  # type: ignore
+    max_end = peptides["end"].max()  # type: ignore
 
     # Estimate sequence length
     sequence_length = max_end - min_start + 1

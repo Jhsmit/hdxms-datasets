@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 from hdxms_datasets.datavault import DataVault
-from hdxms_datasets.utils import verify_sequence
+from hdxms_datasets.utils import validate_sequence
 import polars as pl
 import numpy as np
 import narwhals as nw
@@ -48,7 +48,7 @@ def test_check_sequence(r_number):
     ]
     df = pl.DataFrame(records, schema=["start", "end", "sequence"], orient="row")
 
-    mismatches = verify_sequence(nw.from_native(df), known_sequence, n_term)
+    mismatches = validate_sequence(nw.from_native(df), known_sequence, n_term)
 
     for mismatch, expected in zip(mismatches, expected_mismatches_by_inx):
         idx, c1, c2 = expected
@@ -63,5 +63,5 @@ def test_secb_data_sequence():
         sequence = state.get_sequence()
         pd_peptides = state.peptides["partially_deuterated"].load()
 
-        mismatches = verify_sequence(pd_peptides, sequence, n_term=1)
+        mismatches = validate_sequence(pd_peptides, sequence, n_term=1)
         assert len(mismatches) == 0
