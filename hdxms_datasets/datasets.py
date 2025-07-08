@@ -26,8 +26,6 @@ from hdxms_datasets.utils import (
     peptide_redundancy,
 )
 
-if TYPE_CHECKING:
-    from ipymolstar import PDBeMolstar
 
 TEMPLATE_DIR = Path(__file__).parent / "template"
 ValueType = str | float | int
