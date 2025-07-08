@@ -350,6 +350,8 @@ def filter_from_spec(df, **filters):
         else:
             expr = nw.col(col) == val
         exprs.append(expr)
+    if not exprs:
+        return df
     f_expr = reduce(and_, exprs)
     return df.filter(f_expr)
 
