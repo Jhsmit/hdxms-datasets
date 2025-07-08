@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional, Protocol
 from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
 import narwhals as nw
@@ -41,13 +42,37 @@ class HDXFormat(Protocol):
     columns: list[str]
     state_name: str
     exposure_name: str
-    aggregated: bool = False  # whether the data is aggregated or expanded as multiple replicates
+    # aggregated: bool = False  # whether the data is aggregated or expanded as multiple replicates
 
     def convert(self, df: nw.DataFrame) -> nw.DataFrame:
         """
         Convert the DataFrame to a standard format.
         """
         ...
+
+    @property
+    def aggregated(self) -> bool: ...
+
+
+@dataclass
+class OpenHDXFormat:
+    """A format where columns names are standardized to a common set.
+
+    Hence OpenHDXFormat.convert() is a no-op.
+
+    """
+
+    columns = STANDARD_COLUMNS + OPTIONAL_COLUMNS
+    state_name = "state"
+    exposure_name = "exposure"
+    aggregated: bool  #  = True  # whether the data is aggregated or expanded as multiple replicates
+
+    def convert(self, df: nw.DataFrame) -> nw.DataFrame:
+        """
+        Convert the DataFrame to a standard format.
+        """
+
+        return df
 
 
 class DynamX_vx_state:
@@ -173,15 +198,17 @@ HDX_FORMATS: list[HDXFormat] = [
     DynamX_v3_state(),
     DynamX_v3_cluster(),
     HDExaminer_v3(),
+    # OpenHDXFormat(),
 ]
 
 # lookup table to get instance from name
 FMT_LUT = {fmt.__class__.__name__: fmt for fmt in HDX_FORMATS}
 
 
-def identify_format(cols: list[str], *, exact: bool = True) -> Optional[HDXFormat]:
+def identify_format(df: nw.DataFrame, *, exact: bool = True) -> Optional[HDXFormat]:
     """
-    Identify which HDXFormat subclass the given column list matches.
+    Identify which HDXFormat subclass the given column list matches. If there is no match,
+    return an OpenHDXFormat instance with aggregated set to True if 'replicate' is in the columns.
 
     Args:
         cols: The column names to check.
@@ -190,10 +217,16 @@ def identify_format(cols: list[str], *, exact: bool = True) -> Optional[HDXForma
     Returns:
         The matching HDXFormat subclass, or None if no match.
     """
-    for fmt_class in HDX_FORMATS:
-        template = fmt_class.columns
+    cols = df.columns
+    for fmt in HDX_FORMATS:
+        template = fmt.columns
         if exact and cols == template:
-            return fmt_class
+            return fmt
         elif not exact and set(cols) == set(template):
-            return fmt_class
-    return None
+            return fmt
+
+    # it there is no match, we try to return the OpenHDXFormat
+    aggregated = "replicate" not in cols
+    fmt = OpenHDXFormat(aggregated=aggregated)
+
+    return fmt
