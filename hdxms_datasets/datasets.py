@@ -98,6 +98,12 @@ class PeptideTableFile(DataFile):
     extension: Optional[str] = None
     """File extension, e.g. .csv, in case of a file-like object"""
 
+    def __post_init__(self):
+        if self.format is None:
+            df = self.read()
+            fmt = identify_format(df, exact=False)
+            self.__dict__["format"] = fmt
+
     def read(self) -> nw.DataFrame:
         if isinstance(self.filepath_or_buffer, (StringIO, BytesIO)):
             extension = self.extension
