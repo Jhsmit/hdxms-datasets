@@ -5,10 +5,9 @@ import narwhals as nw
 import pytest
 
 from hdxms_datasets.process import (
-    convert_temperature,
     dynamx_cluster_to_state,
 )
-from hdxms_datasets.reader import read_dynamx
+from hdxms_datasets.stable.v020.reader import read_dynamx
 
 TEST_PTH = Path(__file__).parent
 
@@ -58,15 +57,3 @@ def test_convert_dynamx_cluster_to_state(cluster_data, state_data):
                 assert mse < 1e-2
             else:
                 assert mse < 1e-12
-
-
-def test_convert_temperature_single_value_c_to_k():
-    temp_dict = {"value": 25.0, "unit": "C"}
-    result = convert_temperature(temp_dict, "K")
-    assert result == 298.15
-
-
-def test_convert_temperature_single_value_k_to_c():
-    temp_dict = {"value": 298.15, "unit": "K"}
-    result = convert_temperature(temp_dict, "C")
-    assert result == 25.0

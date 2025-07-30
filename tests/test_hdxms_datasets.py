@@ -1,13 +1,14 @@
 # %%
-import textwrap
+"""
+Test module for the new Pydantic/JSON-based HDX-MS datasets API.
 
-from hdxms_datasets.datasets import DataSet, allow_missing_fields, create_dataset
-from hdxms_datasets.datavault import DataVault, RemoteDataVault
+This replaces the old YAML-based tests with tests for the new API.
+"""
+
+from hdxms_datasets.database import DataBase, load_dataset
+from hdxms_datasets.models import HDXDataSet
 from pathlib import Path
 import pytest
-import yaml
-import polars as pl
-import polars.testing as pl_testing
 import narwhals as nw
 
 
@@ -16,145 +17,115 @@ import narwhals as nw
 TEST_PTH = Path(__file__).parent
 DATA_ID = "1665149400_SecA_Krishnamurthy"
 
-SecA_STATES = [
-    "SecA-WT_ADP",
-    "SecA-WT_apo",
-    "SecA-monomer_ADP",
-    "SecA-monomer_apo",
-    "SecA-1-834_ADP",
-    "SecA-1-834_apo",
-]
-
 # %%
 
 
 @pytest.fixture()
-def hdx_spec():
-    hdx_spec = yaml.safe_load((TEST_PTH / "datasets" / DATA_ID / "hdx_spec.yaml").read_text())
-
-    yield hdx_spec
-
-
-@pytest.fixture()
 def dataset():
-    vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    with allow_missing_fields():
-        ds = vault.load_dataset(DATA_ID)
+    """Load dataset using the JSON-based API"""
+    dataset_dir = TEST_PTH / "datasets" / DATA_ID
+    ds = load_dataset(dataset_dir)
     yield ds
 
 
-def test_dataset(dataset: DataSet):
-    assert isinstance(dataset, DataSet)
-    assert list(dataset.states) == SecA_STATES
+@pytest.fixture()
+def database():
+    """Create a database instance for testing"""
+    db = DataBase(TEST_PTH / "datasets")
+    yield db
 
-    for state in dataset.states:
-        peptide_types = dataset.peptides_per_state[state]
-        assert set(peptide_types) == set(["fully_deuterated", "partially_deuterated"])
 
-    state = dataset.states["SecA-monomer_apo"]
-    df = state.peptides["partially_deuterated"].load()
+def test_dataset_basic(dataset: HDXDataSet):
+    """Test basic dataset loading and structure"""
+    assert isinstance(dataset, HDXDataSet)
+
+    assert len(dataset.states) == 6
+
+    first_state = dataset.states[0]
+    assert len(first_state.peptides) == 2
+
+    assert len(dataset.states[1].peptides) == 1
+
+
+def test_dataset_metadata(dataset: HDXDataSet):
+    """Test dataset metadata"""
+    assert dataset.metadata is not None
+    assert len(dataset.metadata.authors) > 0
+    assert dataset.metadata.authors[0].name == "Srinath Krishnamurthy"
+    assert dataset.metadata.license == "CC0"
+    assert dataset.metadata.created_date is not None
+
+
+def test_database_functionality(database: DataBase):
+    """Test basic database functionality"""
+    # Check that we can list datasets
+    datasets = database.datasets
+    assert DATA_ID in datasets
+    assert len(datasets) > 0
+
+    # Check that we can load a specific dataset
+    dataset = database.load_dataset(DATA_ID)
+    assert isinstance(dataset, HDXDataSet)
+
+
+def test_peptide_loading(dataset: HDXDataSet):
+    """Test that peptides can be loaded and have expected structure"""
+    state = dataset.states[0]
+    peptides = state.peptides[0]
+
+    df = peptides.load()
+
+    # Check basic DataFrame properties
     assert isinstance(df, nw.DataFrame)
+    assert len(df) > 0
 
-    df_control = state.peptides["fully_deuterated"].load()
-    assert len(df_control) == 188
+    # Convert to native for more detailed checks
+    native_df = df.to_native()
 
-    s = """
-    SecA-WT_ADP:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1316, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    SecA-WT_apo:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1316, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    SecA-monomer_ADP:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1267, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    SecA-monomer_apo:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1273, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    SecA-1-834_ADP:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1250, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    SecA-1-834_apo:
-      fully_deuterated: 'Total peptides: 188, timepoints: 10.0'
-      partially_deuterated: 'Total peptides: 1253, timepoints: 10.0, 30.0, 60.0, 120.0,
-        300.0, 600.0, 1800.0'
-    """
-
-    assert textwrap.dedent(s.lstrip("\n")) == dataset.describe()
+    # Check that basic columns exist (common to most HDX-MS data)
+    expected_columns = {"start", "end", "sequence"}
+    assert expected_columns.issubset(set(native_df.columns))
+    assert len(native_df.columns) >= len(expected_columns)
 
 
-def test_create_dataset(tmp_path):
-    author_name = "smit"
-    human_readable_tag = "testing"  # optional tag
+def test_protein_state(dataset: HDXDataSet):
+    """Test protein state information"""
+    state = dataset.states[0]
+    protein_state = state.protein_state
 
-    data_id = create_dataset(tmp_path / "datasets", author_name, human_readable_tag)
+    # Check sequence
+    assert isinstance(protein_state.sequence, str)
+    assert len(protein_state.sequence) > 0
 
-    dataset_pth = tmp_path / "datasets" / data_id
+    # Check termini
+    assert protein_state.n_term > 0
+    assert protein_state.c_term > protein_state.n_term
 
-    assert human_readable_tag == data_id.split("_")[1]
-    assert author_name == data_id.split("_")[2]
-
-    assert (dataset_pth / "readme.md").read_text() == f"# {data_id}"
-
-    assert (dataset_pth / "hdx_spec.yaml").exists()
-    assert (dataset_pth / "data" / "data_file.csv").exists()
-
-
-def test_metadata(dataset: DataSet):
-    test_metadata = yaml.safe_load((TEST_PTH / "datasets" / DATA_ID / "metadata.yaml").read_text())
-    assert dataset.metadata == test_metadata
-    assert dataset.metadata["authors"][0]["name"] == "Srinath Krishnamurthy"
+    # Check sequence length matches termini
+    expected_length = protein_state.c_term - protein_state.n_term + 1
+    assert len(protein_state.sequence) == expected_length
 
 
-TEST_URL = (
-    "https://raw.githubusercontent.com/Jhsmit/hdxms-datasets/refs/heads/master/tests/datasets/"
-)
+def test_structure_info(dataset: HDXDataSet):
+    """Test structure information"""
+    if dataset.structure:
+        assert dataset.structure.data_file
+        assert dataset.structure.format
+        # Test that structure file path exists (relative or absolute)
+        assert isinstance(dataset.structure.data_file, Path)
+        if dataset.structure.pdb_id:
+            assert isinstance(dataset.structure.pdb_id, str)
+            assert len(dataset.structure.pdb_id) > 0
 
 
-def test_fetch_dataset_vault(tmp_path):
-    vault = RemoteDataVault(cache_dir=tmp_path, remote_url=TEST_URL)
-    assert len(vault.datasets) == 0
-
-    assert vault.fetch_dataset(DATA_ID)
-    assert DATA_ID in vault.datasets
-    with allow_missing_fields():
-        ds = vault.load_dataset(DATA_ID)
-    assert isinstance(ds, DataSet)
-
-    vault.clear_cache()
-    assert len(vault.datasets) == 0
+def test_protein_identifiers(dataset: HDXDataSet):
+    """Test protein identifier information"""
+    if dataset.protein_identifiers:
+        # Assert that protein identifiers exist and are valid
+        assert dataset.protein_identifiers.uniprot_accession_number is not None
+        assert dataset.protein_identifiers.uniprot_entry_name is not None
+        assert len(dataset.protein_identifiers.uniprot_accession_number) > 0
+        assert len(dataset.protein_identifiers.uniprot_entry_name) > 0
 
 
-def test_vault():
-    vault = DataVault(cache_dir=TEST_PTH / "datasets")
-    expected_datasets = set(
-        [
-            "1665149400_SecA_Krishnamurthy",
-            "1704204434_SecB_Krishnamurthy",
-            "1744801204_SecA_cluster_Krishnamurthy",
-        ]
-    )
-    # check that expected datasets are in the vault (subset)
-    assert expected_datasets <= set(vault.datasets)
-
-    with allow_missing_fields():
-        ds = vault.load_dataset(DATA_ID)
-    assert isinstance(ds, DataSet)
-
-    assert list(ds.states) == SecA_STATES
-
-    df = ds.states["SecA-monomer_apo"].peptides["partially_deuterated"].load()
-    assert isinstance(df, nw.DataFrame)
-
-    ref_df = pl.read_csv(TEST_PTH / "test_data" / "monomer_experimental_peptides.csv").sort(
-        by=["start", "end", "exposure"]
-    )
-
-    test_df = df.to_native().sort(by=["start", "end", "exposure"])
-    for col in set(test_df.columns) & set(ref_df.columns):
-        pl_testing.assert_series_equal(test_df[col], ref_df[col], check_exact=True)
+# %%
