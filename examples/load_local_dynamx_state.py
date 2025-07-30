@@ -1,75 +1,87 @@
 # %%
-from hdxms_datasets import DataVault
+from __future__ import annotations
+
+
+import ultraplot as uplt
 from pathlib import Path
-
-from hdxms_datasets.backend import BACKEND
+import numpy as np
+import polars as pl
 from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
-import narwhals as nw
-
+from hdxms_datasets.database import DataBase
+from hdxms_datasets.view import StructureView
+# %%
 
 DATASET = "1665149400_SecA_Krishnamurthy"
 # DATASET = "1704204434_SecB_Krishnamurthy"
 
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
-data_pth = test_pth / "datasets"
-# %%
-# DATASET = "1665149400_SecA_Krishnamurthy"
-vault = DataVault(data_pth)
+database_dir = test_pth / "datasets"
 
 # %%
-# Load the dataset
-ds = vault.load_dataset(DATASET)
-
-# Print a string describing the states in the dataset
-print(ds.describe())
-# %%
-# Get the sequence of the first state
-state = ds.get_state(0)
-sequence = state.get_sequence()
-print(sequence)
+db = DataBase(database_dir)
+dataset = db.load_dataset(DATASET)  # Should load the dataset from the database
 
 # %%
-# Load FD control peptides as a narwhals DataFrame
-fd_control = state.get_peptides("fully_deuterated").load()
 
-# Load partially deuterated peptides as narwhals dataframe
-pd_peptides = state.get_peptides("partially_deuterated").load()
-pd_peptides
-
-pd_peptides.to_native()
-
+state = dataset.states[0]
+state.protein_state.sequence  # Get the sequence of the first state
 
 # %%
-# merge controls with partially deuterated peptides
-merged = merge_peptides(pd_peptides, fully_deuterated=fd_control)
+# check the deutation types of the peptides; we have one
+# partially deuterated and one fully deuterated
+[p.deuteration_type for p in state.peptides]
 
-# compute uptake metrics (uptake, rfu)
-processed = compute_uptake_metrics(merged)
-df = processed.to_native()
-print(df)
+# %%
+# merge partially deuterated peptides with
+# fully deuterated peptides in one dataframe
+merged = merge_peptides(state.peptides)
 
-# do the previous two steps in one go
-processed = state.compute_uptake_metrics().to_polars()
+# compute uptake metrics (uptake, fractional deuterium)
+processed = compute_uptake_metrics(merged).to_native()
 processed
+# %%
+# take the first timepoint, plot fractional uptake wrt FD control or max uptake (scaled)
+exposure = processed["exposure"].unique()[0]
+df = processed.filter(pl.col("exposure") == exposure)
+sclf = df["fd_uptake"].mean() / df["max_uptake"].mean()
+
+fig, ax = uplt.subplots(aspect=1.61)
+ax.scatter(np.arange(len(df)), df["frac_fd_control"], s=12, c="blue", label="frac_fd_control")
+ax.scatter(
+    np.arange(len(df)),
+    df["frac_max_uptake"] / sclf,
+    s=10,
+    c="red",
+    label="frac_max_uptake",
+    marker="*",
+)
+ax.legend(loc="b", ncols=2)
+ax.format(
+    ylabel="Relative d-uptake",
+    xlabel="Peptide index",
+)
 
 # %%
-# show the first peptide on the structure
+# show a single peptide
 start, end = processed["start", "end"].row(10)
-view = state.structure.pdbemolstar().color_peptide(start, end)
+view = StructureView(dataset.structure).color_peptide(start, end, chain=["A"])
 view
+
+# %%
+# select a set of peptides for further viusualization
+peptides = dataset.states[0].peptides[0]
 
 # %%
 # show regions of the structure that are covered by peptides
-pdbemolstar = state.structure.pdbemolstar()
-view = pdbemolstar.peptide_coverage(processed, color="blue")
-view
+StructureView(dataset.structure).peptide_coverage(peptides)
 
 # %%
 # show a set of non-overlapping peptides on the structure
-view = pdbemolstar.non_overlapping_peptides(processed)
-view
+StructureView(dataset.structure).non_overlapping_peptides(peptides)
 
 # %%
-view = pdbemolstar.peptide_redundancy(processed)
-view
+# show peptide redundancy on the structure
+StructureView(dataset.structure).peptide_redundancy(peptides)
+
+# %%

@@ -492,7 +492,7 @@ class Peptides:
         sort_columns: bool = True,
         drop_null: bool = True,
     ) -> nw.DataFrame:
-        df = process.filter_from_spec(self.data_file.read(), **self.filters)
+        df = process.apply_filters(self.data_file.read(), **self.filters)
 
         is_aggregated = getattr(self.data_file.format, "aggregated", False)
         if aggregate is None:
@@ -615,32 +615,47 @@ class DataSet:
     data_id: str
     """Unique identifier for the dataset"""
 
-    data_files: dict[str, DataFile]
-    """Dictionary of data files"""
-
-    hdx_specification: dict
-    """Dictionary with HDX-MS state specification"""
+    states: dict[str, DataState]
 
     metadata: dict = field(default_factory=dict)  # author, publication, etc
 
-    states: dict[str, DataState] = field(init=False, default_factory=dict)
+    def get_state(self, state: str | int) -> DataState:
+        """
+        Get a specific state by name or index
+        """
+        if isinstance(state, int):
+            return self.states[list(self.states.keys())[state]]
+        elif isinstance(state, str):
+            return self.states[state]
+        else:
+            raise TypeError(f"Invalid type {type(state)} for state {state!r}")
 
-    def __post_init__(self):
-        # Create state objects
+    @classmethod
+    def from_spec(
+        cls,
+        hdx_spec: dict,
+        data_dir: Path,
+        data_id: Optional[str] = None,
+        metadata: Optional[dict] = None,
+    ):
+        data_id = data_id or uuid.uuid4().hex
+        data_files = parse_data_files(hdx_spec["data_files"], data_dir)
 
         peptide_table_files = {
-            k: f for k, f in self.data_files.items() if isinstance(f, PeptideTableFile)
+            k: f for k, f in data_files.items() if isinstance(f, PeptideTableFile)
         }
-        peptides = parse_peptides(self.hdx_specification["peptides"], peptide_table_files)
+        peptides = parse_peptides(hdx_spec["peptides"], peptide_table_files)
 
         structure_file = next(
-            (f for f in self.data_files.values() if isinstance(f, StructureFile)), None
+            (f for f in data_files.values() if isinstance(f, StructureFile)), None
         )
+
+        protein_spec = hdx_spec["protein"]
 
         for state_name, state_peptide_dict in peptides.items():
             # Get protein information for this state
             try:
-                protein_info = self.protein_spec[state_name]
+                protein_info = protein_spec[state_name]
             except KeyError:
                 if ALLOW_MISSING_FIELDS:
                     # Generate minimal protein info from peptides
@@ -659,7 +674,8 @@ class DataSet:
                         f"No protein information found for state '{state_name}'. "
                         f"Use 'allow_missing_fields()' context manager to generate minimal info."
                     )
-            structure_spec = self.hdx_specification.get("structures", {}).get(
+
+            structure_spec = hdx_spec.get("structures", {}).get(
                 protein_info.get("structure", ""), None
             )
             if structure_spec is None or structure_file is None:
@@ -686,27 +702,6 @@ class DataSet:
                 structure=structure,
             )
 
-    def get_state(self, state: str | int) -> DataState:
-        """
-        Get a specific state by name or index
-        """
-        if isinstance(state, int):
-            return self.states[list(self.states.keys())[state]]
-        elif isinstance(state, str):
-            return self.states[state]
-        else:
-            raise TypeError(f"Invalid type {type(state)} for state {state!r}")
-
-    @classmethod
-    def from_spec(
-        cls,
-        hdx_spec: dict,
-        data_dir: Path,
-        data_id: Optional[str] = None,
-        metadata: Optional[dict] = None,
-    ):
-        data_id = data_id or uuid.uuid4().hex
-        data_files = parse_data_files(hdx_spec["data_files"], data_dir)
         return cls(
             data_id=data_id,
             data_files=data_files,

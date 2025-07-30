@@ -1,22 +1,46 @@
 """Top-level package for HDXMS Datasets."""
 
 from hdxms_datasets.__version__ import __version__
-from hdxms_datasets.datasets import DataSet, PeptideTableFile, create_dataset
-from hdxms_datasets.datavault import DataVault, RemoteDataVault
+
+from hdxms_datasets.models import (
+    HDXDataSet,
+    HDXState,
+    Peptides,
+    ProteinState,
+    ProteinIdentifiers,
+    Structure,
+    Publication,
+    Author,
+    DatasetMetadata,
+)
+from hdxms_datasets.database import DataBase, RemoteDataBase, load_dataset
+from hdxms_datasets.loader import load_peptides, read_csv
 from hdxms_datasets.process import (
-    convert_temperature,
-    convert_time,
-    filter_peptides,
+    merge_peptides,
+    compute_uptake_metrics,
+    apply_filters,
+    aggregate,
 )
 
+
 __all__ = [
-    "DataSet",
-    "PeptideTableFile",
-    "create_dataset",
-    "DataVault",
-    "RemoteDataVault",
-    "convert_temperature",
-    "convert_time",
-    "filter_peptides",
     "__version__",
+    "HDXDataSet",
+    "HDXState",
+    "Peptides",
+    "ProteinState",
+    "ProteinIdentifiers",
+    "Structure",
+    "Publication",
+    "Author",
+    "DatasetMetadata",
+    "DataBase",
+    "RemoteDataBase",
+    "load_dataset",
+    "load_peptides",
+    "read_csv",
+    "merge_peptides",
+    "compute_uptake_metrics",
+    "apply_filters",
+    "aggregate",
 ]

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 import warnings
 from collections import defaultdict
 from functools import reduce
@@ -12,10 +11,8 @@ from statsmodels.stats.weightstats import DescrStatsW
 from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
+from hdxms_datasets.backend import BACKEND
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
-from hdxms_datasets.loader import load_peptides, BACKEND
-from hdxms_datasets.models import DeuterationType, Peptides
-from hdxms_datasets.utils import records_to_dict
 
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
@@ -48,6 +45,25 @@ def ufloat_stats(array, weights) -> Variable:
     """Calculate the weighted mean and standard deviation."""
     weighted_stats = DescrStatsW(array, weights=weights, ddof=0)
     return ufloat(weighted_stats.mean, weighted_stats.std)
+
+
+def records_to_dict(records: list[dict]) -> dict[str, list]:
+    """
+    Convert a list of records to a dictionary of lists.
+
+    Args:
+        records: List of dictionaries.
+
+    Returns:
+        Dictionary with keys as column names and values as lists.
+    """
+
+    df_dict = defaultdict(list)
+    for record in records:
+        for key, value in record.items():
+            df_dict[key].append(value)
+
+    return dict(df_dict)
 
 
 def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0) -> nw.DataFrame:
@@ -125,18 +141,108 @@ def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0
     return df
 
 
-def apply_filters(df, **filters):
-    exprs = []
-    for col, val in filters.items():
-        if isinstance(val, list):
-            expr = nw.col(col).is_in(val)
-        else:
-            expr = nw.col(col) == val
-        exprs.append(expr)
-    if not exprs:
-        return df
+class TemperatureDict(TypedDict):
+    """TypedDict for temperature dictionary."""
+
+    value: float
+    unit: Literal["C", "K"]
+
+
+def convert_temperature(temperature_dict: TemperatureDict, target_unit: str = "C") -> float:
+    """
+    Convenience function to convert temperature values.
+
+    Args:
+        temperature_dict: Dictionary with temperature value(s) and unit.
+        target_unit: Target unit for temperature. Must be "C, or "K"
+
+    Returns:
+        Converted temperature value(s).
+    """
+
+    src_unit = temperature_dict["unit"]
+    temp_offset = TEMPERATURE_OFFSETS[src_unit] - TEMPERATURE_OFFSETS[target_unit]
+    return temperature_dict["value"] + temp_offset
+
+
+def convert_time(
+    time_dict: dict, target_unit: Literal["s", "min", "h"] = "s"
+) -> Union[float, list[float]]:
+    """
+    Convenience function to convert time values.
+
+    Args:
+        time_dict: Dictionary with time value(s) and unit.
+        target_unit: Target unit for time.
+
+    Returns:
+        Converted time value(s).
+    """
+    raise DeprecationWarning()
+    src_unit = time_dict["unit"]
+
+    time_factor = TIME_FACTORS[src_unit] / TIME_FACTORS[target_unit]
+    if values := time_dict.get("values"):
+        return [v * time_factor for v in values]
+    elif value := time_dict.get("value"):
+        return value * time_factor
+    else:
+        raise ValueError("Invalid time dictionary")
+
+
+def filter_df(df: nw.DataFrame, **filters) -> nw.DataFrame:
+    exprs = [nw.col(k) == val for k, val in filters.items()]
     f_expr = reduce(and_, exprs)
     return df.filter(f_expr)
+
+
+# TODO move this method to load _peptides since it specific and not used elswhere?
+def filter_peptides(
+    df: nw.DataFrame,
+    state: Optional[str] = None,
+    exposure: Optional[dict] = None,
+) -> nw.DataFrame:
+    """
+    Convenience function to filter a peptides DataFrame. .
+
+    Args:
+        df: Input dataframe.
+        state: Name of protein state to select.
+        exposure: Exposure value(s) to select. Exposure is given as a :obj:`dict`, with keys "value" or "values" for
+            exposure value, and "unit" for the time unit.
+        time_unit: Time unit for exposure column of supplied dataframe.
+
+    Examples:
+        Filter peptides for a specific protein state and exposure time:
+
+        >>> d = {"state", "SecB WT apo", "exposure": {"value": 0.167, "unit": "min"}
+        >>> filtered_df = filter_peptides(df, **d)
+
+    Returns:
+        Filtered dataframe.
+    """
+    raise DeprecationWarning()
+    if state is not None:
+        df = df.filter(nw.col("state") == state)
+
+    if exposure is not None:
+        # NA unit is used when exposure is given as string, in case of HD examiner this can be 'FD'
+        if exposure["unit"] == "NA":
+            t_val = exposure["value"]
+        else:
+            t_val = convert_time(exposure, "s")
+        if isinstance(t_val, list):
+            if all(isinstance(v, float) for v in t_val):
+                col = nw.col("exposure")
+            elif all(isinstance(v, str) for v in t_val):
+                col = nw.col("exposure").cast(nw.Float64)
+            else:
+                raise ValueError("Invalid exposure values")
+            df = df.filter(col.is_in(t_val))
+        else:
+            df = df.filter(nw.col("exposure") == t_val)
+
+    return df
 
 
 def aggregate_columns(
@@ -236,6 +342,20 @@ def drop_null_columns(df: nw.DataFrame) -> nw.DataFrame:
     return df.drop(all_null_columns)
 
 
+def filter_from_spec(df, **filters):
+    exprs = []
+    for col, val in filters.items():
+        if isinstance(val, list):
+            expr = nw.col(col).is_in(val)
+        else:
+            expr = nw.col(col) == val
+        exprs.append(expr)
+    if not exprs:
+        return df
+    f_expr = reduce(and_, exprs)
+    return df.filter(f_expr)
+
+
 def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = True):
     select = [nw.col("start"), nw.col("end")]
     select.append(nw.col(column).alias(f"{prefix}_{column}"))
@@ -251,7 +371,7 @@ def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = Tr
     return merge
 
 
-def merge_peptide_tables(
+def merge_peptides(
     partially_deuterated: nw.DataFrame,
     column: Optional[str] = None,
     non_deuterated: Optional[nw.DataFrame] = None,
@@ -270,28 +390,6 @@ def merge_peptide_tables(
     if fully_deuterated is not None:
         output = left_join(output, fully_deuterated, column=join_column, prefix="fd")
     return output
-
-
-def merge_peptides(peptides: list[Peptides], base_dir: Path = Path.cwd()) -> nw.DataFrame:
-    """Merge peptide tables from different deuteration types into a single DataFrame."""
-    peptide_types = {p.deuteration_type for p in peptides}
-    if not peptides:
-        raise ValueError("No peptides provided for merging.")
-
-    if len(peptide_types) != len(peptides):
-        raise ValueError(
-            "Multiple peptides of the same type found. Please ensure unique deuteration types."
-        )
-
-    if DeuterationType.partially_deuterated not in peptide_types:
-        raise ValueError("Partially deuterated peptide is required for uptake metrics calculation.")
-
-    loaded_peptides = {
-        p.deuteration_type.value: load_peptides(p, base_dir=base_dir) for p in peptides
-    }
-
-    merged = merge_peptide_tables(**loaded_peptides, column=None)
-    return merged
 
 
 def compute_uptake_metrics(df: nw.DataFrame, exception="raise") -> nw.DataFrame:

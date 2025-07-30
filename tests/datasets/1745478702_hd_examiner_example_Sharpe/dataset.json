@@ -1,0 +1,218 @@
+{
+  "description": "cyt c hd examiner example data",
+  "states": [
+    {
+      "name": "D90",
+      "peptides": [
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "Protein State": "D90",
+            "Deut Time": "FD"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "Protein State": "D90",
+            "Deut Time": "0s"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "Protein State": "D90",
+            "Deut Time": [
+              "15.00s",
+              "150.00s",
+              "1500.00s",
+              "15000.00s"
+            ]
+          },
+          "pH": 7.5,
+          "temperature": 293.15,
+          "d_percentage": 90.0
+        }
+      ],
+      "description": "",
+      "protein_state": {
+        "sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNEXXXX",
+        "n_term": 1,
+        "c_term": 109,
+        "oligomeric_state": 1
+      }
+    },
+    {
+      "name": "D80",
+      "peptides": [
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "Protein State": "D80",
+            "Deut Time": "FD"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "Protein State": "D80",
+            "Deut Time": "0s"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "Protein State": "D80",
+            "Deut Time": [
+              "15.00s",
+              "150.00s",
+              "1500.00s",
+              "15000.00s"
+            ]
+          },
+          "pH": 7.5,
+          "temperature": 293.15,
+          "d_percentage": 90.0
+        }
+      ],
+      "description": "",
+      "protein_state": {
+        "sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNEXXXX",
+        "n_term": 1,
+        "c_term": 109,
+        "oligomeric_state": 1
+      }
+    },
+    {
+      "name": "D60",
+      "peptides": [
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "Protein State": "D60",
+            "Deut Time": "FD"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "Protein State": "D60",
+            "Deut Time": "0s"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "Protein State": "D60",
+            "Deut Time": [
+              "15.00s",
+              "150.00s",
+              "1500.00s",
+              "15000.00s"
+            ]
+          },
+          "pH": 7.5,
+          "temperature": 293.15,
+          "d_percentage": 90.0
+        }
+      ],
+      "description": "",
+      "protein_state": {
+        "sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNEXXXX",
+        "n_term": 1,
+        "c_term": 109,
+        "oligomeric_state": 1
+      }
+    },
+    {
+      "name": "D70",
+      "peptides": [
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "Protein State": "D70",
+            "Deut Time": "FD"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "Protein State": "D70",
+            "Deut Time": "0s"
+          }
+        },
+        {
+          "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/data_file.csv",
+          "data_format": "HDExaminer_v3",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "Protein State": "D70",
+            "Deut Time": [
+              "15.00s",
+              "150.00s",
+              "1500.00s",
+              "15000.00s"
+            ]
+          },
+          "pH": 7.5,
+          "temperature": 293.15,
+          "d_percentage": 90.0
+        }
+      ],
+      "description": "",
+      "protein_state": {
+        "sequence": "MGDVEKGKKIFVQKCAQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGFTYTDANKNKGITWKEETLMEYLENPKKYIPGTKMIFAGIKKKTEREDLIAYLKKATNEXXXX",
+        "n_term": 1,
+        "c_term": 109,
+        "oligomeric_state": 1
+      }
+    }
+  ],
+  "structure": {
+    "data_file": "c:/Users/jhsmi/repos/mine/hdxms-datasets/tests/datasets/1745478702_hd_examiner_example_Sharpe/data/1akk.pdb",
+    "format": "pdb",
+    "description": "NMR minimized average structure",
+    "pdb_id": "1AKK",
+    "auth_residue_numbers": false,
+    "residue_offset": -1,
+    "auth_chain_labels": false
+  },
+  "protein_identifiers": {
+    "uniprot_accession_number": "P00004",
+    "uniprot_entry_name": "CYC_HORSE"
+  },
+  "metadata": {
+    "authors": [
+      {
+        "name": "Vladimir Sarpe"
+      }
+    ],
+    "license": "CC0",
+    "created_date": "2025-07-29T17:30:23.489794",
+    "version": "0.2.0+23.gc486925.dirty",
+    "conversion_notes": "Converted from HDX-MS v0.2.x to v0.3.x"
+  },
+  "file_hash": "945211a2fcd92376"
+}

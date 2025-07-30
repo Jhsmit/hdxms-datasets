@@ -1,38 +1,21 @@
 from __future__ import annotations
-from collections import defaultdict
 import difflib
 import narwhals as nw
 from narwhals.typing import IntoFrame
-from typing import Any, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from hdxms_datasets.datasets import ProteinInfo
 
 
 def diff_sequence(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
-def records_to_dict(records: list[dict[str, Any]]) -> dict[str, Any]:
-    """
-    Convert a list of records to a dictionary.
-    """
-    output = defaultdict(list)
-    for record in records:
-        for key, value in record.items():
-            output[key].append(value)
-
-    return dict(output)
-
-
 @nw.narwhalify
-def reconstruct_sequence(
-    peptides: nw.DataFrame,
-    known_sequence: str,
-    n_term: int = 1,
-    start="start",
-    end="end",
-    sequence="sequence",
-) -> str:
+def reconstruct_sequence(peptides: nw.DataFrame, known_sequence: str, n_term: int = 1) -> str:
     """
     Reconstruct the sequence form a dataframe of peptides with sequence information.
     The sequence is reconstructed by replacing the known sequence with the peptide
@@ -43,22 +26,19 @@ def reconstruct_sequence(
         known_sequence: Starting sequence. Can be a string 'X' as placeholder.
         n_term: The residue number of the N-terminal residue. This is typically 1, can be
             negative in case of purification tags.
-        start: Column name for the start position of the peptide.
-        end: Column name for the end position of the peptide.
-        sequence: Column name for the peptide sequence.
 
     Returns:
         The reconstructed sequence.
     """
 
     reconstructed = list(known_sequence)
-    for start_, end_, sequence_ in peptides.select([start, end, sequence]).iter_rows():  # type: ignore
-        start_idx = start_ - n_term
-        assert end_ - start_ + 1 == len(sequence_), (
-            f"Length mismatch at {start_}:{end_} with sequence {sequence_}"
+    for start, end, sequence in peptides.select(["start", "end", "sequence"]).iter_rows():  # type: ignore
+        start_idx = start - n_term
+        assert end - start + 1 == len(sequence), (
+            f"Length mismatch at {start}:{end} with sequence {sequence}"
         )
 
-        for i, aa in enumerate(sequence_, start=start_idx):
+        for i, aa in enumerate(sequence, start=start_idx):
             reconstructed[i] = aa
 
     return "".join(reconstructed)
@@ -66,12 +46,7 @@ def reconstruct_sequence(
 
 @nw.narwhalify
 def verify_sequence(
-    peptides: IntoFrame,
-    known_sequence: str,
-    n_term: int = 1,
-    start="start",
-    end="end",
-    sequence="sequence",
+    peptides: IntoFrame, known_sequence: str, n_term: int = 1
 ) -> list[tuple[int, str, str]]:
     """
     Verify the sequence of peptides against the given sequence.
@@ -85,9 +60,7 @@ def verify_sequence(
         A tuple containing the fixed sequence and a list of mismatches.
     """
 
-    reconstructed_sequence = reconstruct_sequence(
-        peptides, known_sequence, n_term, start=start, end=end, sequence=sequence
-    )
+    reconstructed_sequence = reconstruct_sequence(peptides, known_sequence, n_term)
 
     mismatches = []
     for r_number, (expected, found) in enumerate(
@@ -97,6 +70,28 @@ def verify_sequence(
             mismatches.append((r_number, expected, found))
 
     return mismatches
+
+
+@nw.narwhalify
+def default_protein_info(peptides: IntoFrame) -> ProteinInfo:
+    """Generate minimal protein info from a set of peptides"""
+
+    # Find minimum start and maximum end positions
+    min_start = peptides["start"].min()  # type: ignore
+    max_end = peptides["end"].max()  # type: ignore
+
+    # Estimate sequence length
+    sequence_length = max_end - min_start + 1
+
+    placeholder_sequence = "X" * sequence_length
+    sequence = reconstruct_sequence(peptides, placeholder_sequence, n_term=min_start)
+
+    # Create a minimal ProteinInfo
+    return {
+        "sequence": sequence,  # sequence with "X" gaps
+        "n_term": int(min_start),
+        "c_term": int(max_end),
+    }
 
 
 @nw.narwhalify

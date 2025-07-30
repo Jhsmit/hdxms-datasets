@@ -1,12 +1,14 @@
 # %%
 
-from pathlib import Path
+# %%
+from __future__ import annotations
 
-from hdxms_datasets import DataVault
-from hdxms_datasets.datasets import allow_missing_fields
-from hdxms_datasets.process import compute_uptake_metrics, merge_peptides
-from hdxms_datasets.plot import plot_peptides
+from pathlib import Path
 import polars as pl
+from hdxms_datasets.plot import plot_peptides
+from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
+from hdxms_datasets.database import DataBase
+from hdxms_datasets.view import StructureView
 # %%
 
 DATASET = "1744801204_SecA_cluster_Krishnamurthy"
@@ -15,52 +17,46 @@ test_pth = Path(__file__).parent.parent / "tests"
 data_pth = test_pth / "datasets"
 
 # Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
-vault = DataVault(data_pth)
+db = DataBase(data_pth)
+dataset = db.load_dataset(DATASET)
 
-# Load the dataset
-# we allow for missing protein info (structural information) since this dataset does not define it
-with allow_missing_fields():
-    ds = vault.load_dataset(DATASET)
 
 # %%
-# Print a string describing the states in the dataset
-print(ds.describe())
-
-# Get the seqeunce of the first state
-state = ds.get_state(0)
-sequence = state.get_sequence()
-print(sequence)
+# Get the sequence of the first state
+state = dataset.states[0]
+state.protein_state.sequence
 
 # %%
-# Load ND control peptides as a narwhals DataFrame
-nd_control = state.get_peptides("non_deuterated").load()
-
-# Load FD control peptides as a narwhals DataFrame
-fd_control = state.get_peptides("fully_deuterated").load()
-
-# Load partially deuterated peptides as narwhals dataframe
-pd_peptides = state.get_peptides("partially_deuterated").load()
-pd_peptides
+# check the deutation types of the peptides; we have one
+# partially deuterated and one fully deuterated
+[p.deuteration_type for p in state.peptides]
 
 # %%
-# merge controls with partially deuterated peptides
-merged = merge_peptides(pd_peptides, non_deuterated=nd_control, fully_deuterated=fd_control)
-
-# compute uptake metrics (uptake, rfu)
-processed = compute_uptake_metrics(merged)
-df = processed.to_native()
-print(df)
-
-# do the previous two steps in one go
-processed = state.compute_uptake_metrics().to_polars()
-processed
+# merge partially deuterated peptides with
+# fully deuterated and non deuterated peptides in one dataframe
+# this dataframe now has centroid masses for pd, nd, and fd peptides
+merged = merge_peptides(state.peptides)
+merged.columns
 
 # %%
-# plot the uptake values for the first exposure
+
+# compute uptake metrics (uptake, fractional deuterium)
+processed = compute_uptake_metrics(merged).to_native()
+processed.columns
+
+
+# %%
+# plot the peptides for the first exposure
 exposure_value = processed["exposure"].unique()[0]
 selected = processed.filter(pl.col("exposure") == exposure_value)
 
-plot_peptides(selected, value="uptake")
+plot_peptides(selected, domain=(0, 1), value="frac_max_uptake")
 
+# %%
+peptides = dataset.states[0].peptides[0]
+StructureView(dataset.structure).peptide_coverage(peptides)
 
+# %%
+# show a set of non-overlapping peptides on the structure
+StructureView(dataset.structure).non_overlapping_peptides(peptides)
 # %%

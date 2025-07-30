@@ -1,8 +1,10 @@
+from hdxms_datasets.backend import BACKEND
 from hdxms_datasets.expr import centroid_mass
 
 
 import narwhals as nw
-from narwhals.exceptions import InvalidOperationError
+
+from hdxms_datasets.reader import cast_exposure
 
 
 def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
@@ -67,20 +69,10 @@ def convert_rt(rt_str: str) -> float:
     return mean
 
 
-def cast_exposure(df):
-    try:
-        df = df.with_columns(nw.col("exposure").str.strip_chars("s").cast(nw.Float64))
-    except InvalidOperationError:
-        pass
-    return df
-
-
 def from_hdexaminer(
     hd_examiner_df: nw.DataFrame,
     extra_columns: list[str] | dict[str, str] | str | None = None,
 ) -> nw.DataFrame:
-    from hdxms_datasets.loader import BACKEND
-
     column_mapping = {
         "Protein State": "state",
         "Deut Time": "exposure",
