@@ -9,7 +9,7 @@ from typing import Literal, IO, Optional
 
 from narwhals.exceptions import InvalidOperationError
 
-from hdxms_datasets.backend import BACKEND
+from hdxms_datasets.stable.v020.backend import BACKEND
 import narwhals as nw
 
 

@@ -15,11 +15,11 @@ import narwhals as nw
 import yaml
 
 import hdxms_datasets.process as process
-from hdxms_datasets.formats import FMT_LUT, HDXFormat, identify_format
-from hdxms_datasets.reader import read_csv
+from hdxms_datasets.stable.v020.formats import FMT_LUT, HDXFormat, identify_format
+from hdxms_datasets.stable.v020.reader import read_csv
 from contextlib import contextmanager
 
-from hdxms_datasets.utils import (
+from hdxms_datasets.stable.v020.utils import (
     contiguous_peptides,
     default_protein_info,
     non_overlapping_peptides,

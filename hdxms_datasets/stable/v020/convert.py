@@ -1,10 +1,10 @@
-from hdxms_datasets.backend import BACKEND
+from hdxms_datasets.stable.v020.backend import BACKEND
 from hdxms_datasets.expr import centroid_mass
 
 
 import narwhals as nw
 
-from hdxms_datasets.reader import cast_exposure
+from hdxms_datasets.stable.v020.reader import cast_exposure
 
 
 def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:

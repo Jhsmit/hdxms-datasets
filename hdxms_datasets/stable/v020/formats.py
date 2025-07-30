@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional, Protocol
-from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
+from hdxms_datasets.stable.v020.convert import (
+    from_dynamx_cluster,
+    from_dynamx_state,
+    from_hdexaminer,
+)
 import narwhals as nw
 
 

@@ -9,8 +9,8 @@ from typing import Union
 import requests
 import yaml
 
-from hdxms_datasets.backend import BACKEND
-from hdxms_datasets.datasets import DataSet
+from hdxms_datasets.stable.v020.backend import BACKEND
+from hdxms_datasets.stable.v020.datasets import DataSet
 import narwhals as nw
 
 DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDX-MS-datasets/master/datasets/"

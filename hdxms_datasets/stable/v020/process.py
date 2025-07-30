@@ -11,7 +11,7 @@ from statsmodels.stats.weightstats import DescrStatsW
 from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
-from hdxms_datasets.backend import BACKEND
+from hdxms_datasets.stable.v020.backend import BACKEND
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
 
 
