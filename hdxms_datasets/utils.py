@@ -7,6 +7,8 @@ from typing import Any, cast
 
 import numpy as np
 
+from hdxms_datasets.models import DeuterationType, Peptides
+
 
 def diff_sequence(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
@@ -184,3 +186,13 @@ def peptide_redundancy(
         redundancy[i0:i1] += 1
 
     return r_number, redundancy
+
+
+def get_peptides_by_type(peptides: list[Peptides], deuteration_type: DeuterationType) -> Peptides:
+    """Get peptides of a specific deuteration type."""
+    matching_peptides = [p for p in peptides if p.deuteration_type == deuteration_type]
+    if not matching_peptides:
+        raise ValueError(f"No peptides found with deuteration type: {deuteration_type}")
+    if len(matching_peptides) > 1:
+        raise ValueError(f"Multiple peptides found with deuteration type: {deuteration_type}")
+    return matching_peptides[0]
