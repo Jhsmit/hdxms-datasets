@@ -6,9 +6,9 @@ from pydantic import (
     BaseModel,
     Field,
     HttpUrl,
-    FieldValidationInfo,
     PlainSerializer,
     AfterValidator,
+    ValidationInfo,
     model_validator,
 )
 from typing import Any, Iterable, List, Optional, Annotated, Type
@@ -65,7 +65,7 @@ def extract_values_by_types(obj: Any, target_types: Type | tuple[Type, ...]) -> 
     return values
 
 
-def validate_datafile_path(x: Path, info: FieldValidationInfo):
+def validate_datafile_path(x: Path, info: ValidationInfo):
     context = info.context
     if context and "dataset_root" in context and not x.is_absolute():
         root = Path(context["dataset_root"])
@@ -73,7 +73,7 @@ def validate_datafile_path(x: Path, info: FieldValidationInfo):
     return x
 
 
-def serialize_datafile_path(x: Path, info: FieldValidationInfo) -> str:
+def serialize_datafile_path(x: Path, info: ValidationInfo) -> str:
     context = info.context
     if context and "dataset_root" in context:
         relpath = x.relative_to(Path(context["dataset_root"]))
