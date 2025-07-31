@@ -12,8 +12,12 @@ The package offers the following features:
  - Conversion of datasets from various formats (e.g., DynamX, HDExaminer) to a standardized format
  - Propagation of standard deviations from replicates to fractional relative uptake values
 
+A database for open HDX datasets is set up at [HDXMS DataBase](https://github.com/Jhsmit/HDXMS-database)
 
 ## Example Usage
+
+### Loading datasets
+
 
 ```python {title="Loading a dataset"}
 
@@ -52,6 +56,8 @@ print(df.columns)
 #> ['start', 'end', 'sequence', 'state', 'exposure', 'centroid_mz', 'rt', 'rt_sd', 'uptake', ... 
 
 ```
+
+### Define and process datasets
 
 ```python {title="Define a set of peptides for a state"}
 from hdxms_datasets import ProteinState, Peptides, verify_sequence, merge_peptides, compute_uptake_metrics
