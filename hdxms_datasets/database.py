@@ -8,8 +8,6 @@ from hdxms_datasets.loader import BACKEND
 from hdxms_datasets.models import HDXDataSet
 import shutil
 import narwhals as nw
-import hashlib
-import pydantic_core
 
 from hdxms_datasets.utils import records_to_dict
 from hdxms_datasets.verification import verify_dataset
@@ -119,7 +117,7 @@ def generate_datasets_catalog(database_dir: Path, save_csv: bool = True) -> nw.D
 
     df = nw.from_dict(records_to_dict(records), backend=BACKEND)
     if save_csv:
-        df.write_csv(database_dir / "datasets_catalogue.csv")
+        df.write_csv(database_dir / "datasets_catalog.csv")
 
     return df
 
@@ -129,7 +127,7 @@ def find_file_hash_matches(dataset: HDXDataSet, database_dir: Path) -> list[str]
     Check if a new dataset matches an existing dataset in the database directory.
     """
     try:
-        catalog = nw.read_csv(str(database_dir / "datasets_catalogue.csv"), backend=BACKEND)
+        catalog = nw.read_csv(str(database_dir / "datasets_catalog.csv"), backend=BACKEND)
     except FileNotFoundError:
         return []
 

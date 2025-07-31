@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections import defaultdict
 import difflib
 import narwhals as nw
-from narwhals.typing import IntoFrame, DataFrameT
+from narwhals.typing import IntoFrame
 from typing import Any, Optional, cast
 
 import numpy as np
