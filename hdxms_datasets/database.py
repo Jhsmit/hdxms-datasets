@@ -140,10 +140,27 @@ def find_file_hash_matches(dataset: HDXDataSet, database_dir: Path) -> list[str]
 
 
 def submit_dataset(
-    dataset: HDXDataSet, database_dir: Path, check_existing: bool = True, verify: bool = True
+    dataset: HDXDataSet,
+    database_dir: Path,
+    dataset_id: str | None = None,
+    check_existing: bool = True,
+    verify: bool = True,
 ) -> tuple[bool, str]:
     """
     Submit a dataset to a local HDX-MS database.
+
+    Args:
+        dataset: The HDXDataSet to submit.
+        database_dir: The directory where the dataset will be stored.
+        dataset_id: Optional ID for the dataset. If not provided, a new ID will be minted.
+        check_existing: If True, checks if the dataset already exists in the database.
+        verify: If True, verifies the dataset before submission.
+
+    Returns:
+        A tuple (success: bool, message: str):
+        - success: True if the dataset was successfully submitted, False otherwise.
+        - message: A message indicating the result of the submission.
+
     """
 
     if verify:
@@ -164,9 +181,19 @@ def submit_dataset(
                 msg = f"Dataset matches existing datasets in the database: {', '.join(matches)}"
             return False, msg
 
+    # mint a new ID if not provided
     existing_ids = set(list_datasets(database_dir))
-    # mint a new ID
-    dataset_id = mint_new_dataset_id(existing_ids)
+    if dataset_id is None:
+        dataset_id = mint_new_dataset_id(existing_ids)
+    else:
+        if dataset_id in existing_ids:
+            return False, f"Dataset ID {dataset_id} already exists in the database."
+
+    if not valid_id(dataset_id):
+        raise ValueError(
+            f"Invalid dataset ID: {dataset_id}. "
+            "A valid ID starts with 'HDX_' followed by 8 uppercase alphanumeric characters."
+        )
 
     # create the target directory
     tgt_dir = database_dir / dataset_id
