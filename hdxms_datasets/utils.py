@@ -3,7 +3,7 @@ from collections import defaultdict
 import difflib
 import narwhals as nw
 from narwhals.typing import IntoFrame
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import numpy as np
 
@@ -188,11 +188,20 @@ def peptide_redundancy(
     return r_number, redundancy
 
 
-def get_peptides_by_type(peptides: list[Peptides], deuteration_type: DeuterationType) -> Peptides:
+def get_peptides_by_type(
+    peptides: list[Peptides], deuteration_type: DeuterationType
+) -> Optional[Peptides]:
     """Get peptides of a specific deuteration type."""
     matching_peptides = [p for p in peptides if p.deuteration_type == deuteration_type]
     if not matching_peptides:
-        raise ValueError(f"No peptides found with deuteration type: {deuteration_type}")
+        return None
     if len(matching_peptides) > 1:
-        raise ValueError(f"Multiple peptides found with deuteration type: {deuteration_type}")
+        return None
     return matching_peptides[0]
+
+
+@nw.narwhalify
+def peptides_are_unique(peptides_df: IntoFrame) -> bool:
+    """Check if the peptides in the dataframe are unique."""
+    unique_peptides = peptides_df.select(["start", "end"]).unique()
+    return len(unique_peptides) == len(peptides_df)
