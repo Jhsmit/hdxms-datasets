@@ -122,3 +122,9 @@ test_data/
 
 # old format datasets
 __datasets/
+
+# half baked devlopment scripts
+dev/
+
+# unpublished datasets
+datasets_private/
