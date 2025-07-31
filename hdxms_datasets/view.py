@@ -8,28 +8,6 @@ from narwhals.typing import IntoFrame
 from hdxms_datasets.utils import contiguous_peptides, non_overlapping_peptides
 
 
-def pdbemolstar_custom_data(structure: Structure) -> dict[str, Any]:
-    """
-    Returns a dictionary with custom data for PDBeMolstar visualization.
-    """
-
-    if structure.format in ["bcif"]:
-        binary = True
-    else:
-        binary = False
-
-    if structure.data_file.is_file():
-        data = structure.data_file.read_bytes()
-    else:
-        raise ValueError(f"Path {structure.data_file} is not a file.")
-
-    return {
-        "data": data,
-        "format": structure.format,
-        "binary": binary,
-    }
-
-
 class StructureView:
     def __init__(self, structure: Structure, hide_water=True, **kwargs):
         """
@@ -44,7 +22,7 @@ class StructureView:
         from ipymolstar import PDBeMolstar
 
         self.view = PDBeMolstar(
-            custom_data=pdbemolstar_custom_data(self.structure),
+            custom_data=self.structure.pdbemolstar_custom_data(),
             hide_water=hide_water,
             **kwargs,
         )

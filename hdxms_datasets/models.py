@@ -240,6 +240,27 @@ class Structure(BaseModel):
         bool, Field(default=False, description="Use author chain labels")
     ] = False
 
+    def pdbemolstar_custom_data(self) -> dict[str, Any]:
+        """
+        Returns a dictionary with custom data for PDBeMolstar visualization.
+        """
+
+        if self.format in ["bcif"]:
+            binary = True
+        else:
+            binary = False
+
+        if self.data_file.is_file():
+            data = self.data_file.read_bytes()
+        else:
+            raise ValueError(f"Path {self.data_file} is not a file.")
+
+        return {
+            "data": data,
+            "format": self.format,
+            "binary": binary,
+        }
+
 
 class Publication(BaseModel):
     """Publication information"""
