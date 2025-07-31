@@ -92,7 +92,7 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     Path(tgt_dir / "dataset.json").write_text(s)
 
 
-def generate_datasets_catalogue(database_dir: Path, save_csv: bool = True) -> nw.DataFrame:
+def generate_datasets_catalog(database_dir: Path, save_csv: bool = True) -> nw.DataFrame:
     """
     Generate an overview DataFrame of all datasets in the database directory.
     """
@@ -201,7 +201,7 @@ def submit_dataset(
 
     # update the catalogue
     # TODO: update instead of regenerate
-    catalog = generate_datasets_catalogue(database_dir, save_csv=True)
+    catalog = generate_datasets_catalog(database_dir, save_csv=True)
 
     return True, dataset_id
 
