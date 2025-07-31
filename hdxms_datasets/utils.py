@@ -2,7 +2,7 @@ from __future__ import annotations
 from collections import defaultdict
 import difflib
 import narwhals as nw
-from narwhals.typing import IntoFrame
+from narwhals.typing import IntoFrame, DataFrameT
 from typing import Any, Optional, cast
 
 import numpy as np
@@ -200,8 +200,7 @@ def get_peptides_by_type(
     return matching_peptides[0]
 
 
-@nw.narwhalify
-def peptides_are_unique(peptides_df: IntoFrame) -> bool:
+def peptides_are_unique(peptides_df: nw.DataFrame) -> bool:
     """Check if the peptides in the dataframe are unique."""
     unique_peptides = peptides_df.select(["start", "end"]).unique()
     return len(unique_peptides) == len(peptides_df)
