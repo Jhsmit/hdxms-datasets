@@ -106,38 +106,39 @@ def load_peptides(
     else:
         is_aggregated = format_spec.aggregated
 
+    # if aggregation is not specified, by default aggregate if the data is not already aggregated
     if aggregate is None:
         aggregate = not is_aggregated
 
-        if aggregate and is_aggregated:
-            warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
-            aggregate = False
+    if aggregate and is_aggregated:
+        warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
+        aggregate = False
 
-        if not convert and aggregate:
-            warnings.warn("Cannot aggregate data without conversion. Aggeregation will be skipped.")
-            aggregate = False
+    if not convert and aggregate:
+        warnings.warn("Cannot aggregate data without conversion. Aggeregation will be skipped.")
+        aggregate = False
 
-        if not convert and sort_rows:
-            warnings.warn("Cannot sort rows without conversion. Sorting will be skipped.")
-            sort_rows = False
+    if not convert and sort_rows:
+        warnings.warn("Cannot sort rows without conversion. Sorting will be skipped.")
+        sort_rows = False
 
-        if not convert and sort_columns:
-            warnings.warn("Cannot sort columns without conversion. Sorting will be skipped.")
-            sort_columns = False
+    if not convert and sort_columns:
+        warnings.warn("Cannot sort columns without conversion. Sorting will be skipped.")
+        sort_columns = False
 
-        if convert:
-            df = format_spec.convert(df)
+    if convert:
+        df = format_spec.convert(df)
 
-        if aggregate:
-            df = process.aggregate(df)
+    if aggregate:
+        df = process.aggregate(df)
 
-        if drop_null:
-            df = process.drop_null_columns(df)
+    if drop_null:
+        df = process.drop_null_columns(df)
 
-        if sort_rows:
-            df = process.sort_rows(df)
+    if sort_rows:
+        df = process.sort_rows(df)
 
-        if sort_columns:
-            df = process.sort_columns(df)
+    if sort_columns:
+        df = process.sort_columns(df)
 
     return df
