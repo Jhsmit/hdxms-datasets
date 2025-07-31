@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 import warnings
-from collections import defaultdict
 from functools import reduce
 from operator import and_
-from typing import Literal, Optional, TypedDict, Union
-
+from typing import Optional
 import narwhals as nw
 from statsmodels.stats.weightstats import DescrStatsW
 from uncertainties import Variable, ufloat
@@ -139,9 +137,10 @@ def apply_filters(df, **filters):
     return df.filter(f_expr)
 
 
+@nw.narwhalify
 def aggregate_columns(
     df: nw.DataFrame, columns: list[str], by: list[str] = ["start", "end", "exposure"]
-):
+) -> nw.DataFrame:
     """
     Aggregate the DataFrame the specified columns by intensity-weighted average.
     """

@@ -6,7 +6,7 @@ from hdxms_datasets.database import submit_dataset
 from hdxms_datasets.models import (
     DatasetMetadata,
     HDXDataSet,
-    HDXState,
+    State,
     DeuterationType,
     Author,
     PeptideFormat,
@@ -16,6 +16,7 @@ from hdxms_datasets.models import (
     Publication,
     Structure,
 )
+from hdxms_datasets.utils import verify_sequence
 
 # %%
 
@@ -76,10 +77,16 @@ peptides = [
     ),
 ]
 
+# %%
+# %%
+# test loading the peptides and verifying the sequence
+# by comparing sequences of peptides to the protein state sequence
+for peptide in peptides:
+    verify_sequence(peptide.load(), protein_state.sequence, n_term=protein_state.n_term)
 
 # %%
 states = [
-    HDXState(
+    State(
         name="Tetramer",
         description="SecB WT in tetrameric state",
         protein_state=protein_state,
@@ -99,7 +106,7 @@ protein_state = ProteinState(
         "Y109A",
         "T115A",
         "S119A",
-    ],  # this information is also deducible from comparing sequences
+    ],  # this information is also deducible by comparing sequences between states
 )
 
 peptides = [
@@ -118,16 +125,22 @@ peptides = [
     )
 ]
 
+# %%
+# test loading the peptides and verifying the sequence
+# by comparing sequences of peptides to the protein state sequence
+for peptide in peptides:
+    verify_sequence(peptide.load(), protein_state.sequence, n_term=protein_state.n_term)
+
+# %%
+
 states.append(
-    HDXState(
+    State(
         name="Dimer",
         description="SecB mutatant in dimeric state",
         protein_state=protein_state,
         peptides=peptides,
     )
 )
-states
-
 
 # %%
 pub = Publication(

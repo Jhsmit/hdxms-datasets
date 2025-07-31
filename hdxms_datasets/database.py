@@ -207,14 +207,14 @@ def submit_dataset(
 
 
 class DataBase:
-    def __init__(self, database_root: Path | str):
-        self.database_root = Path(database_root)
-        self.database_root.mkdir(exist_ok=True, parents=True)
+    def __init__(self, database_dir: Path | str):
+        self.database_dir = Path(database_dir)
+        self.database_dir.mkdir(exist_ok=True, parents=True)
 
     @property
     def datasets(self) -> list[str]:
         """List of available datasets in the cache dir"""
-        return [d.stem for d in self.database_root.iterdir() if self.is_dataset(d)]
+        return [d.stem for d in self.database_dir.iterdir() if self.is_dataset(d)]
 
     @staticmethod
     def is_dataset(path: Path) -> bool:
@@ -225,11 +225,11 @@ class DataBase:
         return (path / "dataset.json").exists()
 
     def clear_cache(self) -> None:
-        for dir in self.database_root.iterdir():
+        for dir in self.database_dir.iterdir():
             shutil.rmtree(dir)
 
     def load_dataset(self, dataset_id: str) -> HDXDataSet:
-        dataset_root = self.database_root / dataset_id
+        dataset_root = self.database_dir / dataset_id
         dataset = HDXDataSet.model_validate_json(
             Path(dataset_root, "dataset.json").read_text(),
             context={"dataset_root": dataset_root},
@@ -249,8 +249,8 @@ class RemoteDataBase(DataBase):
         remote_url: URL of the remote repository (default: DATABASE_URL).
     """
 
-    def __init__(self, data_root_path: Path | str, remote_url: str = DATABASE_URL):
-        super().__init__(data_root_path)
+    def __init__(self, database_dir: Path | str, remote_url: str = DATABASE_URL):
+        super().__init__(database_dir)
         self.remote_url = remote_url
 
     def get_index(self) -> nw.DataFrame:

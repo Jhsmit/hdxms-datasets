@@ -71,7 +71,7 @@ def read_csv(source: Path | str | IO | bytes) -> nw.DataFrame:
         try:
             import pandas as pd
 
-            return nw.from_native(pd.read_csv(source))
+            return nw.from_native(pd.read_csv(source))  # type: ignore
         except ImportError:
             raise ValueError("No suitable backend found for reading file-like objects or bytes.")
 
