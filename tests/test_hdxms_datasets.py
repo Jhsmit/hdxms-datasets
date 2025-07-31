@@ -15,7 +15,7 @@ import narwhals as nw
 # %%
 
 TEST_PTH = Path(__file__).parent
-DATA_ID = "1665149400_SecA_Krishnamurthy"
+DATA_ID = "HDX_C1198C76"  # SecA state data
 
 # %%
 
