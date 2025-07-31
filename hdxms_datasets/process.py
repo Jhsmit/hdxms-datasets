@@ -15,7 +15,7 @@ import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
 from hdxms_datasets.loader import load_peptides, BACKEND
 from hdxms_datasets.models import DeuterationType, Peptides
-from hdxms_datasets.utils import records_to_dict
+from hdxms_datasets.utils import peptides_are_unique, records_to_dict
 
 
 TIME_FACTORS = {"s": 1, "m": 60.0, "min": 60.0, "h": 3600, "d": 86400}
@@ -251,6 +251,7 @@ def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = Tr
     return merge
 
 
+# TODO narwhalify
 def merge_peptide_tables(
     partially_deuterated: nw.DataFrame,
     column: Optional[str] = None,
@@ -266,8 +267,10 @@ def merge_peptide_tables(
 
     output = partially_deuterated
     if non_deuterated is not None:
+        assert peptides_are_unique(non_deuterated), "Non-deuterated peptides must be unique."
         output = left_join(output, non_deuterated, column=join_column, prefix="nd")
     if fully_deuterated is not None:
+        assert peptides_are_unique(fully_deuterated), "Fully deuterated peptides must be unique."
         output = left_join(output, fully_deuterated, column=join_column, prefix="fd")
     return output
 
