@@ -25,6 +25,7 @@ dependencies = [
     'statsmodels',
     'uncertainties',
     'numpy',
+    'pydantic',
 ]
 
 dynamic = ["version"]
