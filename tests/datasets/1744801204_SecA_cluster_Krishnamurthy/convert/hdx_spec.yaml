@@ -97,12 +97,12 @@ peptides:
     non_deuterated:
       data_file: SecA_cluster
       filters:
-        State: SecA1-834 apo
+        State: SecA1-901 wt apo
         Exposure: 0
     partially_deuterated:
       data_file: SecA_cluster
       filters:
-        State: SecA1-834 apo
+        State: SecA1-901 wt apo
         Exposure:
         - 0.167
         - 0.5
