@@ -206,7 +206,7 @@ class ProteinState(BaseModel):
         return self
 
 
-class HDXState(BaseModel):
+class State(BaseModel):
     """Information about HDX-MS state"""
 
     name: Annotated[str, Field(description="State name")]
@@ -306,13 +306,26 @@ class DatasetMetadata(BaseModel):
     publication: Annotated[Optional[Publication], Field(description="Associated publication")] = (
         None
     )
+    repository: Annotated[Optional[DataRepository], Field(description="Data repository")] = None
     license: Annotated[str, Field(description="License for the dataset")] = "CC0"
 
     # Technical information
     created_date: Annotated[
         datetime, Field(default_factory=datetime.now, description="Creation date")
     ]
-    version: Annotated[str, Field(description="Dataset version")] = __version__
+    modified_date: Annotated[
+        datetime, Field(default_factory=datetime.now, description="Last modified date")
+    ]
+    package_version: Annotated[
+        str,
+        Field(
+            default=__version__,
+            description="hdxms-datasets package version used to create this dataset",
+        ),
+    ]
+    dataset_version: Annotated[
+        int, Field(default=1, description="Version of this specific dataset")
+    ]
 
     # Source information
     conversion_notes: Annotated[
@@ -326,7 +339,7 @@ class HDXDataSet(BaseModel):
     # Basic information
     description: Annotated[Optional[str], Field(None, description="Dataset description")]
 
-    states: list[HDXState] = Field(description="List of HDX states in the dataset")
+    states: list[State] = Field(description="List of HDX states in the dataset")
     structure: Annotated[Structure, Field(description="Structural model file path")]
     protein_identifiers: Annotated[
         ProteinIdentifiers, Field(description="Protein identifiers (UniProt, etc.)")
@@ -357,7 +370,7 @@ class HDXDataSet(BaseModel):
         current_hash = self.hash_files()
         return current_hash.startswith(self.file_hash)
 
-    def get_state(self, state: str | int) -> HDXState:
+    def get_state(self, state: str | int) -> State:
         """Get a specific state by name or index"""
         if isinstance(state, int):
             return self.states[state]

@@ -4,7 +4,7 @@ from hdxms_datasets.__version__ import __version__
 
 from hdxms_datasets.models import (
     HDXDataSet,
-    HDXState,
+    State,
     Peptides,
     ProteinState,
     ProteinIdentifiers,
@@ -26,7 +26,7 @@ from hdxms_datasets.process import (
 __all__ = [
     "__version__",
     "HDXDataSet",
-    "HDXState",
+    "State",
     "Peptides",
     "ProteinState",
     "ProteinIdentifiers",
