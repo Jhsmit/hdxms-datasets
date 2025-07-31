@@ -11,8 +11,7 @@ from hdxms_datasets.database import DataBase
 from hdxms_datasets.view import StructureView
 # %%
 
-DATASET = "1665149400_SecA_Krishnamurthy"
-# DATASET = "1704204434_SecB_Krishnamurthy"
+DATA_ID = "HDX_C1198C76"  # SecA state data
 
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
@@ -20,7 +19,7 @@ database_dir = test_pth / "datasets"
 
 # %%
 db = DataBase(database_dir)
-dataset = db.load_dataset(DATASET)  # Should load the dataset from the database
+dataset = db.load_dataset(DATA_ID)  # Should load the dataset from the database
 
 # %%
 

@@ -7,17 +7,15 @@ from hdxms_datasets.database import DataBase
 from hdxms_datasets.view import StructureView
 # %%
 
-DATASET = "1745478702_hd_examiner_example_Sharpe"
+DATASET = "HDX_3C3CF77E"  # hd examiner data
 
 test_pth = Path(__file__).parent.parent / "tests"
-database_dir = test_pth / "datasets"
+database_dir = test_pth / "datasets_private"
 
 # Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
 db = DataBase(database_dir)
 dataset = db.load_dataset(DATASET)  # Should load the dataset from the database
 
-
-# Get the seqeunce of the first state
 # %%
 state = dataset.states[0]
 state.protein_state.sequence  # Get the sequence of the first state

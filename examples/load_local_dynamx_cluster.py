@@ -11,7 +11,7 @@ from hdxms_datasets.database import DataBase
 from hdxms_datasets.view import StructureView
 # %%
 
-DATASET = "1744801204_SecA_cluster_Krishnamurthy"
+DATASET = "HDX_3BAE2080"  # SecA cluster data
 
 test_pth = Path(__file__).parent.parent / "tests"
 data_pth = test_pth / "datasets"
