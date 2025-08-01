@@ -3,7 +3,7 @@ import itertools
 from typing import Sequence, Any
 from hdxms_datasets.utils import peptide_redundancy
 from hdxms_datasets.models import Peptides, Structure, ValueType
-from narwhals.typing import IntoFrame
+import narwhals as nw
 
 from hdxms_datasets.utils import contiguous_peptides, non_overlapping_peptides
 
@@ -46,9 +46,9 @@ class StructureView:
         return "auth_asym_id" if self.structure.auth_chain_labels else "struct_asym_id"
 
     @staticmethod
-    def resolve_peptides(peptides: Peptides | IntoFrame) -> IntoFrame:
+    def resolve_peptides(peptides: Peptides | nw.DataFrame) -> nw.DataFrame:
         """
-        Converts a Peptides object or a DataFrame into a DataFrame with chain information.
+        Loads peptides as a DataFrame or returns the DataFrame.
         """
         if isinstance(peptides, Peptides):
             df = peptides.load()
@@ -58,7 +58,7 @@ class StructureView:
         return df
 
     @staticmethod
-    def resolve_chain(peptides: Peptides | IntoFrame, chain: list[str] | None) -> list[str]:
+    def resolve_chain(peptides: Peptides | nw.DataFrame, chain: list[str] | None) -> list[str]:
         """
         Resolves the chain information from a Peptides object or a DataFrame.
         """
@@ -76,7 +76,7 @@ class StructureView:
         self,
         start: int,
         end: int,
-        chain: list[str] = [],
+        chain: list[str] | None = None,
         color: str = "red",
         non_selected_color: str = "lightgray",
     ) -> StructureView:
@@ -100,16 +100,14 @@ class StructureView:
 
     def peptide_coverage(
         self,
-        peptides: Peptides | IntoFrame,
-        start="start",
-        end="end",
+        peptides: Peptides | nw.DataFrame,
         color="darkgreen",
         chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
     ) -> StructureView:
         df = self.resolve_peptides(peptides)
         chain = self.resolve_chain(peptides, chain)
-        intervals = contiguous_peptides(df, start=start, end=end)
+        intervals = contiguous_peptides(df)
 
         data = []
         for start, end in intervals:
@@ -131,9 +129,7 @@ class StructureView:
 
     def non_overlapping_peptides(
         self,
-        peptides: Peptides | IntoFrame,
-        start="start",
-        end="end",
+        peptides: Peptides | nw.DataFrame,
         colors: list[str] | None = None,
         chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
@@ -142,7 +138,7 @@ class StructureView:
         df = self.resolve_peptides(peptides)
         chain = self.resolve_chain(peptides, chain)
 
-        intervals = non_overlapping_peptides(df, start=start, end=end)
+        intervals = non_overlapping_peptides(df)
 
         colors = (
             colors
@@ -150,27 +146,38 @@ class StructureView:
             else ["#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02"]
         )
 
-        data = []
+        cdata = []
+        tdata = []
         for (start, end), color in zip(intervals, itertools.cycle(colors)):
-            elem = {
-                f"start_{self.residue_name}": self.rn(start),
-                f"end_{self.residue_name}": self.rn(end),
-                "color": color,
-            }
-            data.append(elem)
+            cdata.append(
+                {
+                    f"start_{self.residue_name}": self.rn(start),
+                    f"end_{self.residue_name}": self.rn(end),
+                    "color": color,
+                }
+            )
+            df_f = df.filter((nw.col("start") == start) & (nw.col("end") == end)).to_native()
+            sequence = df_f["sequence"].unique().first()
+            tdata.append(
+                {
+                    f"start_{self.residue_name}": self.rn(start),
+                    f"end_{self.residue_name}": self.rn(end),
+                    "tooltip": f"Peptide: {sequence}",
+                }
+            )
 
         color_data = {
-            "data": self._augment_chain(data, chain),
+            "data": self._augment_chain(cdata, chain),
             "nonSelectedColor": non_selected_color,
         }
 
         self.view.color_data = color_data
-        self.view.tooltips = None
+        self.view.tooltips = {"data": self._augment_chain(tdata, chain)}
         return self
 
     def peptide_redundancy(
         self,
-        peptides: Peptides | IntoFrame,
+        peptides: Peptides | nw.DataFrame,
         start="start",
         end="end",
         chain: list[str] | None = None,
