@@ -102,19 +102,19 @@ def verify_sequence(
 
 
 @nw.narwhalify
-def contiguous_peptides(df: IntoFrame, start="start", end="end") -> list[tuple[int, int]]:
+def contiguous_peptides(df: IntoFrame) -> list[tuple[int, int]]:
     """
     Given a dataframe with 'start' and 'end' columns, each describing a range,
     (inclusive intervals), this function returns a list of tuples
     representing contiguous regions.
     """
     # cast to ensure df is a narwhals DataFrame
-    df = cast(nw.DataFrame, df).select([start, end]).unique().sort(by=[start, end])
+    df = cast(nw.DataFrame, df).select(["start", "end"]).unique().sort(by=["start", "end"])
 
     regions = []
     current_start, current_end = None, 0
 
-    for start_val, end_val in df.select([nw.col(start), nw.col(end)]).iter_rows(named=False):
+    for start_val, end_val in df.select([nw.col("start"), nw.col("end")]).iter_rows(named=False):
         if current_start is None:
             # Initialize the first region
             current_start, current_end = start_val, end_val
@@ -136,15 +136,13 @@ def contiguous_peptides(df: IntoFrame, start="start", end="end") -> list[tuple[i
 @nw.narwhalify
 def non_overlapping_peptides(
     df: IntoFrame,
-    start: str = "start",
-    end: str = "end",
 ) -> list[tuple[int, int]]:
     """
     Given a dataframe with 'start' and 'end' columns, each describing a range,
     (inclusive intervals), this function returns a list of tuples
     representing non-overlapping peptides.
     """
-    df = cast(nw.DataFrame, df).select([start, end]).unique().sort(by=[start, end])
+    df = cast(nw.DataFrame, df).select(["start", "end"]).unique().sort(by=["start", "end"])
 
     regions = df.rows()
     out = [regions[0]]
@@ -158,9 +156,7 @@ def non_overlapping_peptides(
 
 
 @nw.narwhalify
-def peptide_redundancy(
-    df: IntoFrame, start: str = "start", end: str = "end"
-) -> tuple[np.ndarray, np.ndarray]:
+def peptide_redundancy(df: IntoFrame) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute the redundancy of peptides in a DataFrame based on their start and end positions.
     Redundancy is defined as the number of peptides overlapping at each position.
@@ -176,8 +172,8 @@ def peptide_redundancy(
         - redundancy: An array of redundancy counts for each position in r_number.
 
     """
-    df = cast(nw.DataFrame, df).select([start, end]).unique().sort(by=[start, end])
-    vmin, vmax = df[start][0], df[end][-1]
+    df = cast(nw.DataFrame, df).select(["start", "end"]).unique().sort(by=["start", "end"])
+    vmin, vmax = df["start"][0], df["end"][-1]
 
     r_number = np.arange(vmin, vmax + 1, dtype=int)
     redundancy = np.zeros_like(r_number, dtype=int)
