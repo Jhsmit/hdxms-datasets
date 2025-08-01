@@ -72,15 +72,22 @@ protein_state = ProteinState(
 
 # Define the partially deuterated peptides for the SecB state
 pd_peptides = Peptides(
+    # path to the data file
     data_file=data_dir / "ecSecB_apo.csv",
+    # specify the data format
     data_format=PeptideFormat.DynamX_v3_state,
+    # specify the deuteration type (partially, fully or not deuterated)
     deuteration_type=DeuterationType.partially_deuterated,
     filters={
         "State": "SecB WT apo",
+        # Optionally filter by exposure, leave out to include all exposures
         "Exposure": [0.167, 0.5, 1.0, 10.0, 100.000008],
     },
+    # pH read without corrections
     pH=8.0,
+    # temperature of the exchange buffer
     temperature=303.15,
+    # deuterium percentage of the exchange buffer
     d_percentage=90.0,
 )
 
