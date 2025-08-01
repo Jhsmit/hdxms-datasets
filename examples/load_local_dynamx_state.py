@@ -11,7 +11,8 @@ from hdxms_datasets.database import DataBase
 from hdxms_datasets.view import StructureView
 # %%
 
-DATA_ID = "HDX_C1198C76"  # SecA state data
+DATA_ID = "HDX_C1198C76"  # SecA DynamX state data
+DATA_ID = "HDX_D9096080"  # SecB DynamX state data
 
 # %%
 test_pth = Path(__file__).parent.parent / "tests"
@@ -20,7 +21,11 @@ database_dir = test_pth / "datasets"
 # %%
 db = DataBase(database_dir)
 dataset = db.load_dataset(DATA_ID)  # Should load the dataset from the database
-
+print(dataset.description)
+# > HDX-MS dataset for SecB protein in tetramer/dimer states
+# %%
+print([state.name for state in dataset.states])
+# > ['Tetramer', 'Dimer']
 # %%
 
 state = dataset.states[0]
@@ -30,7 +35,19 @@ state.protein_state.sequence  # Get the sequence of the first state
 # check the deutation types of the peptides; we have one
 # partially deuterated and one fully deuterated
 [p.deuteration_type for p in state.peptides]
+# > [<DeuterationType.partially_deuterated: 'partially_deuterated'>, <DeuterationType.fully_deuterated: 'fully_deuterated'>]
 
+# %%
+
+# load the partially deuterated peptides
+df = state.peptides[0].load(
+    convert=True,
+    aggregate=True,
+    # sort_rows=True,
+    # sort_columns=True,
+)
+print(df.columns)
+# > ['start', 'end', 'sequence', 'state', 'exposure', 'centroid_mz', 'rt', 'rt_sd', 'uptake', 'uptake_sd']
 # %%
 # merge partially deuterated peptides with
 # fully deuterated peptides in one dataframe
