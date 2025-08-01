@@ -81,7 +81,7 @@ def serialize_datafile_path(x: Path, info: ValidationInfo) -> str:
     return x.as_posix()
 
 
-TEXT_FILE_FORMATS = [".csv", ".txt", ".yaml", ".yml", ".json", ".pdb"]
+TEXT_FILE_FORMATS = [".csv", ".txt", ".yaml", ".yml", ".json", ".pdb", ".cif"]
 
 
 def hash_files(data_files: Iterable[Path]) -> str:
