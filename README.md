@@ -8,7 +8,7 @@ The package offers the following features:
 
  - Defining datasets and their experimental metadata
  - Verification of datasets and metadata
- - Loading datasets from local or remote (WIP) database
+ - Loading datasets from local or remote database
  - Conversion of datasets from various formats (e.g., DynamX, HDExaminer) to a standardized format
  - Propagation of standard deviations from replicates to fractional relative uptake values
 
