@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 
 if TYPE_CHECKING:
-    from hdxms_datasets.datasets import ProteinInfo
+    from hdxms_datasets.stable.v020.datasets import ProteinInfo
 
 
 def diff_sequence(a: str, b: str) -> float:
