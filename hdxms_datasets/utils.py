@@ -31,9 +31,6 @@ def reconstruct_sequence(
     peptides: nw.DataFrame,
     known_sequence: str,
     n_term: int = 1,
-    start: str = "start",
-    end: str = "end",
-    sequence: str = "sequence",
 ) -> str:
     """
     Reconstruct the sequence form a dataframe of peptides with sequence information.
@@ -45,16 +42,13 @@ def reconstruct_sequence(
         known_sequence: Starting sequence. Can be a string 'X' as placeholder.
         n_term: The residue number of the N-terminal residue. This is typically 1, can be
             negative in case of purification tags.
-        start: Column name for the start position of the peptide.
-        end: Column name for the end position of the peptide.
-        sequence: Column name for the peptide sequence.
 
     Returns:
         The reconstructed sequence.
     """
 
     reconstructed = list(known_sequence)
-    for start_, end_, sequence_ in peptides.select([start, end, sequence]).iter_rows():  # type: ignore
+    for start_, end_, sequence_ in peptides.select(["start", "end", "sequence"]).iter_rows():  # type: ignore
         start_idx = start_ - n_term
         assert end_ - start_ + 1 == len(sequence_), (
             f"Length mismatch at {start_}:{end_} with sequence {sequence_}"
@@ -71,9 +65,6 @@ def verify_sequence(
     peptides: IntoFrame,
     known_sequence: str,
     n_term: int = 1,
-    start: str = "start",
-    end: str = "end",
-    sequence: str = "sequence",
 ) -> list[tuple[int, str, str]]:
     """
     Verify the sequence of peptides against the given sequence.
@@ -88,7 +79,7 @@ def verify_sequence(
     """
 
     reconstructed_sequence = reconstruct_sequence(
-        peptides, known_sequence, n_term, start=start, end=end, sequence=sequence
+        peptides, known_sequence, n_term, start="start", end="end", sequence="sequence"
     )
 
     mismatches = []
@@ -163,8 +154,6 @@ def peptide_redundancy(df: IntoFrame) -> tuple[np.ndarray, np.ndarray]:
 
     Args:
         df: DataFrame containing peptide information with 'start' and 'end' columns.
-        start: Column name for the start position.
-        end: Column name for the end position.
 
     Returns:
         A tuple containing:
