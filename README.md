@@ -19,7 +19,7 @@ A database for open HDX datasets is set up at [HDXMS DataBase](https://github.co
 ### Loading datasets
 
 
-```python {title="Loading a dataset"}
+```python
 
 from hdxms_datasets import DataBase
 
@@ -59,7 +59,7 @@ print(df.columns)
 
 ### Define and process datasets
 
-```python {title="Define a set of peptides for a state"}
+```python
 from hdxms_datasets import ProteinState, Peptides, verify_sequence, merge_peptides, compute_uptake_metrics
 
 # Define the protein state
