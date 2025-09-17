@@ -17,7 +17,6 @@ from hdxms_datasets.models import (
     Structure,
 )
 from hdxms_datasets.utils import verify_sequence
-
 # %%
 
 cwd = Path(__file__).parent
@@ -77,7 +76,6 @@ peptides = [
     ),
 ]
 
-# %%
 # %%
 # test loading the peptides and verifying the sequence
 # by comparing sequences of peptides to the protein state sequence
