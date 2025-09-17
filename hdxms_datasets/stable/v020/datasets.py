@@ -175,7 +175,7 @@ class PeptideMetadata(TypedDict):
 
 
 class PDBeMolstar:
-    def __init__(self, structure: Structure, **kwargs):
+    def __init__(self, structure: Structure, **kwargs: Any):
         """
         Initialize the PDBeMolstar visualization namespace.
 
@@ -203,6 +203,7 @@ class PDBeMolstar:
     def show(self, hide_water=True, **kwargs) -> PDBeMolstar:
         from ipymolstar import PDBeMolstar
 
+        molstar_kwargs = {**self._molstar_kwargs, **kwargs}
         return PDBeMolstar(
             custom_data=self.structure.data_file.pdbemolstar_custom_data(),
             hide_water=hide_water,
@@ -462,7 +463,7 @@ def parse_structures(
 
     Args:
         structures_spec: Dictionary containing structure specifications.
-        data_files: Dictionary of available data files.
+        data_file: StructureFile object for the structure data.
 
     Returns:
         Dictionary of Structure objects keyed by structure name.

@@ -243,7 +243,7 @@ class RemoteDataBase(DataBase):
     A database for HDX-MS datasets, with the ability to fetch datasets from a remote repository.
 
     Args:
-        cache_dir: Directory to store downloaded datasets.
+        database_dir: Directory to store downloaded datasets.
         remote_url: URL of the remote repository (default: DATABASE_URL).
     """
 

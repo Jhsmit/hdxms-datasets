@@ -217,7 +217,6 @@ def identify_format(df: nw.DataFrame, *, exact: bool = True) -> Optional[HDXForm
     return an OpenHDXFormat instance with aggregated set to True if 'replicate' is in the columns.
 
     Args:
-        cols: The column names to check.
         exact: If True, order must match; otherwise, uses set equality.
 
     Returns:

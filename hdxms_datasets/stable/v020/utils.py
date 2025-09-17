@@ -53,7 +53,7 @@ def verify_sequence(
 
     Args:
         peptides: DataFrame containing peptide information.
-        sequence: The original sequence to check against.
+        known_sequence: The original sequence to check against.
         n_term: The number of N-terminal residues to consider.
 
     Returns:
