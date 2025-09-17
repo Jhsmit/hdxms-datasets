@@ -3,6 +3,7 @@ from hdxms_datasets.utils import verify_sequence
 
 
 def verify_dataset(dataset: HDXDataSet):
+    """Verify the integrity of the dataset by checking sequences and data files."""
     verify_peptides(dataset)
     if not datafiles_exist(dataset):
         raise ValueError("Missing datafiles")
@@ -12,6 +13,7 @@ def verify_dataset(dataset: HDXDataSet):
 
 
 def verify_peptides(dataset: HDXDataSet):
+    """Verify that all peptide sequences match the protein sequence in the dataset states."""
     for state in dataset.states:
         sequence = state.protein_state.sequence
         for i, peptides in enumerate(state.peptides):
