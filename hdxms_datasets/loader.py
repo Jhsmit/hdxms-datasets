@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Literal, IO, Optional
 import warnings
-
-from narwhals.exceptions import InvalidOperationError
-
-import narwhals as nw
-
-import narwhals as nw
 from pathlib import Path
+from typing import IO
+
+import narwhals as nw
+
 from hdxms_datasets.formats import FORMAT_LUT
 from hdxms_datasets.models import Peptides
 
