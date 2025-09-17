@@ -207,8 +207,7 @@ class PDBeMolstar:
         return PDBeMolstar(
             custom_data=self.structure.data_file.pdbemolstar_custom_data(),
             hide_water=hide_water,
-            **self._molstar_kwargs,
-            **kwargs,
+            **molstar_kwargs,
         )
 
     def color_peptide(
