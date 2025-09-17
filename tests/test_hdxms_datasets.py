@@ -5,7 +5,7 @@ Test module for the new Pydantic/JSON-based HDX-MS datasets API.
 This replaces the old YAML-based tests with tests for the new API.
 """
 
-from hdxms_datasets.database import DataBase, load_dataset
+from hdxms_datasets.database import DataBase, RemoteDataBase, load_dataset
 from hdxms_datasets.models import HDXDataSet
 from pathlib import Path
 import pytest
@@ -65,6 +65,17 @@ def test_database_functionality(database: DataBase):
 
     # Check that we can load a specific dataset
     dataset = database.load_dataset(DATA_ID)
+    assert isinstance(dataset, HDXDataSet)
+
+
+def test_remote_database(tmp_path: Path):
+    db = RemoteDataBase(tmp_path)
+    assert DATA_ID in db.remote_datasets
+
+    success, message = db.fetch_dataset(DATA_ID)
+    assert success, message
+
+    dataset = db.load_dataset(DATA_ID)
     assert isinstance(dataset, HDXDataSet)
 
 

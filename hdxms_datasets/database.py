@@ -1,16 +1,21 @@
 from pathlib import Path
 
-import urllib
+from urllib.parse import urljoin
+from urllib.error import HTTPError
 import uuid
 
 import requests
-from hdxms_datasets.loader import BACKEND
-from hdxms_datasets.models import HDXDataSet
+from hdxms_datasets.loader import BACKEND, read_csv
+from hdxms_datasets.models import HDXDataSet, extract_values_by_types
 import shutil
 import narwhals as nw
 
 from hdxms_datasets.utils import records_to_dict
 from hdxms_datasets.verification import verify_dataset
+
+
+CATALOG_FILE = "datasets_catalog.csv"
+DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
 
 
 def load_dataset(pth: Path) -> HDXDataSet:
@@ -235,9 +240,6 @@ class DataBase:
         return dataset
 
 
-DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDX-MS-datasets/master/datasets/"
-
-
 class RemoteDataBase(DataBase):
     """
     A database for HDX-MS datasets, with the ability to fetch datasets from a remote repository.
@@ -247,80 +249,88 @@ class RemoteDataBase(DataBase):
         remote_url: URL of the remote repository (default: DATABASE_URL).
     """
 
-    def __init__(self, database_dir: Path | str, remote_url: str = DATABASE_URL):
+    def __init__(
+        self,
+        database_dir: Path | str,
+        remote_url: str = DATABASE_URL,
+    ):
         super().__init__(database_dir)
         self.remote_url = remote_url
 
-    def get_index(self) -> nw.DataFrame:
-        """Retrieves the index of available datasets
+        index_url = urljoin(DATABASE_URL, CATALOG_FILE)
+        response = requests.get(index_url)
 
-        on success, returns the index dataframe and
-        stores as `remote_index` attribute.
+        # TODO keep catalogs on a per-url basis in a singleton
+        if response.ok:
+            df = read_csv(response.content)
+            self.datasets_catalog = df
+        else:
+            raise HTTPError(
+                index_url,
+                response.status_code,
+                "Error fetching dataset index",
+                response.headers,  # type: ignore
+                None,
+            )
 
+    @property
+    def remote_datasets(self) -> list[str]:
+        """List of available datasets in the remote repository"""
+        return self.datasets_catalog["id"].to_list()
+
+    @property
+    def local_datasets(self) -> list[str]:
+        """List of available datasets in the local database directory"""
+        return self.datasets
+
+    def fetch_dataset(self, data_id: str) -> tuple[bool, str]:
         """
-        raise NotImplementedError()
-
-    def fetch_dataset(self, data_id: str) -> bool:
-        """
-        Download a dataset from the online repository to the cache dir
+        Download a dataset from the online repository to `database_dir`
 
         Args:
             data_id: The ID of the dataset to download.
 
         Returns:
-            `True` if the dataset was downloaded successfully, `False`  otherwise.
+            A tuple (success: bool, message: str):
+            - success: True if the dataset was successfully downloaded, False otherwise.
+            - message: A message indicating the result of the download.
         """
 
-        raise NotImplementedError()
-        output_pth = self.cache_dir / data_id
+        if data_id not in self.remote_datasets:
+            return False, f"Dataset ID {data_id!r} not found in remote database."
+
+        json_url = urljoin(DATABASE_URL, data_id + "/dataset.json")
+        response = requests.get(json_url)
+
+        # confirm if the json is according to spec
+        try:
+            dataset = HDXDataSet.model_validate_json(
+                response.content,
+            )
+        except Exception as e:
+            return False, f"Error validating dataset JSON: {e}"
+
+        # create a list of all Path objects in the dataset plus the dataset.json file
+        data_files = list(set(extract_values_by_types(dataset, Path))) + [Path("dataset.json")]
+
+        # create the target directory to store the dataset
+        output_pth = self.database_dir / data_id
         if output_pth.exists():
-            return False
+            return False, "Dataset already exists in the local database."
         else:
             output_pth.mkdir()
 
-        dataset_url = urllib.parse.urljoin(self.remote_url, data_id + "/")
+        for data_file in data_files:
+            data_url = urljoin(DATABASE_URL, data_id + "/" + data_file.as_posix())
 
-        files = ["hdx_spec.yaml", "metadata.yaml"]
-        hdx_spec = None
-        for f in files + optional_files:
-            url = urllib.parse.urljoin(dataset_url, f)
-            response = requests.get(url)
-
+            response = requests.get(data_url)
             if response.ok:
-                (output_pth / f).write_bytes(response.content)
-
-            elif f in files:
-                raise urllib.error.HTTPError(
-                    url,
-                    response.status_code,
-                    f"Error for file {f!r}",
-                    response.headers,  # type: ignore
-                    None,
-                )
-
-            if f == "hdx_spec.yaml":
-                hdx_spec = yaml.safe_load(response.text)
-
-        if hdx_spec is None:
-            raise ValueError(f"Could not find HDX spec for data_id {data_id!r}")
-
-        data_pth = output_pth / "data"
-        data_pth.mkdir()
-
-        for file_spec in hdx_spec["data_files"].values():
-            filename = file_spec["filename"]
-            f_url = urllib.parse.urljoin(dataset_url, filename)
-            response = requests.get(f_url)
-
-            if response.ok:
-                (output_pth / filename).write_bytes(response.content)
+                # write the file to disk
+                fpath = output_pth / Path(data_file)
+                fpath.parent.mkdir(parents=True, exist_ok=True)
+                fpath.write_bytes(response.content)
             else:
-                raise urllib.error.HTTPError(
-                    f_url,
-                    response.status_code,
-                    f"Error for data file {filename!r}",
-                    response.headers,  # type: ignore
-                    None,
-                )
+                shutil.rmtree(output_pth)  # clean up partial download
+                return False, f"Failed to download {data_file}: {response.status_code}"
 
-        return True
+        return True, ""
