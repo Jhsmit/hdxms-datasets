@@ -31,9 +31,9 @@ def reconstruct_sequence(
     peptides: nw.DataFrame,
     known_sequence: str,
     n_term: int = 1,
-    start="start",
-    end="end",
-    sequence="sequence",
+    start: str = "start",
+    end: str = "end",
+    sequence: str = "sequence",
 ) -> str:
     """
     Reconstruct the sequence form a dataframe of peptides with sequence information.
@@ -71,9 +71,9 @@ def verify_sequence(
     peptides: IntoFrame,
     known_sequence: str,
     n_term: int = 1,
-    start="start",
-    end="end",
-    sequence="sequence",
+    start: str = "start",
+    end: str = "end",
+    sequence: str = "sequence",
 ) -> list[tuple[int, str, str]]:
     """
     Verify the sequence of peptides against the given sequence.
