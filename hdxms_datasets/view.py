@@ -35,7 +35,7 @@ class StructureView:
         return "auth_residue_number" if self.structure.auth_residue_numbers else "residue_number"
 
     def rn(self, r: int) -> int:
-        """apply residue numbering offset"""
+        """Apply residue numbering offset"""
         return r + self.structure.residue_offset
 
     @property
