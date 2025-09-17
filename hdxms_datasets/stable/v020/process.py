@@ -210,7 +210,6 @@ def filter_peptides(
         state: Name of protein state to select.
         exposure: Exposure value(s) to select. Exposure is given as a :obj:`dict`, with keys "value" or "values" for
             exposure value, and "unit" for the time unit.
-        time_unit: Time unit for exposure column of supplied dataframe.
 
     Examples:
         Filter peptides for a specific protein state and exposure time:
