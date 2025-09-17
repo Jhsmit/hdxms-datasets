@@ -15,8 +15,7 @@ The package offers the following features:
 
 ## Example Usage
 
-```python {title="Loading a dataset"}
-
+```python
 from hdxms_datasets import DataBase
 
 db = DataBase('path/to/local_db')
@@ -53,7 +52,7 @@ print(df.columns)
 
 ```
 
-```python {title="Define a set of peptides for a state"}
+```python
 from hdxms_datasets import ProteinState, Peptides, verify_sequence, merge_peptides, compute_uptake_metrics
 
 # Define the protein state
