@@ -9,7 +9,7 @@ from hdxms_datasets.utils import contiguous_peptides, non_overlapping_peptides
 
 
 class StructureView:
-    def __init__(self, structure: Structure, hide_water=True, **kwargs):
+    def __init__(self, structure: Structure, hide_water=True, **kwargs: ValueType):
         """
         Initialize the PDBeMolstar visualization namespace.
 
@@ -101,7 +101,7 @@ class StructureView:
     def peptide_coverage(
         self,
         peptides: Peptides | nw.DataFrame,
-        color="darkgreen",
+        color: str = "darkgreen",
         chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
     ) -> StructureView:

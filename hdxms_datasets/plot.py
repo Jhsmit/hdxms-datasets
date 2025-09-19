@@ -7,6 +7,14 @@ from cmap import Colormap
 def unique_peptides(df: pl.DataFrame) -> bool:
     """
     Checks if all peptides in the DataFrame are unique.
+    Needs to have columns 'start' and 'end' marking peptide intervals (inclusive).
+
+    Args:
+        df: DataFrame containing peptide information.
+
+    Returns:
+        `True` if all peptides are unique, otherwise `False`.
+
     """
 
     return len(df) == len(df.unique(subset=["start", "end"]))
@@ -28,7 +36,7 @@ def find_wrap(
         wrap_limit: The maximum allowed wrap value. Defaults to 200.
 
     Returns:
-        int: The minimum wrap value that does not overlap with any intervals.
+        The minimum wrap value that does not overlap with any intervals.
     """
     wrap = step
 
@@ -53,6 +61,22 @@ def find_wrap(
 
 
 def peptide_rectangles(peptides: pl.DataFrame, wrap: int | None = None) -> pl.DataFrame:
+    """
+    Given a DataFrame with 'start' and 'end' columns, each describing a peptide range,
+    this function computes the corresponding rectangle coordinates for visualization.
+
+    Typicall used for Altair plotting. The rectangles will be stacked vertically based on the `wrap` parameter.
+    Horizontally, each rectangle spans from `start - 0.5` to `end + 0.5`.
+
+    Args:
+        peptides: DataFrame containing peptide information with 'start' and 'end' columns.
+        wrap: The number of peptides to stack vertically before wrapping to the next row.
+              If `None`, the function will compute an optimal wrap value to avoid overlaps.
+
+    Returns:
+        A DataFrame with columns 'x', 'x2', 'y', and 'y2' representing the rectangle coordinates.
+
+    """
     wrap = find_wrap(peptides, step=1) if wrap is None else wrap
     columns = [
         (pl.col("start") - 0.5).alias("x"),
@@ -84,6 +108,28 @@ def plot_peptides(
     wrap: int | None = None,
     fill_nan: bool = True,
 ) -> alt.Chart:
+    """
+    Create an altair chart visualizing peptides as colored rectangles.
+
+    Args:
+        peptides: DataFrame containing peptide information with 'start', 'end', and `value` columns.
+        value: The column name in `peptides` to use for coloring the rectangles.
+        value_sd: Optional column name for standard deviation of `value`, used in tooltips.
+        colormap: Colormap to use for coloring the rectangles. Can be a string or a Colormap object.
+        domain: Tuple specifying the (min, max) values for the colormap. If `None`, uses min and max of `value`.
+        bad_color: Color to use for invalid or NaN values.
+        N: Number of discrete colors to generate from the colormap.
+        label: Label for the color legend. If `None`, uses a title-cased version of `value`.
+        width: Width of the chart. Can be an integer or 'container' for responsive width.
+        height: Height of the chart in pixels.
+        wrap: Number of peptides to stack vertically before wrapping to the next row. If `None`, computes an optimal wrap value.
+        fill_nan: Whether to fill NaN values in `peptides` with None to avoid serialization issues.
+
+    Returns:
+        An Altair Chart object visualizing the peptides.
+
+    """
+
     if not unique_peptides(peptides):
         raise ValueError("Peptides must be unique by 'start' and 'end' columns.")
 

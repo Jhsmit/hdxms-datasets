@@ -49,6 +49,16 @@ BACKEND = get_backend()
 
 
 def read_csv(source: Path | str | IO | bytes) -> nw.DataFrame:
+    """
+    Read a CSV file and return a Narwhals DataFrame.
+
+    Args:
+        source: Source object representing the CSV data.
+
+    Returns:
+        A Narwhals DataFrame containing the CSV data.
+
+    """
     if isinstance(source, str):
         return nw.read_csv(source, backend=BACKEND)
     elif isinstance(source, Path):
@@ -81,6 +91,23 @@ def load_peptides(
     sort_columns: bool = True,
     drop_null: bool = True,
 ) -> nw.DataFrame:
+    """
+    Load peptides from the data file and return a Narwhals DataFrame.
+
+    Args:
+        peptides: Peptides object containing metadata and file path.
+        base_dir: Base directory to resolve relative file paths. Defaults to the current working directory.
+        convert: Whether to convert the data to a standard format.
+        aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.
+        sort_rows: Whether to sort the rows.
+        sort_columns: Whether to sort the columns in a standard order.
+        drop_null: Whether to drop columns that are entirely null.
+
+    Returns:
+        A Narwhals DataFrame containing the loaded peptide data.
+
+    """
+
     # Resolve the data file path
     if peptides.data_file.is_absolute():
         data_path = peptides.data_file

@@ -43,7 +43,16 @@ OPEN_HDX_COLUMNS = STANDARD_COLUMNS + OPTIONAL_COLUMNS + COMPUTED_COLUMS
 
 @dataclass(frozen=True)
 class FormatSpec:
-    """Specification for a data format"""
+    """Specification for a data format
+
+    Args:
+        name: Name of the format.
+        required_columns: List of columns required to identify this format.
+        filter_columns: List of columns that can be used to filter data.
+        converter: Function to convert a DataFrame to OpenHDX format.
+        aggregated: Whether the format is aggregated, or a function to determine if a DataFrame is aggregated.
+
+    """
 
     name: str
     required_columns: list[str]
@@ -52,17 +61,17 @@ class FormatSpec:
     aggregated: bool | Callable[[nw.DataFrame], bool]
 
     def matches(self, df: nw.DataFrame) -> bool:
-        """Check if DataFrame matches this format"""
+        """Check if a DataFrame matches this format."""
         df_cols = set(df.columns)
         required_cols = set(self.required_columns)
         return required_cols.issubset(df_cols)
 
     def convert(self, df: nw.DataFrame) -> nw.DataFrame:
-        """Convert DataFrame to OpenHDX format"""
+        """Convert DataFrame to OpenHDX format."""
         return self.converter(df)
 
     def is_aggregated(self, df: nw.DataFrame | None = None) -> bool:
-        """Check if DataFrame is aggregated"""
+        """Check if a DataFrame is aggregated."""
         if self.aggregated is True:
             return True
         if callable(self.aggregated):

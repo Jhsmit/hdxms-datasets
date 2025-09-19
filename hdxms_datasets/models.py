@@ -66,6 +66,7 @@ def extract_values_by_types(obj: Any, target_types: Type | tuple[Type, ...]) -> 
 
 
 def validate_datafile_path(x: Path, info: ValidationInfo):
+    """Pydantic validator to resolve relative paths based on context"""
     context = info.context
     if context and "dataset_root" in context and not x.is_absolute():
         root = Path(context["dataset_root"])
@@ -74,6 +75,7 @@ def validate_datafile_path(x: Path, info: ValidationInfo):
 
 
 def serialize_datafile_path(x: Path, info: ValidationInfo) -> str:
+    """Pydantic serializer to convert paths to relative paths based on context"""
     context = info.context
     if context and "dataset_root" in context:
         relpath = x.relative_to(Path(context["dataset_root"]))
@@ -127,7 +129,7 @@ class PeptideFormat(str, Enum):
 
 
 class DeuterationType(str, Enum):
-    """Type of the peptide"""
+    """Experimental Deuteration Type of the peptide"""
 
     partially_deuterated = "partially_deuterated"
     fully_deuterated = "fully_deuterated"
@@ -162,6 +164,16 @@ class Peptides(BaseModel):
         sort_columns: bool = True,
         drop_null: bool = True,
     ) -> nw.DataFrame:
+        """Load the peptides from the data file
+
+        Args:
+            convert: Whether to convert the data to a standard format.
+            aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.
+            sort_rows: Whether to sort the rows.
+            sort_columns: Whether to sort the columns in a standard order.
+            drop_null: Whether to drop columns that are entirely null.
+
+        """
         if self.data_file.exists():
             from hdxms_datasets.loader import load_peptides
 
@@ -178,7 +190,7 @@ class Peptides(BaseModel):
 
 
 class ProteinIdentifiers(BaseModel):
-    """general protein information"""
+    """General protein information"""
 
     uniprot_accession_number: Annotated[Optional[str], Field(None, description="UniProt ID")] = None
     uniprot_entry_name: Annotated[Optional[str], Field(None, description="UniProt entry name")] = (
@@ -364,7 +376,7 @@ class HDXDataSet(BaseModel):
         return hash_files(self.data_files)  # Ensure files are sorted and hashed consistently
 
     def validate_file_integrity(self) -> bool:
-        """match hash of files with the stored hash"""
+        """Match hash of files with the stored hash"""
         if self.file_hash is None:
             return False
         current_hash = self.hash_files()
@@ -391,7 +403,16 @@ class HDXDataSet(BaseModel):
         json_str: str,
         dataset_root: Optional[Path] = None,
     ) -> HDXDataSet:
-        """Load dataset from JSON string"""
+        """Load dataset from JSON string
+
+        Args:
+            json_str: JSON string representing the dataset
+            dataset_root: Optional root directory to resolve relative paths
+
+        Returns:
+            HDXDataSet instance.
+
+        """
         if dataset_root is None:
             context = {}
         else:

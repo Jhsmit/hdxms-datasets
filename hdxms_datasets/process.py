@@ -4,7 +4,7 @@ from pathlib import Path
 import warnings
 from functools import reduce
 from operator import and_
-from typing import Optional
+from typing import Literal, Optional
 import narwhals as nw
 from statsmodels.stats.weightstats import DescrStatsW
 from uncertainties import Variable, ufloat
@@ -12,7 +12,7 @@ from uncertainties import Variable, ufloat
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
 from hdxms_datasets.loader import load_peptides, BACKEND
-from hdxms_datasets.models import DeuterationType, Peptides
+from hdxms_datasets.models import DeuterationType, Peptides, ValueType
 from hdxms_datasets.utils import peptides_are_unique, records_to_dict
 
 
@@ -50,8 +50,13 @@ def ufloat_stats(array, weights) -> Variable:
 
 def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0) -> nw.DataFrame:
     """
-    convert dynamx cluster data to state data
-    must contain only a single state
+    Convert dynamx cluster data to state data.
+    Must contain only a single state.
+
+    Args:
+        cluster_data: DataFrame containing dynamx cluster data.
+        nd_exposure: Exposure time for non-deuterated control.
+
     """
 
     assert len(cluster_data["state"].unique()) == 1, "Multiple states found in data"
@@ -62,6 +67,7 @@ def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0
         {(start, end) for start, end in zip(nd_data["start"], nd_data["end"])}
     )
 
+    # create a dict of non-deuterated masses
     peptides_nd_mass = {}
     for p in nd_peptides:
         start, end = p
@@ -86,6 +92,9 @@ def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0
         "state",
         "stop",
     ]
+
+    # Determine uptake and uptake_sd for each peptide/exposure by
+    # subtracting the non-deuterated mass from the observed mass
     records = []
     for (start, end, exposure), df_group in groups:
         record = {col: df_group[col][0] for col in unique_columns}
@@ -123,7 +132,17 @@ def dynamx_cluster_to_state(cluster_data: nw.DataFrame, nd_exposure: float = 0.0
     return df
 
 
-def apply_filters(df, **filters):
+def apply_filters(df: nw.DataFrame, **filters: ValueType | list[ValueType]) -> nw.DataFrame:
+    """
+    Apply filters to the DataFrame based on the provided keyword arguments.
+    Each keyword corresponds to a column name, and the value can be a single value or a list of values.
+
+    Args:
+        df: The DataFrame to filter.
+        **filters: Column-value pairs to filter the DataFrame.
+    Returns:
+        Filtered DataFrame.
+    """
     exprs = []
     for col, val in filters.items():
         if isinstance(val, list):
@@ -142,7 +161,14 @@ def aggregate_columns(
     df: nw.DataFrame, columns: list[str], by: list[str] = ["start", "end", "exposure"]
 ) -> nw.DataFrame:
     """
-    Aggregate the DataFrame the specified columns by intensity-weighted average.
+    Aggregate the specified columns by intensity-weighted average.
+    The dataframe must have a column named 'intensity' for weighting.
+
+    Args:
+        df: DataFrame to aggregate.
+        columns: List of columns to aggregate.
+        by: List of columns to group by.
+
     """
     groups = df.group_by(by)
     output = {k: [] for k in by}
@@ -165,6 +191,12 @@ def aggregate_columns(
 
 
 def aggregate(df: nw.DataFrame) -> nw.DataFrame:
+    """Aggregate replicates by intensity-weighted average.
+    Columns which are intensity-weighted averaged are: centroid_mz, centroid_mass, rt.
+    All other columns are pass through if they are unique, otherwise set to `None`.
+    Also adds n_replicates and n_cluster columns.
+
+    """
     assert df["state"].n_unique() == 1, (
         "DataFrame must be filtered to a single state before aggregation."
     )
@@ -221,6 +253,16 @@ def sort_rows(df: nw.DataFrame) -> nw.DataFrame:
 
 
 def sort_columns(df: nw.DataFrame, columns: list[str] = OPEN_HDX_COLUMNS) -> nw.DataFrame:
+    """Sorts the DataFrame columns to match the specified order.
+
+    Args:
+        df: DataFrame to sort.
+        columns: List of columns in the desired order. Columns not in this list will be placed at the end.
+
+    Returns:
+        DataFrame with columns sorted.
+
+    """
     matching_columns = [col for col in columns if col in df.columns]
     other_columns = [col for col in df.columns if col not in matching_columns]
 
@@ -235,7 +277,22 @@ def drop_null_columns(df: nw.DataFrame) -> nw.DataFrame:
     return df.drop(all_null_columns)
 
 
-def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = True):
+def left_join(
+    df_left: nw.DataFrame, df_right: nw.DataFrame, column: str, prefix: str, include_sd: bool = True
+) -> nw.DataFrame:
+    """Left join two DataFrames on start, end and the specified column.
+
+    Args:
+        df_left: Left DataFrame.
+        df_right: Right DataFrame.
+        column: Column name to join on in addition to start and end.
+        prefix: Prefix to add to the joined columns from the right DataFrame.
+        include_sd: Whether to include the standard deviation column (column_sd) from the right DataFrame.
+
+    Returns:
+        Merged DataFrame.
+
+    """
     select = [nw.col("start"), nw.col("end")]
     select.append(nw.col(column).alias(f"{prefix}_{column}"))
     if include_sd:
@@ -250,13 +307,25 @@ def left_join(df_left, df_right, column: str, prefix: str, include_sd: bool = Tr
     return merge
 
 
-# TODO narwhalify
 def merge_peptide_tables(
     partially_deuterated: nw.DataFrame,
     column: Optional[str] = None,
     non_deuterated: Optional[nw.DataFrame] = None,
     fully_deuterated: Optional[nw.DataFrame] = None,
 ) -> nw.DataFrame:
+    """
+    Merges peptide tables from different deuteration types into a single DataFrame.
+
+    Args:
+        partially_deuterated: DataFrame containing partially deuterated peptides. Must be provided.
+        column: Column name to join on. If None, 'centroid_mass' is used if present, otherwise 'uptake'.
+        non_deuterated: Optional DataFrame containing non-deuterated peptides.
+        fully_deuterated: Optional DataFrame containing fully deuterated peptides.
+
+    Returns:
+        Merged DataFrame.
+
+    """
     if column is not None:
         join_column = column
     elif "centroid_mass" in partially_deuterated.columns:
@@ -266,6 +335,7 @@ def merge_peptide_tables(
 
     output = partially_deuterated
     if non_deuterated is not None:
+        # TODO move assert to `left_join` ?
         assert peptides_are_unique(non_deuterated), "Non-deuterated peptides must be unique."
         output = left_join(output, non_deuterated, column=join_column, prefix="nd")
     if fully_deuterated is not None:
@@ -275,7 +345,25 @@ def merge_peptide_tables(
 
 
 def merge_peptides(peptides: list[Peptides], base_dir: Path = Path.cwd()) -> nw.DataFrame:
-    """Merge peptide tables from different deuteration types into a single DataFrame."""
+    """Merge peptide tables from different deuteration types into a single DataFrame.
+    This function is used to match control measurements to a set of partially deuterated peptides.
+
+    Supports non-deuterated (nd) and fully deuterated peptides (fd) as controls.
+    The column used in the merge is 'centroid_mass' if present, otherwise 'uptake'. Merged columns are prefixed
+    with 'nd_' or 'fd_'.
+
+    ??? tip "When to use merge_peptide_tables vs left_join"
+        - Use `merge_peptide_tables` to merge already loaded peptide dataframes.
+        - Use `left_join` to merge peptide dataframes with other controls / data types.
+
+    Args:
+        peptides: List of Peptides objects to merge. Must contain one partially deuterated peptide.
+        base_dir: Base directory to resolve relative paths in Peptides data_file.
+
+    Returns:
+        Merged DataFrame.
+
+    """
     peptide_types = {p.deuteration_type for p in peptides}
     if not peptides:
         raise ValueError("No peptides provided for merging.")
@@ -296,10 +384,19 @@ def merge_peptides(peptides: list[Peptides], base_dir: Path = Path.cwd()) -> nw.
     return merged
 
 
-def compute_uptake_metrics(df: nw.DataFrame, exception="raise") -> nw.DataFrame:
+def compute_uptake_metrics(
+    df: nw.DataFrame, exception: Literal["raise", "warn", "ignore"] = "raise"
+) -> nw.DataFrame:
     """
-    Tries to add derived columns to the DataFrame.
+    Tries to add columns to computed from other columns the DataFrame.
     Possible columns to add are: uptake, uptake_sd, fd_uptake, fd_uptake_sd, rfu, max_uptake.
+
+    Args:
+        df: DataFrame to add columns to.
+        exception: How to handle exceptions when adding columns. Options are 'raise', 'warn', 'ignore'.
+    Returns:
+        DataFrame with added columns.
+
     """
     all_columns = {
         "max_uptake": hdx_expr.max_uptake,

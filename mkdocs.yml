@@ -10,6 +10,11 @@ theme:
   name: "material"
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
   - codehilite
   - markdown.extensions.codehilite:
       guess_lang: false
@@ -43,7 +48,12 @@ plugins:
             - https://numpy.org/doc/stable/objects.inv
             - https://docs.scipy.org/doc/scipy/objects.inv
             - https://pandas.pydata.org/docs/objects.inv
+            - https://pola-rs.github.io/polars/py-polars/html/objects.inv
           paths: [hdxms_datasets]
 
 extra_css:
 - css/styles.css
+
+extra_javascript:
+  - javascript/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js

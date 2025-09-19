@@ -11,6 +11,9 @@ from hdxms_datasets.models import DeuterationType, Peptides
 
 
 def diff_sequence(a: str, b: str) -> float:
+    """
+    Compute the similarity ratio between two sequences.
+    """
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
@@ -71,7 +74,7 @@ def verify_sequence(
 
     Args:
         peptides: DataFrame containing peptide information.
-        sequence: The original sequence to check against.
+        known_sequence: The original sequence to check against.
         n_term: The number of N-terminal residues to consider.
 
     Returns:

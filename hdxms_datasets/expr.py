@@ -1,3 +1,21 @@
+"""
+Narwhals expression used to compute common HDX-MS metrics.
+
+Exported metrics from this module are:
+
+- centroid_mass
+- max_uptake
+- uptake
+- uptake_sd
+- fd_uptake
+- fd_uptake_sd
+- frac_fd_control
+- frac_fd_control_sd
+- frac_max_uptake
+- frac_max_uptake_sd
+
+"""
+
 import narwhals as nw
 
 
@@ -9,7 +27,8 @@ centroid_mass = (nw.col("charge") * (nw.col("centroid_mz") - PROTON_MASS)).alias
 # calculate max uptake from seqeuence
 max_uptake = (nw.col("sequence").str.replace_all("P", "").str.len_chars() - 1).alias("max_uptake")
 
-
+# uptake is the difference between centroid mass of a peptide and its non-deuterated control
+# note that uptake is mass uptake and not #D uptake (although these are very close)
 uptake = (nw.col("centroid_mass") - nw.col("nd_centroid_mass")).alias("uptake")
 uptake_sd = ((nw.col("centroid_mass_sd") ** 2 + nw.col("nd_centroid_mass_sd") ** 2) ** 0.5).alias(
     "uptake_sd"

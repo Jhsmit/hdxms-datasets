@@ -6,6 +6,9 @@ from narwhals.exceptions import InvalidOperationError
 
 
 def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
+    """
+    Convert a DynamX cluster DataFrame to OpenHDX format.
+    """
     column_mapping = {
         "State": "state",
         "Exposure": "exposure",
@@ -33,6 +36,9 @@ def from_dynamx_cluster(dynamx_df: nw.DataFrame) -> nw.DataFrame:
 
 
 def from_dynamx_state(dynamx_df: nw.DataFrame) -> nw.DataFrame:
+    """
+    Convert a DynamX state DataFrame to OpenHDX format.
+    """
     column_mapping = {
         "State": "state",
         "Exposure": "exposure",
@@ -59,11 +65,17 @@ def from_dynamx_state(dynamx_df: nw.DataFrame) -> nw.DataFrame:
 
 
 def convert_rt(rt_str: str) -> float:
-    """convert hd examiner rt string to float
+    """Convert HDExaminer retention time string to float
     example: "7.44-7.65" -> 7.545
+
+    !!! warning "Lossy conversion"
+        This conversion loses information. The full range is not preserved. This was done such that
+        retention time can be stored as float and thus be aggregated.
+        Future versions may store the full range with additional `rt_min` and `rt_max` columns.
+
     """
-    lower, upper = rt_str.split("-")
-    mean = (float(lower) + float(upper)) / 2.0
+    vmin, vmax = rt_str.split("-")
+    mean = (float(vmin) + float(vmax)) / 2.0
     return mean
 
 
@@ -79,6 +91,18 @@ def from_hdexaminer(
     hd_examiner_df: nw.DataFrame,
     extra_columns: list[str] | dict[str, str] | str | None = None,
 ) -> nw.DataFrame:
+    """
+    Convert an HDExaminer DataFrame to OpenHDX format.
+
+    Args:
+        hd_examiner_df: DataFrame in HDExaminer format.
+        extra_columns: Additional columns to include, either as a list/str of column name(s)
+                       or a dictionary mapping original column names to new names.
+
+    Returns:
+        A DataFrame in OpenHDX format.
+
+    """
     from hdxms_datasets.loader import BACKEND
 
     column_mapping = {
