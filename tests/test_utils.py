@@ -20,8 +20,8 @@ import numpy as np
 import narwhals as nw
 
 TEST_PTH = Path(__file__).parent
-DATA_ID = "1665149400_SecA_Krishnamurthy"  # Changed to SecA dataset
-SECB_DATA_ID = "1704204434_SecB_Krishnamurthy"
+DATA_ID = "HDX_C1198C76"  # Changed to SecA dataset
+SECB_DATA_ID = "HDX_D9096080"
 
 
 # Test data for sequence verification
