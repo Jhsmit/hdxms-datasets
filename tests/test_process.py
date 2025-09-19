@@ -2,48 +2,44 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-pytest.skip("Disabled pending refactor", allow_module_level=True)
+# pytest.skip("Disabled pending refactor", allow_module_level=True)
 
-from hdxms_datasets.datasets import DataSet, allow_missing_fields
-from hdxms_datasets.datavault import DataVault
 from polars.testing import assert_frame_equal
+
+from hdxms_datasets.database import DataBase
+from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
 
 
 TEST_PTH = Path(__file__).parent
+DATA_ID_CLUSTER_SECA = "HDX_3BAE2080"
+DATA_ID_STATE_SECA = "HDX_C1198C76"
 
 
 # Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
-vault = DataVault(TEST_PTH / "datasets")
-
-
-@pytest.fixture
-def cluster_data() -> DataSet:
-    return vault.load_dataset("1744801204_SecA_cluster_Krishnamurthy")
+vault = DataBase(TEST_PTH / "datasets")
 
 
 def test_load_convert_cluster():
-    with allow_missing_fields():
-        ds = vault.load_dataset("1744801204_SecA_cluster_Krishnamurthy")
+    """Load and compare to saved result"""
+    dataset = vault.load_dataset(DATA_ID_CLUSTER_SECA)
 
-    df_test = ds.get_state(0).compute_uptake_metrics().to_native()
-    df_ref = pl.read_parquet(TEST_PTH / "test_data" / "dynamx_cluster.pq")
+    state = dataset.get_state(0)
+    merged = merge_peptides(state.peptides)
+    df_test = compute_uptake_metrics(merged, exception='ignore').to_native()
+
+    df_ref = pl.read_parquet(TEST_PTH / "test_data" / "HDX_3BAE2080_state_0_processed.pq")
 
     assert_frame_equal(df_test, df_ref)
 
 
 def test_load_convert_state():
-    with allow_missing_fields():
-        ds = vault.load_dataset("1665149400_SecA_Krishnamurthy")
-    df_test = ds.get_state(0).compute_uptake_metrics().to_native()
-    df_ref = pl.read_parquet(TEST_PTH / "test_data" / "dynamx_state.pq")
+    """Load and compare to saved result"""
+    dataset = vault.load_dataset(DATA_ID_STATE_SECA)
 
-    assert_frame_equal(df_test, df_ref)
+    state = dataset.get_state(0)
+    merged = merge_peptides(state.peptides)
+    df_test = compute_uptake_metrics(merged, exception='ignore').to_native()
 
-
-def test_load_convert_hdexaminer():
-    with allow_missing_fields():
-        ds = vault.load_dataset("1745478702_hd_examiner_example_Sharpe")
-    df_test = ds.get_state(0).compute_uptake_metrics().to_native()
-    df_ref = pl.read_parquet(TEST_PTH / "test_data" / "hd_examiner.pq")
+    df_ref = pl.read_parquet(TEST_PTH / "test_data" / f"{DATA_ID_STATE_SECA}_state_0_processed.pq")
 
     assert_frame_equal(df_test, df_ref)
