@@ -215,7 +215,7 @@ class StructureView:
         df = self.resolve_peptides(peptides)
         chain = self.resolve_chain(peptides, chain)
 
-        r_number, redundancy = peptide_redundancy(df, start=start, end=end)
+        r_number, redundancy = peptide_redundancy(df)
 
         colors = (
             colors
