@@ -78,9 +78,7 @@ def verify_sequence(
         A tuple containing the fixed sequence and a list of mismatches.
     """
 
-    reconstructed_sequence = reconstruct_sequence(
-        peptides, known_sequence, n_term, start="start", end="end", sequence="sequence"
-    )
+    reconstructed_sequence = reconstruct_sequence(peptides, known_sequence, n_term)
 
     mismatches = []
     for r_number, (expected, found) in enumerate(
