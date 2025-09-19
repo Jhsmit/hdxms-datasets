@@ -1,6 +1,6 @@
 from __future__ import annotations
 import itertools
-from typing import Sequence, Any
+from typing import Sequence
 from hdxms_datasets.utils import peptide_redundancy
 from hdxms_datasets.models import Peptides, Structure, ValueType
 import narwhals as nw
