@@ -105,6 +105,15 @@ class StructureView:
         chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
     ) -> StructureView:
+        """
+        Plots peptide coverage on the structure.
+
+        Args:
+            peptides: Peptides object or DataFrame containing peptide data.
+            color: Color for the covered regions.
+            chain: List of chains to apply the coloring to.
+            non_selected_color: Color for non-covered regions.
+        """
         df = self.resolve_peptides(peptides)
         chain = self.resolve_chain(peptides, chain)
         intervals = contiguous_peptides(df)
@@ -134,7 +143,19 @@ class StructureView:
         chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
     ) -> StructureView:
-        """selects a set of non-overlapping peptides to display on the structure"""
+        """Selects a set of non-overlapping peptides to display on the structure. Starts with the first
+        peptide and successively adds peptides that do not overlap with already selected peptides.
+
+        Args:
+            peptides: Peptides object or DataFrame containing peptide data.
+            colors: List of colors to cycle through for different peptides.
+            chain: List of chains to apply the coloring to.
+            non_selected_color: Color for non-covered regions.
+
+        Returns:
+            StructureView: The updated StructureView object.
+
+        """
         df = self.resolve_peptides(peptides)
         chain = self.resolve_chain(peptides, chain)
 
@@ -178,13 +199,19 @@ class StructureView:
     def peptide_redundancy(
         self,
         peptides: Peptides | nw.DataFrame,
-        start="start",
-        end="end",
         chain: list[str] | None = None,
         colors: list[str] | None = None,
         non_selected_color: str = "lightgray",
     ) -> StructureView:
-        """selects a set of non-overlapping peptides to display on the structure"""
+        """Colors residues by peptide redundancy.
+
+        Args:
+            peptides: Peptides object or DataFrame containing peptide data.
+            chain: List of chains to apply the coloring to.
+            colors: List of colors to use for different redundancy levels.
+            non_selected_color: Color for non-covered regions.
+
+        """
         df = self.resolve_peptides(peptides)
         chain = self.resolve_chain(peptides, chain)
 
@@ -227,7 +254,7 @@ class StructureView:
     def _augment_chain(
         self, data: list[dict[str, ValueType]], chains: Sequence[str]
     ) -> list[dict[str, ValueType]]:
-        """augment a list of data with chain information"""
+        """Augment a list of data with chain information"""
         if chains:
             aug_data = []
             for elem, chain in itertools.product(data, chains):
