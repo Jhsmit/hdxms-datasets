@@ -1,4 +1,8 @@
-# %%
+"""
+Example script of how to define an open HDX dataset and place it in
+a local database.
+"""
+
 from __future__ import annotations
 from pathlib import Path
 
