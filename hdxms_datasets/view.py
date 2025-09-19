@@ -86,7 +86,7 @@ class StructureView:
             "color": color,
         }
 
-        data = self._augment_chain([c_dict], chain)
+        data = self._augment_chain([c_dict], chain or [])
 
         color_data = {
             "data": data,
