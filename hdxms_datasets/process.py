@@ -385,7 +385,7 @@ def merge_peptides(peptides: list[Peptides], base_dir: Path = Path.cwd()) -> nw.
 
 
 def compute_uptake_metrics(
-    df: nw.DataFrame, exception: Literal["raise", "warn", "ignore"] = "raise"
+    df: nw.DataFrame, exception: Literal["raise", "warn", "ignore"] = "ignore"
 ) -> nw.DataFrame:
     """
     Tries to add columns to computed from other columns the DataFrame.
