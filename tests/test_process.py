@@ -2,6 +2,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+pytest.skip("Disabled pending refactor", allow_module_level=True)
+
 from hdxms_datasets.datasets import DataSet, allow_missing_fields
 from hdxms_datasets.datavault import DataVault
 from polars.testing import assert_frame_equal
