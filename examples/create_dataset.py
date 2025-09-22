@@ -26,7 +26,7 @@ from hdxms_datasets.utils import verify_sequence
 cwd = Path(__file__).parent
 
 # directory with current data
-data_dir = cwd / "test_data"
+data_dir = cwd / "test_data" / "ecSecB"
 
 # directory where to publish the dataset
 database_dir = cwd / "published_datasets"
