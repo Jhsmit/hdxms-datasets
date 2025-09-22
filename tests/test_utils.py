@@ -62,9 +62,6 @@ def secb_dataset():
     return load_dataset(dataset_dir)
 
 
-# %%
-
-
 @pytest.mark.parametrize("r_number", [r_number_default, r_number_tag])
 def test_verify_sequence_with_mismatches(r_number):
     """Test sequence verification with known mismatches"""
@@ -261,6 +258,3 @@ def test_utils_with_real_data(seca_dataset):
     assert len(r_number) == len(redundancy)
     assert len(r_number) > 0
     assert all(red >= 0 for red in redundancy)
-
-
-# %%
