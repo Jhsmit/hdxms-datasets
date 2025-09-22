@@ -1,8 +1,6 @@
 # %%
 """
-Test module for the new Pydantic/JSON-based HDX-MS datasets API.
-
-This replaces the old YAML-based tests with tests for the new API.
+Tests for the hdxms_datasets.database
 """
 
 from hdxms_datasets.database import DataBase, RemoteDataBase, load_dataset
