@@ -11,13 +11,15 @@ from pydantic import (
     ValidationInfo,
     model_validator,
 )
-from typing import Any, Iterable, List, Optional, Annotated, Type
+from typing import Any, Iterable, List, Optional, Annotated, Type, TYPE_CHECKING
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 import narwhals as nw
 from hdxms_datasets import __version__
 
+if TYPE_CHECKING:
+    from Bio.PDB.Structure import Structure as BioStructure
 
 # %%
 
@@ -353,6 +355,26 @@ class Structure(BaseModel):
         Returns the chain name based on whether auth chain labels are used.
         """
         return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
+
+    def to_biopython(self) -> BioStructure:
+        """Load the structure using Biopython"""
+        try:
+            from Bio.PDB.PDBParser import PDBParser
+            from Bio.PDB.MMCIFParser import MMCIFParser
+        except ImportError:
+            raise ImportError("Biopython is required to load structures.")
+
+        if self.format.lower() in ["pdb"]:
+            parser = PDBParser(QUIET=True)
+        elif self.format.lower() in ["cif", "mmcif"]:
+            parser = MMCIFParser(QUIET=True)
+        else:
+            raise ValueError(f"Unsupported structure format: {self.format}")
+
+        structure = parser.get_structure(self.pdb_id or "structure", self.data_file)
+        assert structure is not None
+
+        return structure
 
 
 class Publication(BaseModel):
