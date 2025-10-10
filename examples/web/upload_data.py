@@ -1,3 +1,7 @@
+"""
+Outdated example of defining datasets through the web interface.
+"""
+
 import solara
 import solara.lab
 from typing import cast
