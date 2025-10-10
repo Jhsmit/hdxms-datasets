@@ -9,6 +9,8 @@ import polars as pl
 from hdxms_datasets.process import merge_peptides, compute_uptake_metrics
 from hdxms_datasets.database import DataBase
 from hdxms_datasets.view import StructureView
+from hdxms_datasets.verification import compare_structure_peptides
+
 # %%
 
 DATA_ID = "HDX_C1198C76"  # SecA DynamX state data
@@ -77,6 +79,37 @@ ax.format(
     ylabel="Relative d-uptake",
     xlabel="Peptide index",
 )
+
+# %%
+# for .cif structure files only; we can compare how many residues by
+# chain and residue number are identical between structure and peptides.
+
+# For the tetramer, some residues are missing in the structure
+
+# We correctly find that the dimer matches fewer residues to the structure
+# since we have specified only two of the chains as matching in HDX data
+# furthermore, we find that a 3 residues are mutated in the dimer state
+# compared to the structure
+
+stats = compare_structure_peptides(
+    dataset.structure,
+    state.peptides[0],
+)
+stats
+# > {'total_residues': 548, 'matched_residues': 495, 'identical_residues': 495}
+# %%
+
+dimer_state = dataset.states[1]
+stats, df = compare_structure_peptides(dataset.structure, dimer_state.peptides[0], returns="both")
+stats
+# > {'total_residues': 282, 'matched_residues': 255, 'correct_residues': 249}
+
+# %%
+# show the residues that do not match
+df.filter(pl.col("resn_TLA") != pl.col("resn_TLA_right"))
+
+# %%
+
 
 # %%
 # show a single peptide
