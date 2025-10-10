@@ -205,7 +205,7 @@ def submit_dataset(
     # update the catalogue
     # TODO: update instead of regenerate
     # TODO: lockfile? https://github.com/harlowja/fasteners
-    catalog = generate_datasets_catalog(database_dir, save_csv=True)
+    generate_datasets_catalog(database_dir, save_csv=True)
 
     return True, dataset_id
 
