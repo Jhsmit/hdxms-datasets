@@ -81,11 +81,11 @@
     }
   ],
   "structure": {
-    "data_file": "data/SecB_structure.pdb",
-    "format": "pdb",
+    "data_file": "data/1QYN.cif",
+    "format": "cif",
     "description": "Crystal structure of E. coli SecB protein",
+    "pdb_id": "1QYN",
     "auth_residue_numbers": false,
-    "residue_offset": 0,
     "auth_chain_labels": false
   },
   "protein_identifiers": {
@@ -105,8 +105,10 @@
       "doi": "10.1021/acs.analchem.1c02155"
     },
     "license": "CC0",
-    "created_date": "2025-07-29T16:18:04.985693",
-    "version": "0.2.0+23.gc486925.dirty"
+    "created_date": "2025-10-10T12:33:56.478337",
+    "modified_date": "2025-10-10T12:33:56.478342",
+    "package_version": "0.2.0+98.g378324f.dirty",
+    "dataset_version": 1
   },
-  "file_hash": "ae2d028e7a88f1f6"
+  "file_hash": "ab0170794bf054b5"
 }
