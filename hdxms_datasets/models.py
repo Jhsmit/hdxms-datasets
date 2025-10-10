@@ -357,6 +357,10 @@ class Structure(BaseModel):
     def chain_name(self) -> str:
         """
         Returns the chain name based on whether auth chain labels are used.
+
+        Note that 'struct_asym_id' used in PDBeMolstar is equivalent to
+        'label_asym_id' in mmCIF.
+
         """
         return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
 
