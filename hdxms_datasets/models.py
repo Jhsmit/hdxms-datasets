@@ -146,6 +146,10 @@ class Peptides(BaseModel):
     deuteration_type: Annotated[
         DeuterationType, Field(description="Type of the peptide (e.g., fully_deuterated)")
     ]
+    entity_id: Annotated[
+        Optional[str],
+        Field(description="Entity identifier if multiple entities are present in the structure"),
+    ] = None
     chain: Annotated[Optional[list[str]], Field(description="Chain identifiers")] = None
     filters: Annotated[
         dict[str, ValueType | list[ValueType]],
