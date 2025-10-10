@@ -27,8 +27,7 @@ jobs:
           . .venv/bin/activate
           echo PATH=$PATH >> $GITHUB_ENV
           uv pip install -r requirements/requirements-ubuntu-latest-${{ matrix.python-version }}.txt
-          uv pip install polars
-          uv pip install -e .
+          uv pip install -e .[test]
 
       - name: Run tests
         run: |
