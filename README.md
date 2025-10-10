@@ -13,6 +13,7 @@ The package offers the following features:
  - Propagation of standard deviations from replicates to fractional relative uptake values
 
 A database for open HDX datasets is set up at [HDXMS DataBase](https://github.com/Jhsmit/HDXMS-database)
+
 There is an example front-end available featuring real-time estimation of HDX-MS ΔG values called [instaGibbs](https://huggingface.co/spaces/Jhsmit/instaGibbs)
 
 ## Example Usage
