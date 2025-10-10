@@ -27,24 +27,6 @@ class StructureView:
             **kwargs,
         )
 
-    @property
-    def residue_name(self) -> str:
-        """
-        Returns the residue name based on whether auth residue numbers are used.
-        """
-        return "auth_residue_number" if self.structure.auth_residue_numbers else "residue_number"
-
-    def rn(self, r: int) -> int:
-        """Apply residue numbering offset"""
-        return r + self.structure.residue_offset
-
-    @property
-    def chain_name(self) -> str:
-        """
-        Returns the chain name based on whether auth chain labels are used.
-        """
-        return "auth_asym_id" if self.structure.auth_chain_labels else "struct_asym_id"
-
     @staticmethod
     def resolve_peptides(peptides: Peptides | nw.DataFrame) -> nw.DataFrame:
         """
@@ -81,8 +63,8 @@ class StructureView:
         non_selected_color: str = "lightgray",
     ) -> StructureView:
         c_dict = {
-            "start_" + self.residue_name: self.rn(start),
-            "end_" + self.residue_name: self.rn(end),
+            "start_" + self.structure.residue_name: int(start),
+            "end_" + self.structure.residue_name: int(end),
             "color": color,
         }
 
@@ -121,8 +103,8 @@ class StructureView:
         data = []
         for start, end in intervals:
             elem = {
-                f"start_{self.residue_name}": self.rn(start),
-                f"end_{self.residue_name}": self.rn(end),
+                f"start_{self.structure.residue_name}": int(start),
+                f"end_{self.structure.residue_name}": int(end),
                 "color": color,
             }
             data.append(elem)
@@ -172,8 +154,8 @@ class StructureView:
         for (start, end), color in zip(intervals, itertools.cycle(colors)):
             cdata.append(
                 {
-                    f"start_{self.residue_name}": self.rn(start),
-                    f"end_{self.residue_name}": self.rn(end),
+                    f"start_{self.structure.residue_name}": int(start),
+                    f"end_{self.structure.residue_name}": int(end),
                     "color": color,
                 }
             )
@@ -181,8 +163,8 @@ class StructureView:
             sequence = df_f["sequence"].unique().first()
             tdata.append(
                 {
-                    f"start_{self.residue_name}": self.rn(start),
-                    f"end_{self.residue_name}": self.rn(end),
+                    f"start_{self.structure.residue_name}": int(start),
+                    f"end_{self.structure.residue_name}": int(end),
                     "tooltip": f"Peptide: {sequence}",
                 }
             )
@@ -229,7 +211,7 @@ class StructureView:
         for rn, rv in zip(r_number, redundancy.clip(0, len(colors) - 1)):
             tooltips.append(
                 {
-                    f"{self.residue_name}": self.rn(int(rn)),
+                    f"{self.structure.residue_name}": int(rn),
                     "tooltip": f"Redundancy: {rv} peptides",
                 }
             )
@@ -237,7 +219,7 @@ class StructureView:
             if rv == 0:
                 continue
             color_elem = {
-                f"{self.residue_name}": self.rn(int(rn)),
+                f"{self.structure.residue_name}": int(rn),
                 "color": color_lut[rv],
             }
             data.append(color_elem)
@@ -258,7 +240,7 @@ class StructureView:
         if chains:
             aug_data = []
             for elem, chain in itertools.product(data, chains):
-                aug_data.append(elem | {self.chain_name: chain})
+                aug_data.append(elem | {self.structure.chain_name: chain})
         else:
             aug_data = data
 

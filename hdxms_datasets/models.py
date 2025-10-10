@@ -227,8 +227,63 @@ class State(BaseModel):
     protein_state: ProteinState = Field(..., description="Protein information for this state")
 
 
+def residue_number_mapping(
+    cif_path: Path, chain=True, residue=True
+) -> dict[tuple[str, str], tuple[str, str]]:
+    """Create a mapping from author residue numbers to RCSB residue numbers from an mmCIF file.
+
+    Args:
+        cif_path: Path to the mmCIF file.
+        chain: Whether to include chain mapping.
+        residue: Whether to include residue number mapping.
+
+
+    """
+    try:
+        from Bio.PDB.MMCIF2Dict import MMCIF2Dict
+    except ImportError:
+        raise ImportError("Biopython is required for residue number mapping from mmCIF files.")
+
+    mm = MMCIF2Dict(cif_path)
+
+    label_asym = mm["_atom_site.label_asym_id"]
+    if chain:
+        auth_asym = mm.get("_atom_site.auth_asym_id", label_asym)
+    else:
+        auth_asym = label_asym
+
+    label_seq = mm.get("_atom_site.label_seq_id", [])
+    if residue:
+        auth_seq = mm.get("_atom_site.auth_seq_id", label_seq)
+    else:
+        auth_seq = label_seq
+
+    # maps author chain/residue numbers to PDB chain/residue numbers
+    mapping = {
+        (a_asym, a_seq): (l_asym, l_seq)
+        for l_asym, l_seq, a_asym, a_seq in zip(label_asym, label_seq, auth_asym, auth_seq)
+        if l_asym != a_asym or l_seq != a_seq  # dont include identical mappings
+    }
+
+    return mapping
+
+
 class Structure(BaseModel):
-    """Structural model file information"""
+    """Structural model file information
+
+    Residues or protein chains may have different numbering/labels depending on if they are
+    the assigned labels by the author of the structure ('auth') or renumbered by the RCSB PDB.
+
+    If your HDX data uses the author numbering/labels, set `auth_residue_numbers` and/or
+    `auth_chain_labels` to True.
+
+    You can also offset the residue numbering by setting `residue_offset`. For example, if your add
+    an N-terminal his tag and renumber to start at 1 for the extended sequence.
+
+    If you use both author numbers and offset, the offset is applied first and then translated to
+    canonical residue numbers.
+
+    """
 
     data_file: DataFilePath
     format: Annotated[str, Field(description="Format of the structure file (e.g., PDB, mmCIF)")]
@@ -241,16 +296,14 @@ class Structure(BaseModel):
     auth_residue_numbers: Annotated[
         bool, Field(default=False, description="Use author residue numbers")
     ] = False
-    residue_offset: Annotated[
-        int,
-        Field(
-            default=0,
-            description="Offset for residue numbering; structure numbers = hdx numbers + offset",
-        ),
-    ] = 0
     auth_chain_labels: Annotated[
         bool, Field(default=False, description="Use author chain labels")
     ] = False
+
+    label_auth_mapping: Annotated[
+        Optional[dict[tuple[str, str], tuple[str, str]]],
+        Field(init=False, description="Maps author residue numbers to canonical residue numbers"),
+    ] = None
 
     def pdbemolstar_custom_data(self) -> dict[str, Any]:
         """
@@ -272,6 +325,34 @@ class Structure(BaseModel):
             "format": self.format,
             "binary": binary,
         }
+
+    def get_auth_residue_mapping(self) -> dict[tuple[str, str], tuple[str, str]]:
+        """Create a mapping from author residue numbers to RCSB residue numbers."""
+
+        if self.label_auth_mapping is not None:
+            return self.label_auth_mapping
+
+        else:
+            if self.format.lower() not in ["cif", "mmcif"]:
+                raise ValueError("Author residue number mapping is only supported for mmCIF files.")
+
+            mapping = residue_number_mapping(self.data_file)
+            self.label_auth_mapping = mapping
+            return mapping
+
+    @property
+    def residue_name(self) -> str:
+        """
+        Returns the residue name based on whether auth residue numbers are used.
+        """
+        return "auth_residue_number" if self.auth_residue_numbers else "residue_number"
+
+    @property
+    def chain_name(self) -> str:
+        """
+        Returns the chain name based on whether auth chain labels are used.
+        """
+        return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
 
 
 class Publication(BaseModel):
