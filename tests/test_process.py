@@ -1,6 +1,5 @@
 from pathlib import Path
 import polars as pl
-import pytest
 
 # pytest.skip("Disabled pending refactor", allow_module_level=True)
 
@@ -25,7 +24,7 @@ def test_load_convert_cluster():
 
     state = dataset.get_state(0)
     merged = merge_peptides(state.peptides)
-    df_test = compute_uptake_metrics(merged, exception='ignore').to_native()
+    df_test = compute_uptake_metrics(merged, exception="ignore").to_native()
 
     df_ref = pl.read_parquet(TEST_PTH / "test_data" / "HDX_3BAE2080_state_0_processed.pq")
 
@@ -38,7 +37,7 @@ def test_load_convert_state():
 
     state = dataset.get_state(0)
     merged = merge_peptides(state.peptides)
-    df_test = compute_uptake_metrics(merged, exception='ignore').to_native()
+    df_test = compute_uptake_metrics(merged, exception="ignore").to_native()
 
     df_ref = pl.read_parquet(TEST_PTH / "test_data" / f"{DATA_ID_STATE_SECA}_state_0_processed.pq")
 
