@@ -16,6 +16,12 @@ A database for open HDX datasets is set up at [HDXMS DataBase](https://github.co
 
 There is an example front-end available featuring real-time estimation of HDX-MS ΔG values called [instaGibbs](https://huggingface.co/spaces/Jhsmit/instaGibbs)
 
+## Installation
+
+```bash
+pip install hdxms-datasets
+```
+
 ## Example Usage
 
 ### Loading datasets
