@@ -128,9 +128,3 @@ print(processed.columns)
 #> ['start', 'end', 'sequence', ... 'uptake', 'uptake_sd', 'fd_uptake', 'fd_uptake_sd', 'fractional_uptake', 'fractional_uptake_sd']
 
 ```
-
-## Installation
-
-```bash
-$ pip install hdxms-datasets
-```
