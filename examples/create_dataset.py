@@ -41,8 +41,9 @@ protein_info = ProteinIdentifiers(
 )
 
 structure = Structure(
-    data_file=data_dir / "SecB_structure.pdb",
-    format="pdb",
+    data_file=data_dir / "1QYN.cif",
+    format="cif",
+    pdb_id="1QYN",
     description="Crystal structure of E. coli SecB protein",
 )
 
