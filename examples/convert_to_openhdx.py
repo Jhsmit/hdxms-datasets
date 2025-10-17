@@ -175,7 +175,6 @@ structure = Structure(
     format="cif",
     description="",
     pdb_id="1AZI",
-    residue_offset=0,  # HDX data residue numbers match the PDB, no offset
     auth_residue_numbers=False,  # HDX data residue numbers are RCSB numbering (not author or is the same)
 )
 

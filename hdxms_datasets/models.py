@@ -282,13 +282,6 @@ class Structure(BaseModel):
 
     If your HDX data uses the author numbering/labels, set `auth_residue_numbers` and/or
     `auth_chain_labels` to True.
-
-    You can also offset the residue numbering by setting `residue_offset`. For example, if your add
-    an N-terminal his tag and renumber to start at 1 for the extended sequence.
-
-    If you use both author numbers and offset, the offset is applied first and then translated to
-    canonical residue numbers.
-
     """
 
     data_file: DataFilePath
