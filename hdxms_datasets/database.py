@@ -16,6 +16,7 @@ from hdxms_datasets.verification import verify_dataset
 
 CATALOG_FILE = "datasets_catalog.csv"
 DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
+KNOWN_HDX_IDS = set[str]()
 
 
 def load_dataset(pth: Path) -> HDXDataSet:
@@ -35,7 +36,7 @@ def load_dataset(pth: Path) -> HDXDataSet:
     return dataset
 
 
-def mint_new_dataset_id(current_ids: set[str]) -> str:
+def mint_new_dataset_id(current_ids: set[str] = KNOWN_HDX_IDS) -> str:
     """
     Mint a new dataset ID that does not conflict with existing IDs in the database directory.
     """
