@@ -197,9 +197,11 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     Also adds n_replicates and n_cluster columns.
 
     """
-    assert df["state"].n_unique() == 1, (
-        "DataFrame must be filtered to a single state before aggregation."
-    )
+
+    if "state" in df.columns:
+        assert df["state"].n_unique() == 1, (
+            "DataFrame must be filtered to a single state before aggregation."
+        )
 
     # columns which are intesity weighed averaged
     intensity_wt_avg_columns = ["centroid_mz", "centroid_mass", "rt"]
