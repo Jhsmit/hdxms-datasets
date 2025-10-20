@@ -3,10 +3,11 @@ Example script of how to define an open HDX dataset and place it in
 a local database.
 """
 
+# %%
 from __future__ import annotations
 from pathlib import Path
 
-from hdxms_datasets.database import submit_dataset
+from hdxms_datasets.database import submit_dataset, populate_known_ids
 from hdxms_datasets.models import (
     DatasetMetadata,
     HDXDataSet,
@@ -151,6 +152,14 @@ pub = Publication(
     doi="10.1021/acs.analchem.1c02155",
 )
 
+
+# creating a HDX Dataset automatically mints a new HDX id
+# we can populate existing ids to the module-level attribute "KNOWN_HDX_IDS"
+# using a helper function from the database module
+
+populate_known_ids(database_dir)
+
+
 dataset = HDXDataSet(  # type: ignore[call-arg]
     states=states,
     description="HDX-MS dataset for SecB protein in tetramer/dimer states",
@@ -168,7 +177,9 @@ dataset = HDXDataSet(  # type: ignore[call-arg]
 
 # %%
 # submit the dataset to our database
-success, msg_or_id = submit_dataset(dataset, database_dir)
+# we can also use a temporary HDX database ID and allow for minting
+# of a new one if it already exists
+success, msg_or_id = submit_dataset(dataset, database_dir, allow_mint_new_id=True)
 if success:
     print(f"Dataset submitted successfully with ID: {msg_or_id}")
 else:
