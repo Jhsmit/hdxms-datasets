@@ -1,6 +1,7 @@
 # %%
 from __future__ import annotations
 import hashlib
+import re
 
 from pydantic import (
     BaseModel,
@@ -449,8 +450,19 @@ class DatasetMetadata(BaseModel):
     ] = None
 
 
+def id_factory() -> str:
+    """Factory function to generate a new dataset ID"""
+    from hdxms_datasets.database import mint_new_dataset_id
+
+    return mint_new_dataset_id()
+
+
 class HDXDataSet(BaseModel):
     """HDX-MS dataset containing multiple states"""
+
+    hdx_id: Annotated[
+        str, Field(default_factory=id_factory, description="HDX-MS dataset identifier")
+    ]
 
     # Basic information
     description: Annotated[Optional[str], Field(None, description="Dataset description")]
@@ -464,6 +476,17 @@ class HDXDataSet(BaseModel):
     file_hash: Annotated[
         Optional[str], Field(None, init=False, description="Hash of the files in the dataset")
     ]
+
+    @model_validator(mode="after")
+    def validate_hdx_id(self):
+        """Validate hdx_id format: 'HDX_' followed by 8 uppercase alphanumeric chars (e.g. HDX_3BAE2080)."""
+        from hdxms_datasets.database import valid_id
+
+        if not valid_id(self.hdx_id):
+            raise ValueError(
+                "hdx_id must match pattern 'HDX_XXXXXXXX' where X are uppercase letters or digits, e.g. 'HDX_3BAE2080'"
+            )
+        return self
 
     @model_validator(mode="after")
     def compute_file_hash(self):
