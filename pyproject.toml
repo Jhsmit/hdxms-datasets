@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "narwhals",
+    "narwhals>=2.7.0",
     "PyYAML",
     "requests",
     'statsmodels',
