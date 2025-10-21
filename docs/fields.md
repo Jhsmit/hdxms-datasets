@@ -1,3 +1,9 @@
+# Fields
+
+This document describes the fields used in open-hdxms files. The fields are divided into required, optional, and calculated fields.
+
+Some fields can be both calculated from raw data (ie uptake) or provided directly
+
 ### start (int)
 residue number of the first amino acid in the peptide
 
@@ -12,6 +18,7 @@ state label
 
 DynamX state/cluster name: State
 HDExaminer name: Protein State
+hxms name: PROTEIN_STATE
 
 ### replicate (str)
 Label for the replicate
@@ -64,7 +71,9 @@ DynamX name?? is this max or mean intensity?
 These fields can be present in open-hdxms files, but can also be calculated from the other fields.
 
 ### max_uptake (int)
-Theoretical maximum deuterium uptake for the peptide. Typically equal to the number of amide hydrogens, thus number of non-proline residues minus one. 
+Theoretical maximum deuterium uptake for the peptide. Equal to the number of 
+non proline residues. Not that back-exchange is not considered here, including
+back exchange of the N-terminal amide. 
 
 
 ### uptake (float)
