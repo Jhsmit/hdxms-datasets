@@ -117,6 +117,7 @@ class PeptideFormat(str, Enum):
     DynamX_v3_cluster = "DynamX_v3_cluster"
     DynamX_vx_state = "DynamX_vx_state"
     HDExaminer_v3 = "HDExaminer_v3"
+    HXMS = "HXMS"
     OpenHDX = "OpenHDX"
 
     @classmethod
