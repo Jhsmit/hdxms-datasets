@@ -419,11 +419,12 @@ class Author(BaseModel):
 class DatasetMetadata(BaseModel):
     # Authors, publication, license
     authors: Annotated[list[Author], Field(..., description="Dataset authors")]
+    license: Annotated[str, Field(description="License for the dataset")]
+
     publication: Annotated[Optional[Publication], Field(description="Associated publication")] = (
         None
     )
     repository: Annotated[Optional[DataRepository], Field(description="Data repository")] = None
-    license: Annotated[str, Field(description="License for the dataset")] = "CC0"
 
     # Technical information
     created_date: Annotated[
@@ -447,6 +448,17 @@ class DatasetMetadata(BaseModel):
     conversion_notes: Annotated[
         Optional[str], Field(None, description="Notes about data conversion")
     ] = None
+
+    @model_validator(mode="before")
+    def ensure_license_present(cls, values):
+        # `values` is the raw input mapping; raise a ValueError with a custom message
+        if isinstance(values, dict):
+            lic = values.get("license")
+            if lic is None or (isinstance(lic, str) and not lic.strip()):
+                raise ValueError(
+                    "Missing required field 'license': please provide a license; we recommend using 'CC0' or 'CC BY 4.0'."
+                )
+        return values
 
 
 def id_factory() -> str:
