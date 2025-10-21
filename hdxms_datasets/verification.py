@@ -147,7 +147,7 @@ def build_structure_peptides_comparison(
     )
 
     # supplement the residue_df with all chains
-    # multie-chain peptides are expected to correspond to homomultimers
+    # multi-chain peptides are expected to correspond to homomultimers
     import polars as pl
 
     residue_df_chain = pl.concat(
