@@ -87,6 +87,19 @@ def cast_exposure(df):
     return df
 
 
+def _fmt_extra_columns(columns: list[str] | dict[str, str] | str | None) -> dict[str, str]:
+    if isinstance(columns, dict):
+        return columns
+    elif isinstance(columns, list):
+        return {col: col for col in columns}
+    elif isinstance(columns, str):
+        return {columns: columns}
+    elif columns is None:
+        return {}
+    else:
+        raise ValueError("additional_columns must be a list or dict, not {}".format(type(columns)))
+
+
 def from_hdexaminer(
     hd_examiner_df: nw.DataFrame,
     extra_columns: list[str] | dict[str, str] | str | None = None,
@@ -121,18 +134,7 @@ def from_hdexaminer(
     column_order.insert(column_order.index("charge") + 1, "centroid_mass")
     column_order.append("rt")
 
-    if isinstance(extra_columns, dict):
-        cols = extra_columns
-    elif isinstance(extra_columns, list):
-        cols = {col: col for col in extra_columns}
-    elif isinstance(extra_columns, str):
-        cols = {extra_columns: extra_columns}
-    elif extra_columns is None:
-        cols = {}
-    else:
-        raise ValueError(
-            "additional_columns must be a list or dict, not {}".format(type(extra_columns))
-        )
+    cols = _fmt_extra_columns(extra_columns)
 
     column_mapping.update(cols)
     column_order.extend(cols.values())
