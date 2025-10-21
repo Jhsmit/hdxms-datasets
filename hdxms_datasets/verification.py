@@ -110,6 +110,25 @@ def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
     return residue_df
 
 
+def residue_df_from_sequence(
+    sequence: str,
+    n_term: int = 1,
+) -> pl.DataFrame:
+    from Bio.Data import IUPACData
+    import polars as pl
+
+    one_to_three = IUPACData.protein_letters_1to3
+
+    residue_df = (
+        pl.DataFrame({"resn": list(sequence)})
+        .with_columns(
+            [pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA")]
+        )
+        .with_row_index(offset=n_term, name="resi")
+    )
+    return residue_df
+
+
 def build_structure_peptides_comparison(
     structure: Structure,
     peptides: Peptides,
@@ -117,11 +136,8 @@ def build_structure_peptides_comparison(
     """
     Compares residue numbering and identity between a structure and peptides.
 
-    Returns:  dictionary with:
-        - total_residues: Total number of residues in the peptides (considering chains)
-        - matched_residues: Number of residues that are matched to the structure (by chain and resi)
-        - identical_residues: Number of matched residues that have the correct amino acid identity
-
+    Returns:
+        A DataFrame merging structure and peptide residue information.
     """
     structure_df = residue_df_from_structure(structure)
     residue_df = residue_df_from_peptides(peptides)
