@@ -150,3 +150,39 @@ def from_hdexaminer(
     )
 
     return cast_exposure(df)
+
+
+def from_hxms(
+    hxms_df: nw.DataFrame,
+    extra_columns: list[str] | dict[str, str] | str | None = "sequence",
+) -> nw.DataFrame:
+    """
+    Convert an HXMS DataFrame to OpenHDX format.
+
+    Args:
+        hxms_df: DataFrame in HXMS format.
+        extra_columns: Additional columns to include, either as a list/str of column name(s)
+            or a dictionary mapping original column names to new names.
+
+    Returns:
+        A DataFrame in OpenHDX format.
+
+    """
+
+    column_mapping = {
+        "START": "start",
+        "END": "end",
+        "REP": "replicate",
+        "TIME(Sec)": "exposure",
+        "UPTAKE": "uptake",
+    }
+
+    column_order = list(column_mapping.values())
+    cols = _fmt_extra_columns(extra_columns)
+    column_mapping.update(cols)
+    column_order.extend(cols.values())
+
+    df = hxms_df.rename(column_mapping)
+    df = df.select(column_order).sort(by=["exposure", "start", "end", "replicate"])
+
+    return df
