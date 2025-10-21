@@ -206,13 +206,10 @@ def submit_dataset(
             dataset_copy.hdx_id = dataset_id
         else:
             return False, f"Dataset ID {dataset_copy.hdx_id} already exists in the database."
-
-    if dataset_id is None:
-        dataset_id = mint_new_dataset_id(existing_ids)
     else:
-        if dataset_id in existing_ids:
-            return False, f"Dataset ID {dataset_id} already exists in the database."
+        dataset_id = dataset_copy.hdx_id
 
+    # TODO this check is now superfluous
     if not valid_id(dataset_id):
         raise ValueError(
             f"Invalid dataset ID: {dataset_id}. "
