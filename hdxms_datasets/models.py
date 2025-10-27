@@ -182,6 +182,21 @@ class DeuterationType(str, Enum):
     non_deuterated = "non_deuterated"
 
 
+class StructureMapping(BaseModel):
+    """Maps peptide HDX-MS data to a structure"""
+
+    entity_id: Annotated[Optional[str], Field(None, description="Entity identifier")] = None
+    chain: Annotated[Optional[list[str]], Field(None, description="Chain identifiers")] = None
+    residue_offset: Annotated[int, Field(None, description="Residue number offset to apply")] = 0
+
+    auth_residue_numbers: Annotated[
+        bool, Field(default=False, description="Use author residue numbers")
+    ] = False
+    auth_chain_labels: Annotated[
+        bool, Field(default=False, description="Use author chain labels")
+    ] = False
+
+
 class Peptides(BaseModel):
     """Information about HDX-MS peptides"""
 
@@ -190,14 +205,11 @@ class Peptides(BaseModel):
     deuteration_type: Annotated[
         DeuterationType, Field(description="Type of the peptide (e.g., fully_deuterated)")
     ]
-    entity_id: Annotated[
-        Optional[str],
-        Field(description="Entity identifier if multiple entities are present in the structure"),
-    ] = None
-    chain: Annotated[Optional[list[str]], Field(description="Chain identifiers")] = None
     filters: Annotated[
         dict[str, ValueType | list[ValueType]],
         Field(default_factory=dict, description="Filters applied to the data"),
+        AfterValidator(validate_nonfinite_numbers_recursive),
+        PlainSerializer(serialize_nonfinite_numbers_recursive),
     ]
     pH: Annotated[
         Optional[float], Field(description="pH (read, uncorrected) of the experiment")
@@ -205,6 +217,10 @@ class Peptides(BaseModel):
     temperature: Annotated[Optional[float], Field(description="Temperature in Kelvin")] = None
     d_percentage: Annotated[Optional[float], Field(description="Deuteration percentage")] = None
     ionic_strength: Annotated[Optional[float], Field(description="Ionic strength in Molar")] = None
+
+    structure_mapping: Annotated[
+        StructureMapping, Field(description="Structure mapping information")
+    ] = StructureMapping()
 
     def load(
         self,
