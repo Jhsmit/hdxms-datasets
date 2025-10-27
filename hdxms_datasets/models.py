@@ -85,6 +85,49 @@ def serialize_datafile_path(x: Path, info: ValidationInfo) -> str:
     return x.as_posix()
 
 
+def serialize_nonfinite_numbers_recursive(obj: Any, info: ValidationInfo):
+    import math
+
+    # floats -> sentinel strings
+    if isinstance(obj, float):
+        if math.isinf(obj):
+            return "Infinity" if obj > 0 else "-Infinity"
+        if math.isnan(obj):
+            return "NaN"
+        return obj
+
+    # Pydantic model -> dict
+    if isinstance(obj, BaseModel):
+        return serialize_nonfinite_numbers_recursive(obj.__dict__, info)
+
+    # containers
+    if isinstance(obj, dict):
+        return {k: serialize_nonfinite_numbers_recursive(v, info) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [serialize_nonfinite_numbers_recursive(v, info) for v in obj]
+
+    return obj
+
+
+def validate_nonfinite_numbers_recursive(x: Any, info: ValidationInfo):
+    # sentinel strings -> floats; recursive for containers
+    if isinstance(x, str):
+        if x == "Infinity":
+            return float("inf")
+        if x == "-Infinity":
+            return float("-inf")
+        if x == "NaN":
+            return float("nan")
+        return x
+
+    if isinstance(x, dict):
+        return {k: validate_nonfinite_numbers_recursive(v, info) for k, v in x.items()}
+    if isinstance(x, list):
+        return [validate_nonfinite_numbers_recursive(v, info) for v in x]
+
+    return x
+
+
 TEXT_FILE_FORMATS = [".csv", ".txt", ".yaml", ".yml", ".json", ".pdb", ".cif"]
 
 
