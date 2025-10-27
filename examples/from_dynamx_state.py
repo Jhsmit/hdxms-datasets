@@ -20,6 +20,7 @@ from hdxms_datasets.models import (
     ProteinState,
     Publication,
     Structure,
+    StructureMapping,
 )
 from hdxms_datasets.utils import verify_sequence
 # %%
@@ -125,7 +126,7 @@ peptides = [
         pH=8.0,
         temperature=303.15,
         d_percentage=90.0,
-        chain=["A", "B"],  # specify chains for dimer
+        structure_mapping=StructureMapping(chain=["A", "B"]),
     )
 ]
 
@@ -156,9 +157,7 @@ pub = Publication(
 # creating a HDX Dataset automatically mints a new HDX id
 # we can populate existing ids to the module-level attribute "KNOWN_HDX_IDS"
 # using a helper function from the database module
-
 populate_known_ids(database_dir)
-
 
 dataset = HDXDataSet(  # type: ignore[call-arg]
     states=states,
@@ -171,6 +170,7 @@ dataset = HDXDataSet(  # type: ignore[call-arg]
                 name="Srinath Krishnamurthy", orcid="0000-0001-5492-4450", affiliation="KU Leuven"
             )
         ],
+        license="CC BY 4.0",
         publication=pub,
     ),
 )

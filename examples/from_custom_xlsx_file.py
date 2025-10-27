@@ -173,9 +173,8 @@ except FileExistsError:
 structure = Structure(
     data_file=data_dir / "1azi.cif",
     format="cif",
-    description="",
+    description="MYOGLOBIN (HORSE HEART) RECOMBINANT WILD-TYPE COMPLEXED WITH AZIDE ",
     pdb_id="1AZI",
-    auth_residue_numbers=False,  # HDX data residue numbers are RCSB numbering (not author or is the same)
 )
 
 # define the sequence in this protein state
@@ -216,7 +215,6 @@ pd_peptides = Peptides(  # type: ignore[call-arg]
     pH=7.1,
     temperature=20 + 273.15,
     d_percentage=90.0,
-    chain=["A"],
 )
 
 fd_peptides = Peptides(  # type: ignore[call-arg]
@@ -224,12 +222,11 @@ fd_peptides = Peptides(  # type: ignore[call-arg]
     data_format=PeptideFormat.OpenHDX,
     deuteration_type="fully_deuterated",
     d_percentage=90.0,
-    chain=["A"],
 )
 
 # %%
 # we can create a view of the structure and for example check peptide redundancy
-StructureView(structure).peptide_redundancy(pd_peptides)
+StructureView(structure).peptide_redundancy(pd_peptides.load())
 
 # %%
 # This dataset has only one state, which is WT
