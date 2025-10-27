@@ -1,5 +1,5 @@
 from __future__ import annotations
-from hdxms_datasets.models import HDXDataSet, Peptides, Structure
+from hdxms_datasets.models import HDXDataSet, Peptides, Structure, StructureMapping
 from hdxms_datasets.utils import reconstruct_sequence, verify_sequence
 from typing import TYPE_CHECKING, Literal, TypedDict, overload
 
@@ -48,7 +48,9 @@ def datafiles_exist(dataset: HDXDataSet) -> bool:
     return True
 
 
-def residue_df_from_structure(structure: Structure) -> pl.DataFrame:
+def residue_df_from_structure(
+    structure: Structure, mapping: StructureMapping = StructureMapping()
+) -> pl.DataFrame:
     """Create a dataframe from the structure with chain, resi, resn_TLA"""
     if structure.format not in ["cif", "mmcif"]:
         raise ValueError(f"Unsupported structure format: {structure.format}")
@@ -64,8 +66,8 @@ def residue_df_from_structure(structure: Structure) -> pl.DataFrame:
     AA_codes = [a.upper() for a in list(one_to_three.values())]
 
     # create a dataframe with chain, resi, resn_TLA from structure
-    chain_name = "label_asym_id" if not structure.auth_chain_labels else "auth_asym_id"
-    resn_name = "label_seq_id" if not structure.auth_residue_numbers else "auth_seq_id"
+    chain_name = "label_asym_id" if not mapping.auth_chain_labels else "auth_asym_id"
+    resn_name = "label_seq_id" if not mapping.auth_residue_numbers else "auth_seq_id"
 
     structure_df = (
         pl.DataFrame(
@@ -83,7 +85,19 @@ def residue_df_from_structure(structure: Structure) -> pl.DataFrame:
 
 
 def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
-    """Create a dataframe from the peptides with resi, resn_TLA"""
+    """Create a dataframe from the peptides with resi, resn_TLA.
+
+    Args:
+        peptides: Peptides object
+
+    Returns:
+        DataFrame with columns:
+            resi: residue number (int)
+            resn: one letter amino acid code (str)
+            resn_TLA: three letter amino acid code (str)
+
+
+    """
     from Bio.Data import IUPACData
     import polars as pl
 
@@ -101,7 +115,7 @@ def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
         .filter(pl.col("resn") != "X")
         .with_columns(
             [
-                pl.col("resi").cast(str),
+                pl.col("resi"),
                 pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA"),
             ]
         )
@@ -136,14 +150,25 @@ def build_structure_peptides_comparison(
     """
     Compares residue numbering and identity between a structure and peptides.
 
+    Applies any residue offset defined in the peptides' structure mapping.
+
     Returns:
         A DataFrame merging structure and peptide residue information.
     """
-    structure_df = residue_df_from_structure(structure)
+    structure_df = residue_df_from_structure(structure, peptides.structure_mapping)
     residue_df = residue_df_from_peptides(peptides)
 
+    import polars as pl
+
+    # apply residue offset to peptides
+    residue_df = residue_df.with_columns(
+        (pl.col("resi") + peptides.structure_mapping.residue_offset).cast(str).alias("resi")
+    )
+
     chains = (
-        peptides.chain if peptides.chain is not None else structure_df["chain"].unique().to_list()
+        peptides.structure_mapping.chain
+        if peptides.structure_mapping.chain is not None
+        else structure_df["chain"].unique().to_list()
     )
 
     # supplement the residue_df with all chains
