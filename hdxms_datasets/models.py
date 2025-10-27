@@ -352,18 +352,6 @@ class Structure(BaseModel):
     pdb_id: Annotated[Optional[str], Field(None, description="RCSB PDB ID")] = None
     alphafold_id: Annotated[Optional[str], Field(None, description="AlphaFold ID")] = None
 
-    auth_residue_numbers: Annotated[
-        bool, Field(default=False, description="Use author residue numbers")
-    ] = False
-    auth_chain_labels: Annotated[
-        bool, Field(default=False, description="Use author chain labels")
-    ] = False
-
-    label_auth_mapping: Annotated[
-        Optional[dict[tuple[str, str], tuple[str, str]]],
-        Field(init=False, description="Maps author residue numbers to canonical residue numbers"),
-    ] = None
-
     def pdbemolstar_custom_data(self) -> dict[str, Any]:
         """
         Returns a dictionary with custom data for PDBeMolstar visualization.
@@ -398,24 +386,6 @@ class Structure(BaseModel):
             mapping = residue_number_mapping(self.data_file)
             self.label_auth_mapping = mapping
             return mapping
-
-    @property
-    def residue_name(self) -> str:
-        """
-        Returns the residue name based on whether auth residue numbers are used.
-        """
-        return "auth_residue_number" if self.auth_residue_numbers else "residue_number"
-
-    @property
-    def chain_name(self) -> str:
-        """
-        Returns the chain name based on whether auth chain labels are used.
-
-        Note that 'struct_asym_id' used in PDBeMolstar is equivalent to
-        'label_asym_id' in mmCIF.
-
-        """
-        return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
 
     def to_biopython(self) -> BioStructure:
         """Load the structure using Biopython"""
