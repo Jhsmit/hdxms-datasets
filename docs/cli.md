@@ -26,84 +26,66 @@ hdxms-datasets create
 
 This will:
 1. Generate a unique HDX dataset ID (e.g., `HDX_A1B2C3D4`)
-2. Create a new directory with the dataset ID
-3. Generate a template `create_dataset.py` script
+2. Create a new directory in the current directory: `<HDX_ID>/`
+3. Generate a template `create_dataset.py` script with configuration
 4. Create a `data/` subdirectory for your raw data files
 5. Generate a `README.md` with quick start instructions
 
 **Options:**
 
-- `--output-dir, -o PATH`: Specify where to create the dataset folder (default: current directory)
+- `--num-states, -n INTEGER`: Number of protein states (default: 1)
+- `--format, -f CHOICE`: Data format - OpenHDX, DynamX_v3_state, DynamX_v3_cluster, HDExaminer (default: OpenHDX)
+- `--ph FLOAT`: Experimental pH (default: 7.5)
+- `--temperature, -t FLOAT`: Temperature in Kelvin (default: 293.15)
 - `--database-dir, -d PATH`: Path to existing database directory to check for ID conflicts
 - `--help`: Show help message
 
 **Examples:**
 
 ```bash
-# Create in current directory
+# Create with defaults (OpenHDX, 1 state, pH 7.5, 20°C)
 hdxms-datasets create
 
-# Create in specific directory
-hdxms-datasets create --output-dir ~/my-hdx-datasets
+# Create with custom parameters
+hdxms-datasets create --num-states 2 --format DynamX_v3_state --ph 8.0 --temperature 298.15
+
+# Using short flags
+hdxms-datasets create -n 3 -f HDExaminer --ph 7.0 -t 293.15
 
 # Check for ID conflicts with existing database
 hdxms-datasets create --database-dir ~/hdx-database/datasets
 ```
 
-## Interactive Prompts
+## Configuration via Arguments
 
-When you run `hdxms-datasets create`, you'll be asked:
+All dataset configuration is specified via command-line arguments:
 
-1. **Number of protein states**: How many different states you measured (default: 1)
-2. **Data format**: Which software generated your data:
-   - DynamX_v3_state
-   - DynamX_v3_cluster
-   - HDExaminer
-   - OpenHDX
-3. **License**: Which license to apply to your dataset:
-   - CC BY 4.0 (recommended for open data)
-   - CC BY-SA 4.0
-   - CC BY-NC 4.0
-   - CC0 1.0
-   - MIT
+- **Number of states** (`--num-states`): How many different protein states you measured (default: 1)
+- **Data format** (`--format`): Which software generated your data (default: OpenHDX)
+  - `OpenHDX` - OpenHDX format
+  - `DynamX_v3_state` - DynamX state files
+  - `DynamX_v3_cluster` - DynamX cluster files  
+  - `HDExaminer` - HDExaminer files
+- **pH** (`--ph`): Experimental pH value (default: 7.5)
+- **Temperature** (`--temperature`): Temperature in Kelvin (default: 293.15 K = 20°C)
 
 ## Workflow Example
 
 ```bash
-# Step 1: Create a new dataset
-$ hdxms-datasets create
+# Step 1: Create a new dataset with custom parameters
+$ hdxms-datasets create --num-states 2 --format DynamX_v3_state --ph 8.0
 
 ✓ Generated new dataset ID: HDX_A1B2C3D4
-
-============================================================
-Dataset Configuration
-============================================================
-
-How many protein states will you measure? [1]: 2
-
-Available data formats:
-  1. DynamX_v3_state
-  2. DynamX_v3_cluster
-  3. HDExaminer
-  4. OpenHDX
-
-Select your data format [DynamX_v3_state]: DynamX_v3_state
-
-Available licenses:
-  1. CC BY 4.0
-  2. CC BY-SA 4.0
-  3. CC BY-NC 4.0
-  4. CC0 1.0
-  5. MIT
-
-Select a license for your dataset [CC BY 4.0]: CC BY 4.0
-
 ============================================================
 ✓ Dataset template created successfully!
 ============================================================
 
-Dataset ID:  HDX_A1B2C3D4
-Location:    C:\Users\username\HDX_A1B2C3D4
+Dataset ID:     HDX_A1B2C3D4
+Location:       C:\Users\username\HDX_A1B2C3D4
+Format:         DynamX_v3_state
+States:         2
+pH:             8.0
+Temperature:    293.15 K (20.0°C)
 
 Next steps:
   1. cd HDX_A1B2C3D4
@@ -119,12 +101,16 @@ $ copy C:\path\to\my\data.csv data\
 
 # Step 4: Edit the template script
 $ notepad create_dataset.py
-# (Edit the file with your specific information)
+# Edit the file with your specific information:
+#   - Replace protein sequences
+#   - Update data file names
+#   - Add author information
+#   - Add publication details
 
 # Step 5: Run the script to create your dataset
 $ python create_dataset.py
 ✓ Dataset submitted successfully with ID: HDX_A1B2C3D4
-  Dataset location: C:\Users\username\published_datasets\HDX_A1B2C3D4
+  Dataset location: C:\Users\username\HDX_A1B2C3D4\dataset\HDX_A1B2C3D4
 ```
 
 ## Generated Template Structure
@@ -141,11 +127,14 @@ HDX_A1B2C3D4/
 The `create_dataset.py` template includes:
 - Clearly marked sections to edit
 - Inline comments explaining each field
-- Example values based on your configuration choices
+- List-based structure for protein states and peptides (flexible and easy to extend)
+- Pre-configured pH and temperature values from your command-line arguments
+- Example values to guide you
 - Automatic sequence verification
 - Dataset submission code
-Please not that this template is not exhaustive and other metadata fields may be used 
-depending on your datasets requirements. 
+
+Please note that this template is not exhaustive and other metadata fields may be used 
+depending on your dataset's requirements. 
 
 ## Future Commands (Planned)
 
