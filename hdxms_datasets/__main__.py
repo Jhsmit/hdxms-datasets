@@ -36,52 +36,55 @@ def generate_template_script(
 ) -> str:
     """Generate a minimal create_dataset.py script based on user choices."""
 
-    # Build state creation code - keep as list for flexibility
+    # Build state creation code - directly append State objects
     states_code_lines = []
     for i in range(num_states):
         state_num = i + 1
-        states_code_lines.append(f"""    # State {state_num}
-    ProteinState(
-        sequence="MSEQNNTEMTFQIQRIYTKDISFEAPNAPHVFQKDWQPEVKLDLDTASSQLADDVYEVVLRVTVTASLGEETAFLCEVQQGGIFSIAGIEGTQMAHCLGAYCPNILFPYARECITSMVSRGTFPQLNLAPVNFDALFMNYLQQQAGEGTEEHQDA",  # Replace with your protein sequence
-        n_term=1,  # N-terminal residue number
-        c_term=155,  # C-terminal residue number
-        oligomeric_state=1,  # Monomer=1, Dimer=2, etc.
-        mutations=None, # Add mutations as a list of strings if applicable
-        ligand=None,  # Add ligand information if applicable
-    ),""")
-
-    protein_states_list = "\n".join(states_code_lines)
-
-    # Build peptide list items
-    peptides_list_items = []
-    for i in range(num_states):
-        state_num = i + 1
-        peptides_list_items.append(f"""    [
-        # Peptides for state {state_num}
-        Peptides(
-            data_file=data_dir / "your_data_file.csv",  # Replace with your data file name
-            data_format=PeptideFormat.{data_format.value},
-            deuteration_type=DeuterationType.partially_deuterated,
-            filters={{}},  # Add filters as needed, e.g. {{"State": "WT", "Exposure": [0.5, 1.0, 10.0]}}
-            pH={ph},  # pH as read with the pH meter
-            temperature={temperature}, # Temperature in Kelvin
-            d_percentage=90.0,  # Deuterium percentage
-            structure_mapping=mapping  # Adjust chain and offset as needed
+        states_code_lines.append(f"""
+states.append(
+    State(
+        name="State_{state_num}",  # update with your state name - should a short human readable descriptor
+        description="",  # Optional state description
+        protein_state=ProteinState(
+            sequence="MSEQNNTEMTFQIQRIYTKDISFEAPNAPHVFQKDWQPEVKLDLDTASSQLADDVYEVVLRVTVTASLGEETAFLCEVQQGGIFSIAGIEGTQMAHCLGAYCPNILFPYARECITSMVSRGTFPQLNLAPVNFDALFMNYLQQQAGEGTEEHQDA",  # Replace with your protein sequence
+            n_term=1,  # N-terminal residue number
+            c_term=155,  # C-terminal residue number
+            oligomeric_state=1,  # Monomer=1, Dimer=2, etc.
+            mutations=None,  # Add mutations as a list of strings if applicable
+            ligand=None,  # Add ligand information if applicable
         ),
-        Peptides(
-            data_file=data_dir / "your_data_file.csv",  # Replace with your data file name
-            data_format=PeptideFormat.{data_format.value},
-            deuteration_type=DeuterationType.fully_deuterated,
-            filters={{}},  # Add filters as needed, e.g. {{"State": "Fully Deuterated", "Exposure": "0.167"}}
-            d_percentage=90.0,  # Deuterium percentage
-            structure_mapping=mapping
-        ),
-    ],""")
+        peptides=[
+            # Peptides for state {state_num}
+            Peptides(
+                data_file=data_dir / "your_data_file.csv",  # Replace with your data file name
+                data_format=PeptideFormat.{data_format.value},
+                deuteration_type=DeuterationType.partially_deuterated,
+                filters={{}},  # Add filters as needed, e.g. {{"State": "WT", "Exposure": [0.5, 1.0, 10.0]}}
+                pH={ph},  # pH as read with the pH meter
+                temperature={temperature},  # Temperature in Kelvin
+                d_percentage=90.0,  # Deuterium percentage
+                structure_mapping=mapping,  # Adjust chain and offset as needed
+            ),
+            Peptides(
+                data_file=data_dir / "your_data_file.csv",  # Replace with your data file name
+                data_format=PeptideFormat.{data_format.value},
+                deuteration_type=DeuterationType.fully_deuterated,
+                filters={{}},  # Add filters as needed, e.g. {{"State": "Fully Deuterated", "Exposure": "0.167"}}
+                d_percentage=90.0,  # Deuterium percentage
+                structure_mapping=mapping,
+            ),
+            Peptides(
+                data_file=data_dir / "your_data_file.csv",  # Replace with your data file name
+                data_format=PeptideFormat.{data_format.value},
+                deuteration_type=DeuterationType.non_deuterated,
+                filters={{}},  # Add filters as needed, e.g. {{"State": "WT", "Exposure": "0"}}
+                structure_mapping=mapping,
+            ),
+        ],
+    )
+)""")
 
-    peptides_list = "\n".join(peptides_list_items)
-
-    # Build state names list
-    state_names_list = ",\n    ".join([f'"State_{i + 1}"' for i in range(num_states)])
+    states_blocks = "\n".join(states_code_lines)
 
     template = f'''"""
 Dataset creation script for {dataset_id}
@@ -90,7 +93,6 @@ This script defines an HDX-MS dataset and submits it to a local database.
 Edit the marked sections below with your specific data.
 """
 
-from __future__ import annotations
 from pathlib import Path
 
 from hdxms_datasets.database import submit_dataset
@@ -108,7 +110,6 @@ from hdxms_datasets.models import (
     Structure,
     StructureMapping,
 )
-from hdxms_datasets.utils import verify_sequence
 
 # =============================================================================
 # SETUP: Define your directories
@@ -118,8 +119,8 @@ cwd = Path(__file__).parent
 # Directory containing your raw data files
 data_dir = cwd / "data"
 
-# Directory where the dataset will be published (parent/<HDX_ID>/dataset)
-database_dir = cwd.parent / "dataset"
+# Directory where the dataset will be published (parent/<HDX_ID>/output)
+database_dir = cwd.parent / "output"
 database_dir.mkdir(exist_ok=True)
 
 # =============================================================================
@@ -145,46 +146,17 @@ mapping = StructureMapping(chain=["A"], residue_offset=0)  # Adjust chain and of
 # STATES: Define your protein states
 # =============================================================================
 
-# List of protein states - edit each state's properties
-protein_states = [
-{protein_states_list}
-]
+# This section defines the protein states and which peptides belong to the state
+# Add or remove peptide types as needed. The format supports multiple peptides of the same type
+# for example for multi pH/temperature datasets.
+
+states = []
+{states_blocks}
 
 # List of peptide groups corresponding to each state
 # Each inner list contains Peptides objects for that state
 # Filters can be used to select the relevant rows from your data file
-# Leave empty to select all rows. 
-all_peptides = [
-{peptides_list}
-]
-
-# State names and descriptions
-state_names = [
-    {state_names_list}
-]
-
-state_descriptions = [
-    "Description of state {{i+1}}" for i in range(len(protein_states))
-]
-
-# Verify sequences and build State objects
-states = []
-for i, (prot_state, peptides_group, name, desc) in enumerate(
-    zip(protein_states, all_peptides, state_names, state_descriptions)
-):
-    # Verify each peptide's sequence
-    for peptide in peptides_group:
-        verify_sequence(peptide.load(), prot_state.sequence, n_term=prot_state.n_term)
-    
-    # Create State object
-    states.append(
-        State(
-            name=name,
-            description=desc,
-            protein_state=prot_state,
-            peptides=peptides_group,
-        )
-    )
+# Leave empty to select all rows.
 
 # =============================================================================
 # METADATA: Publication and author information
