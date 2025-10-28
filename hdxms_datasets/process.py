@@ -192,17 +192,25 @@ def aggregate_columns(
 
 def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     """Aggregate replicates by intensity-weighted average.
-    Columns which are intensity-weighted averaged are: centroid_mz, centroid_mass, rt.
+    Columns which are intensity-weighted averaged are: uptake, centroid_mz, centroid_mass, rt, if present.
+
+    If no intensity column is present, replicates are averaged with equal weights.
     All other columns are pass through if they are unique, otherwise set to `None`.
     Also adds n_replicates and n_cluster columns.
 
     """
-    assert df["state"].n_unique() == 1, (
-        "DataFrame must be filtered to a single state before aggregation."
-    )
+
+    if "state" in df.columns:
+        assert df["state"].n_unique() == 1, (
+            "DataFrame must be filtered to a single state before aggregation."
+        )
 
     # columns which are intesity weighed averaged
-    intensity_wt_avg_columns = ["centroid_mz", "centroid_mass", "rt"]
+    candidate_columns = ["uptake", "centroid_mz", "centroid_mass", "rt"]
+    intensity_wt_avg_columns = [col for col in candidate_columns if col in df.columns]
+
+    if "intensity" not in df.columns:
+        df = df.with_columns(nw.lit(1.0).alias("intensity"))
 
     output_columns = df.columns[:]
 
@@ -211,7 +219,8 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
         output_columns.insert(col_idx + 1, f"{col}_sd")
     output_columns += ["n_replicates", "n_cluster"]
 
-    output = {k: [] for k in output_columns}
+    excluded = {"intensity"}
+    output = {k: [] for k in output_columns if k not in excluded}
     groups = df.group_by(["start", "end", "exposure"])
     for (start, end, exposure), df_group in groups:
         record = {}
@@ -228,7 +237,7 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
             record[f"{col}_sd"] = val.std_dev
 
         # add other columns, taking the first value if unique, otherwise None
-        other_columns = set(df.columns) - record.keys()
+        other_columns = set(df.columns) - record.keys() - excluded
         for col in other_columns:
             if df_group[col].n_unique() == 1:
                 record[col] = df_group[col][0]

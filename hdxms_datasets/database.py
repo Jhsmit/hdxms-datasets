@@ -16,6 +16,7 @@ from hdxms_datasets.verification import verify_dataset
 
 CATALOG_FILE = "datasets_catalog.csv"
 DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
+KNOWN_HDX_IDS = set[str]()
 
 
 def load_dataset(pth: Path) -> HDXDataSet:
@@ -35,7 +36,7 @@ def load_dataset(pth: Path) -> HDXDataSet:
     return dataset
 
 
-def mint_new_dataset_id(current_ids: set[str]) -> str:
+def mint_new_dataset_id(current_ids: set[str] = KNOWN_HDX_IDS) -> str:
     """
     Mint a new dataset ID that does not conflict with existing IDs in the database directory.
     """
@@ -64,6 +65,17 @@ def list_datasets(database_dir: Path) -> list[str]:
     """
 
     return [p.stem for p in database_dir.iterdir() if valid_id(p.stem)]
+
+
+def populate_known_ids(database_dir: Path, append=True) -> None:
+    """
+    Populate the KNOWN_HDX_IDS set with existing dataset IDs from the database directory.
+    """
+    global KNOWN_HDX_IDS
+    if append:
+        KNOWN_HDX_IDS.update(list_datasets(database_dir))
+    else:
+        KNOWN_HDX_IDS = set(list_datasets(database_dir))
 
 
 def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
@@ -145,7 +157,7 @@ def find_file_hash_matches(dataset: HDXDataSet, database_dir: Path) -> list[str]
 def submit_dataset(
     dataset: HDXDataSet,
     database_dir: Path,
-    dataset_id: str | None = None,
+    allow_mint_new_id: bool = False,
     check_existing: bool = True,
     verify: bool = True,
 ) -> tuple[bool, str]:
@@ -155,7 +167,7 @@ def submit_dataset(
     Args:
         dataset: The HDXDataSet to submit.
         database_dir: The directory where the dataset will be stored.
-        dataset_id: Optional ID for the dataset. If not provided, a new ID will be minted.
+        allow_mint_new_id: If True, allows minting a new dataset ID if it is already present in the database.
         check_existing: If True, checks if the dataset already exists in the database.
         verify: If True, verifies the dataset before submission.
 
@@ -166,8 +178,10 @@ def submit_dataset(
 
     """
 
+    dataset_copy = dataset.model_copy(deep=True)
+
     if verify:
-        verify_dataset(dataset)
+        verify_dataset(dataset_copy)
 
     if not database_dir.is_absolute():
         raise ValueError("Database directory must be an absolute path.")
@@ -176,7 +190,7 @@ def submit_dataset(
     # although there could be multiple states with the same uniprot ID
     # this is a quick check to avoid duplicates
     if check_existing:
-        matches = find_file_hash_matches(dataset, database_dir)
+        matches = find_file_hash_matches(dataset_copy, database_dir)
         if matches:
             if len(matches) == 1:
                 msg = f"Dataset matches an existing dataset in the database: {matches[0]}"
@@ -186,12 +200,16 @@ def submit_dataset(
 
     # mint a new ID if not provided
     existing_ids = set(list_datasets(database_dir))
-    if dataset_id is None:
-        dataset_id = mint_new_dataset_id(existing_ids)
+    if dataset_copy.hdx_id in existing_ids:
+        if allow_mint_new_id:
+            dataset_id = mint_new_dataset_id(existing_ids)
+            dataset_copy.hdx_id = dataset_id
+        else:
+            return False, f"Dataset ID {dataset_copy.hdx_id} already exists in the database."
     else:
-        if dataset_id in existing_ids:
-            return False, f"Dataset ID {dataset_id} already exists in the database."
+        dataset_id = dataset_copy.hdx_id
 
+    # TODO this check is now superfluous
     if not valid_id(dataset_id):
         raise ValueError(
             f"Invalid dataset ID: {dataset_id}. "
@@ -200,11 +218,12 @@ def submit_dataset(
 
     # create the target directory
     tgt_dir = database_dir / dataset_id
-    export_dataset(dataset, tgt_dir)
+    export_dataset(dataset_copy, tgt_dir)
 
     # update the catalogue
     # TODO: update instead of regenerate
     # TODO: lockfile? https://github.com/harlowja/fasteners
+    # TODO: at the moment this also reads all the datasets again
     generate_datasets_catalog(database_dir, save_csv=True)
 
     return True, dataset_id

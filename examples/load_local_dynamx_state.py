@@ -106,10 +106,8 @@ stats
 
 # %%
 # show the residues that do not match
-df.filter(pl.col("resn_TLA") != pl.col("resn_TLA_right"))
-
-# %%
-
+df_f = df.filter(pl.col("resn_TLA") != pl.col("resn_TLA_right"))
+df_f
 
 # %%
 # show a single peptide

@@ -138,23 +138,6 @@ time_map = {
 
 # %%
 
-pub = Publication(
-    title="Simple and Fast Maximally Deuterated Control (maxD) Preparation for Hydrogen-Deuterium Exchange Mass Spectrometry Experiments",
-    doi="10.1021/acs.analchem.2c01446",
-    url="https://pubs.acs.org/doi/10.1021/acs.analchem.2c01446",
-)
-
-# %%
-# Make sure to add the correct licsense for your dataset
-# If you are the author, you can choose any license you like
-# The preferred / default license is CC0
-metadata = DatasetMetadata(  # type: ignore[call-arg]
-    authors=[Author(name="Daniele Peterle", affiliation="Northeastern University")],
-    publication=pub,
-    license="CC BY-NC 4.0",
-    conversion_notes="Converted published Supplementary data",
-)
-
 protein_info = ProteinIdentifiers(
     uniprot_accession_number="P68082",
     uniprot_entry_name="MYG_HORSE",
@@ -173,10 +156,8 @@ except FileExistsError:
 structure = Structure(
     data_file=data_dir / "1azi.cif",
     format="cif",
-    description="",
+    description="MYOGLOBIN (HORSE HEART) RECOMBINANT WILD-TYPE COMPLEXED WITH AZIDE ",
     pdb_id="1AZI",
-    residue_offset=0,  # HDX data residue numbers match the PDB, no offset
-    auth_residue_numbers=False,  # HDX data residue numbers are RCSB numbering (not author or is the same)
 )
 
 # define the sequence in this protein state
@@ -217,7 +198,6 @@ pd_peptides = Peptides(  # type: ignore[call-arg]
     pH=7.1,
     temperature=20 + 273.15,
     d_percentage=90.0,
-    chain=["A"],
 )
 
 fd_peptides = Peptides(  # type: ignore[call-arg]
@@ -225,12 +205,11 @@ fd_peptides = Peptides(  # type: ignore[call-arg]
     data_format=PeptideFormat.OpenHDX,
     deuteration_type="fully_deuterated",
     d_percentage=90.0,
-    chain=["A"],
 )
 
 # %%
 # we can create a view of the structure and for example check peptide redundancy
-StructureView(structure).peptide_redundancy(pd_peptides)
+StructureView(structure).peptide_redundancy(pd_peptides.load())
 
 # %%
 # This dataset has only one state, which is WT
@@ -242,10 +221,25 @@ state = State(
 
 # %%
 
+pub = Publication(
+    title="Simple and Fast Maximally Deuterated Control (maxD) Preparation for Hydrogen-Deuterium Exchange Mass Spectrometry Experiments",
+    doi="10.1021/acs.analchem.2c01446",
+    url="https://pubs.acs.org/doi/10.1021/acs.analchem.2c01446",
+)
+
+# Make sure to add the correct licsense for your dataset
+# If you are the author, you can choose any license you like
+# The preferred / default license is CC0
+
 dataset = HDXDataSet(  # type: ignore[call-arg]
     states=[state],
     description="1 Mb dataset from Peterle et al. 2022",
-    metadata=metadata,
+    metadata=DatasetMetadata(  # type: ignore[call-arg]
+        authors=[Author(name="Daniele Peterle", affiliation="Northeastern University")],
+        publication=pub,
+        license="CC BY-NC 4.0",
+        conversion_notes="Converted published Supplementary data",
+    ),
     protein_identifiers=protein_info,
     structure=structure,
 )
