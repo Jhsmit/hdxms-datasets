@@ -57,9 +57,6 @@ structure = Structure(
 # define the states, one state per file
 hxms_files = list(data_dir.glob("*.hxms"))
 hxms_files
-# %%
-hxms_file = hxms_files[2]
-hxms_file.stem.split("_")[-1]
 
 
 # %%
@@ -80,14 +77,10 @@ def get_ligand(fpath: Path) -> Optional[str]:
     return tag
 
 
-get_ligand(hxms_file)
-
 # %%
 
 # structure mapping: chain A, residue offset -15 to match sequence numbering
 mapping = StructureMapping(chain=["A"], residue_offset=-15)
-
-# %%
 
 
 # create a helper function to create a open-hdxms state object from the hdxms file
@@ -214,10 +207,9 @@ view = StructureView(structure, mapping=peptides.structure_mapping).peptide_redu
 view
 
 # %%
+# compute uptake metrics (uptake, fractional deuterium), view result in peptide plot
 
 merged = merge_peptides(dataset.states[1].peptides)
-
-# compute uptake metrics (uptake, fractional deuterium), view result in peptide plot
 processed = compute_uptake_metrics(merged).to_polars()
 
 df_exposure = slice_exposure(processed)[5]
