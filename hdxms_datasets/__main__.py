@@ -5,6 +5,7 @@ Command-line interface for hdxms-datasets package.
 from __future__ import annotations
 
 from pathlib import Path
+from datetime import datetime
 import typer
 from enum import Enum
 
@@ -209,6 +210,12 @@ def callback():
 
 @app.command(name="create")
 def create(
+    short_name: str = typer.Option(
+        None,
+        "--short-name",
+        "-s",
+        help="Optional short name to append to the timestamp folder name",
+    ),
     num_states: int = typer.Option(
         1,
         "--num-states",
@@ -244,7 +251,7 @@ def create(
 
     This command will:
     1. Generate a unique HDX dataset ID
-    2. Create a new directory: <HDX_ID>/dataset
+    2. Create a new timestamped directory: YYYYMMDD_HHMM_HDX_ID_short_name (or YYYYMMDD_HHMM_HDX_ID if no short name)
     3. Generate a template Python script to help you create your dataset
 
     After running this command, edit the generated create_dataset.py script
@@ -252,7 +259,8 @@ def create(
 
     Example:
         hdxms-datasets create
-        hdxms-datasets create --num-states 2 --format DynamX_v3_state --ph 8.0
+        hdxms-datasets create --short-name secb_wt
+        hdxms-datasets create --num-states 2 --format DynamX_v3_state --ph 8.0 --short-name my_protein
     """
 
     # Load existing IDs if database directory provided
@@ -271,9 +279,16 @@ def create(
         f"\n✓ Generated new dataset ID: {typer.style(dataset_id, fg=typer.colors.GREEN, bold=True)}"
     )
 
-    # Create dataset directory structure: <HDX_ID>/dataset
+    # Create timestamped folder name with dataset ID
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    if short_name:
+        folder_name = f"{timestamp}_{dataset_id}_{short_name}"
+    else:
+        folder_name = f"{timestamp}_{dataset_id}"
+
+    # Create dataset directory structure: <timestamp_folder>/
     output_dir = Path.cwd()
-    dataset_dir = output_dir / dataset_id
+    dataset_dir = output_dir / folder_name
 
     if dataset_dir.exists():
         typer.echo(f"\n⚠️  Directory already exists: {dataset_dir}")
@@ -315,6 +330,8 @@ def create(
 
 ## Dataset Configuration
 
+- **Dataset ID**: {dataset_id}
+- **Folder**: {folder_name}
 - **Format**: {data_format.value}
 - **Number of states**: {num_states}
 - **pH**: {ph}
@@ -323,11 +340,11 @@ def create(
 ## Directory Structure
 
 ```
-{dataset_id}/
+{folder_name}/
 ├── create_dataset.py    # Template script to edit
 ├── README.md            # This file
 ├── data/                # Place your raw data files here
-└── dataset/             # Will be created when you run create_dataset.py
+└── output/              # Will be created when you run create_dataset.py
 ```
 
 ## Next Steps
@@ -349,6 +366,7 @@ https://jhsmit.github.io/hdxms-datasets/
     )
     typer.echo("=" * 60)
     typer.echo(f"\nDataset ID:     {dataset_id}")
+    typer.echo(f"Folder:         {folder_name}")
     typer.echo(f"Location:       {dataset_dir}")
     typer.echo(f"Format:         {data_format.value}")
     typer.echo(f"States:         {num_states}")
