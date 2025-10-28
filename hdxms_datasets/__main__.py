@@ -46,6 +46,8 @@ def generate_template_script(
         n_term=1,  # N-terminal residue number
         c_term=155,  # C-terminal residue number
         oligomeric_state=1,  # Monomer=1, Dimer=2, etc.
+        mutations=None, # Add mutations as a list of strings if applicable
+        ligand=None,  # Add ligand information if applicable
     ),""")
 
     protein_states_list = "\n".join(states_code_lines)
@@ -64,13 +66,15 @@ def generate_template_script(
             pH={ph},  # pH as read with the pH meter
             temperature={temperature}, # Temperature in Kelvin
             d_percentage=90.0,  # Deuterium percentage
+            structure_mapping=mapping  # Adjust chain and offset as needed
         ),
         Peptides(
             data_file=data_dir / "your_data_file.csv",  # Replace with your data file name
             data_format=PeptideFormat.{data_format.value},
-            deuteration_type=DeuterationType.partially_deuterated,
+            deuteration_type=DeuterationType.fully_deuterated,
             filters={{}},  # Add filters as needed, e.g. {{"State": "Fully Deuterated", "Exposure": "0.167"}}
             d_percentage=90.0,  # Deuterium percentage
+            structure_mapping=mapping
         ),
     ],""")
 
@@ -102,6 +106,7 @@ from hdxms_datasets.models import (
     ProteinState,
     Publication,
     Structure,
+    StructureMapping,
 )
 from hdxms_datasets.utils import verify_sequence
 
@@ -121,17 +126,20 @@ database_dir.mkdir(exist_ok=True)
 # PROTEIN INFORMATION: Define your protein
 # =============================================================================
 protein_info = ProteinIdentifiers(
-    uniprot_accession_number="P0AG86",  # Replace with your UniProt accession
-    uniprot_entry_name="SECB_ECOLI",  # Replace with your UniProt entry name
+    uniprot_accession_number=None,  # Replace with your UniProt accession
+    uniprot_entry_name=None,  # Replace with your UniProt entry name
 )
 
-# Optional: Add structural information if available
+# Add structural information
 structure = Structure(
     data_file=data_dir / "structure.cif",  # Path to your structure file
     format="cif",  # or "pdb"
     pdb_id="",  # Replace with your PDB ID if applicable
     description="",  # Add optional description
 )
+
+# Optional structural mapping used to related peptides to the structure
+mapping = StructureMapping(chain=["A"], residue_offset=0)  # Adjust chain and offset as needed
 
 # =============================================================================
 # STATES: Define your protein states
@@ -144,6 +152,8 @@ protein_states = [
 
 # List of peptide groups corresponding to each state
 # Each inner list contains Peptides objects for that state
+# Filters can be used to select the relevant rows from your data file
+# Leave empty to select all rows. 
 all_peptides = [
 {peptides_list}
 ]
@@ -192,7 +202,7 @@ dataset = HDXDataSet(  # type: ignore[call-arg]
     hdx_id="{dataset_id}",
     states=states,
     description="Brief description of your HDX-MS dataset",
-    structure=structure,  # Remove if no structure available
+    structure=structure,
     protein_identifiers=protein_info,
     metadata=DatasetMetadata(  # type: ignore[call-arg]
         authors=[
@@ -324,8 +334,9 @@ def create(
 
 1. Place your HDX-MS data files in the `data/` directory
 2. Edit `create_dataset.py` and fill in:
-   - Your protein sequence(s)
-   - Data file names and filters
+   - Your protein structure information
+   - Your protein state metadata
+   - Your HDX peptides for each state
    - Author information
    - Publication details
 3. Run the script: `python create_dataset.py`
