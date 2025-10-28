@@ -14,6 +14,14 @@ The package offers the following features:
 
 A database for open HDX datasets is set up at [HDXMS DataBase](https://github.com/Jhsmit/HDXMS-database)
 
+There is an example front-end available featuring real-time estimation of HDX-MS ΔG values called [instaGibbs](https://huggingface.co/spaces/Jhsmit/instaGibbs)
+
+## Installation
+
+```bash
+pip install hdxms-datasets
+```
+
 ## Example Usage
 
 ### Loading datasets
@@ -119,10 +127,4 @@ processed = compute_uptake_metrics(merged)
 print(processed.columns)
 #> ['start', 'end', 'sequence', ... 'uptake', 'uptake_sd', 'fd_uptake', 'fd_uptake_sd', 'fractional_uptake', 'fractional_uptake_sd']
 
-```
-
-## Installation
-
-```bash
-$ pip install hdxms-datasets
 ```
