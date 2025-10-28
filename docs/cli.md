@@ -144,6 +144,8 @@ The `create_dataset.py` template includes:
 - Example values based on your configuration choices
 - Automatic sequence verification
 - Dataset submission code
+Please not that this template is not exhaustive and other metadata fields may be used 
+depending on your datasets requirements. 
 
 ## Future Commands (Planned)
 
@@ -151,7 +153,6 @@ The CLI is designed to be extensible. Future commands may include:
 
 - `hdxms-datasets validate`: Validate a dataset before submission
 - `hdxms-datasets upload`: Upload a dataset to a remote database
-- `hdxms-datasets list`: List datasets in a database
 - `hdxms-datasets export`: Export a dataset to different formats
 
 ## Getting Help
@@ -162,7 +163,3 @@ For more information about any command:
 hdxms-datasets --help
 hdxms-datasets create --help
 ```
-
-For package documentation:
-- [Main documentation](https://jhsmit.github.io/hdxms-datasets/)
-- [GitHub repository](https://github.com/Jhsmit/hdxms-datasets/)
