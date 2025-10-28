@@ -26,6 +26,7 @@ dependencies = [
     'uncertainties',
     'numpy',
     'pydantic',
+    'typer>=0.9.0',
 ]
 
 dynamic = ["version"]
@@ -50,6 +51,9 @@ test = ["pytest>=7.2.0", "polars", "biopython"]
 [project.urls]
 Source = "https://github.com/Jhsmit/hdxms-datasets/"
 Documentation = "https://jhsmit.github.io/hdxms-datasets/"
+
+[project.scripts]
+hdxms-datasets = "hdxms_datasets.__main__:main"
 
 [tool.hatch.build]
 exclude = ["_versioneer.py"]
