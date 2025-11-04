@@ -38,9 +38,7 @@ export const useDatasetStore = defineStore('dataset', () => {
     let maxStep = 1
 
     // Step 2 requires data and structure files
-    const hasDataFile = uploadedFiles.value.some((f: UploadedFile) => f.fileType === 'data')
-    const hasStructureFile = uploadedFiles.value.some((f: UploadedFile) => f.fileType === 'structure')
-    if (!hasDataFile || !hasStructureFile) return maxStep
+    if (dataFiles.value.length === 0 || structureFiles.value.length === 0) return maxStep
     maxStep = 2
 
     // Step 3 requires protein identifiers (optional, always allow)
