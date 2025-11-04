@@ -261,7 +261,6 @@ export const useDatasetStore = defineStore('dataset', () => {
         filename: backendResponse.filename,
         size: backendResponse.size,
         detectedFormat: backendResponse.detected_format,
-        confirmedFormat: backendResponse.confirmed_format,
         fileType: backendResponse.file_type
       })
 
@@ -312,7 +311,7 @@ export const useDatasetStore = defineStore('dataset', () => {
     // Get the uploaded data file
     const dataFile = uploadedFiles.value.find(f => f.fileType === 'data')
     const dataFileId = dataFile?.id || ''
-    const detectedFormat = dataFile?.detectedFormat || dataFile?.confirmedFormat || ''
+    const detectedFormat = dataFile?.detectedFormat || ''
 
     // Mock protein identifiers
     proteinIdentifiers.value = {

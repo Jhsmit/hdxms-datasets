@@ -58,7 +58,9 @@ async def upload_file(
                 from hdxms_datasets.models import PeptideFormat
                 import narwhals as nw
 
-                # Try to read and detect format
+                if file_path.suffix == ".hxms":
+                    detected_format = "HXMS"
+                # Otherwise we assume csv and try to read and detect format
                 df = nw.read_csv(file_path, backend=BACKEND)
                 detected_format_obj = PeptideFormat.identify(df)
                 if detected_format_obj:
@@ -73,7 +75,6 @@ async def upload_file(
             "filename": file.filename,
             "size": len(content),
             "detected_format": detected_format,
-            "confirmed_format": detected_format,
             "file_type": file_type,
             "path": str(file_path),
         }

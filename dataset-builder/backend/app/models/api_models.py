@@ -9,7 +9,6 @@ class UploadedFileInfo(BaseModel):
     filename: str = Field(..., description="Original filename")
     size: int = Field(..., description="File size in bytes")
     detected_format: Optional[str] = Field(None, description="Auto-detected format")
-    confirmed_format: Optional[str] = Field(None, description="User-confirmed format")
     file_type: str = Field(..., description="File type: 'data' or 'structure'")
 
 

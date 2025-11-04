@@ -38,7 +38,6 @@ export const apiService = {
       filename: response.data.filename,
       size: response.data.size,
       detectedFormat: response.data.detected_format || null,
-      confirmedFormat: response.data.confirmed_format || null,
       fileType: fileType
     }
   },
@@ -58,7 +57,6 @@ export const apiService = {
       filename: f.filename,
       size: f.size,
       detectedFormat: f.detected_format || null,
-      confirmedFormat: f.confirmed_format || null,
       fileType: f.file_type
     }))
   },

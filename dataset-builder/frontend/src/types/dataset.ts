@@ -3,7 +3,6 @@ export interface UploadedFile {
   filename: string
   size: number
   detectedFormat: string | null
-  confirmedFormat: string | null
   fileType: 'data' | 'structure'
 }
 
