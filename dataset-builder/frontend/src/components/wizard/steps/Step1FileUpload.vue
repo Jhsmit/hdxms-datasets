@@ -34,7 +34,12 @@
 
     <div class="upload-section">
       <h3>Structure File</h3>
-      <div class="upload-area" @drop.prevent="handleDrop($event, 'structure')" @dragover.prevent>
+      <div
+        v-if="store.structureFiles.length === 0"
+        class="upload-area"
+        @drop.prevent="handleDrop($event, 'structure')"
+        @dragover.prevent
+      >
         <input
           type="file"
           ref="structureFileInput"
@@ -46,6 +51,9 @@
         <button class="primary" @click="$refs.structureFileInput.click()">
           Browse File
         </button>
+      </div>
+      <div v-else class="upload-area upload-area-disabled">
+        <p>Structure file uploaded. Remove the existing file to upload a different one.</p>
       </div>
 
       <div v-if="store.structureFiles.length > 0" class="file-list">
@@ -96,6 +104,18 @@ const uploadFiles = async (files: File[], fileType: 'data' | 'structure') => {
   error.value = ''
 
   try {
+    // Enforce structure file limit
+    if (fileType === 'structure') {
+      if (store.structureFiles.length > 0) {
+        error.value = 'Only one structure file is allowed. Remove the existing file first.'
+        return
+      }
+      if (files.length > 1) {
+        error.value = 'Only one structure file can be uploaded at a time.'
+        return
+      }
+    }
+
     for (const file of files) {
       const uploadedFile = await apiService.uploadFile(store.sessionId, file, fileType)
       store.addUploadedFile(uploadedFile)
@@ -147,6 +167,18 @@ h2 {
 .upload-area:hover {
   border-color: #007bff;
   background: #f8f9fa;
+}
+
+.upload-area-disabled {
+  border-color: #ccc;
+  background: #f0f0f0;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.upload-area-disabled:hover {
+  border-color: #ccc;
+  background: #f0f0f0;
 }
 
 .file-list {
