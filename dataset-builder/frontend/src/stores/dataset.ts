@@ -33,23 +33,40 @@ export const useDatasetStore = defineStore('dataset', () => {
     uploadedFiles.value.filter(f => f.fileType === 'structure')
   )
 
+  const maxAccessibleStep = computed(() => {
+    // Step 1 is always accessible
+    let maxStep = 1
+
+    // Step 2 requires data and structure files
+    const hasDataFile = uploadedFiles.value.some((f: UploadedFile) => f.fileType === 'data')
+    const hasStructureFile = uploadedFiles.value.some((f: UploadedFile) => f.fileType === 'structure')
+    if (!hasDataFile || !hasStructureFile) return maxStep
+    maxStep = 2
+
+    // Step 3 requires protein identifiers (optional, always allow)
+    maxStep = 3
+
+    // Step 4 requires structure to be defined
+    if (structure.value === null) return maxStep
+    maxStep = 4
+
+    // Step 5 requires states with peptides
+    const hasValidStates = states.value.length > 0 &&
+                          states.value.every((s: StateData) => s.peptides.length > 0)
+    if (!hasValidStates) return maxStep
+    maxStep = 5
+
+    // Step 6 requires metadata
+    const hasValidMetadata = metadata.value.authors.length > 0 &&
+                            metadata.value.license !== ''
+    if (!hasValidMetadata) return maxStep
+    maxStep = 6
+
+    return maxStep
+  })
+
   const canProceed = computed(() => {
-    switch (currentStep.value) {
-      case 1: // File upload
-        return uploadedFiles.value.length > 0
-      case 2: // Protein identifiers
-        return true // Optional fields
-      case 3: // Structure
-        return structure.value !== null
-      case 4: // States
-        return states.value.length > 0 &&
-          states.value.every(s => s.peptides.length > 0)
-      case 5: // Metadata
-        return metadata.value.authors.length > 0 &&
-          metadata.value.license !== ''
-      default:
-        return false
-    }
+    return currentStep.value < maxAccessibleStep.value
   })
 
   const isComplete = computed(() => {
@@ -379,6 +396,7 @@ export const useDatasetStore = defineStore('dataset', () => {
     // Getters
     dataFiles,
     structureFiles,
+    maxAccessibleStep,
     canProceed,
     isComplete,
 

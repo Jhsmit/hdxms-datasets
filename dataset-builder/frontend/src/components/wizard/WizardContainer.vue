@@ -8,9 +8,10 @@
         class="progress-step"
         :class="{
           active: store.currentStep === step.number,
-          completed: store.currentStep > step.number
+          completed: store.currentStep > step.number,
+          disabled: !canAccessStep(step.number)
         }"
-        @click="store.goToStep(step.number)"
+        @click="handleStepClick(step.number)"
       >
         <div class="step-number">{{ step.number }}</div>
         <div class="step-label">{{ step.label }}</div>
@@ -74,6 +75,16 @@ const steps = [
   { number: 6, label: 'Review' }
 ]
 
+const canAccessStep = (stepNumber: number) => {
+  return stepNumber <= store.maxAccessibleStep
+}
+
+const handleStepClick = (stepNumber: number) => {
+  if (canAccessStep(stepNumber)) {
+    store.goToStep(stepNumber)
+  }
+}
+
 const stepComponents = {
   1: Step1FileUpload,
   2: Step2ProteinInfo,
@@ -111,6 +122,11 @@ const handleGenerate = () => {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
+}
+
+.progress-step.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .progress-step:not(:last-child)::after {
