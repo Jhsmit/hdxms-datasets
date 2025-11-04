@@ -208,6 +208,57 @@ export const useDatasetStore = defineStore('dataset', () => {
     return false
   }
 
+  async function uploadTestFile(
+    url: string,
+    filename: string,
+    mimeType: string,
+    fileType: 'data' | 'structure'
+  // @ts-ignore - False positive: ES2020 includes Promise support
+  ): Promise<boolean> {
+    try {
+      const response = await fetch(url)
+      if (!response.ok) throw new Error(`Failed to fetch ${filename}`)
+
+      const blob = await response.blob()
+      const file = new File([blob], filename, { type: mimeType })
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('session_id', sessionId.value)
+      formData.append('file_type', fileType)
+
+      const uploadResponse = await fetch('/api/files/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text()
+        throw new Error(errorText)
+      }
+
+      const backendResponse = await uploadResponse.json()
+      console.log(`${filename} uploaded successfully:`, backendResponse)
+
+      // Transform backend response (snake_case) to frontend format (camelCase)
+      addUploadedFile({
+        id: backendResponse.id,
+        filename: backendResponse.filename,
+        size: backendResponse.size,
+        detectedFormat: backendResponse.detected_format,
+        confirmedFormat: backendResponse.confirmed_format,
+        fileType: backendResponse.file_type
+      })
+
+      return true
+    } catch (error) {
+      console.error(`Failed to upload ${filename}:`, error)
+      alert(`Error uploading ${filename}: ${error}`)
+      return false
+    }
+  }
+
+  // @ts-ignore - False positive: ES2020 includes Promise support
   async function loadTestData() {
     // Clear existing data first
     uploadedFiles.value = []
@@ -215,76 +266,33 @@ export const useDatasetStore = defineStore('dataset', () => {
 
     // Create a new session via the backend
     try {
-      const sessionResponse = await fetch('/api/files/session', {
-        method: 'POST'
-      })
-      if (sessionResponse.ok) {
-        const sessionData = await sessionResponse.json()
-        sessionId.value = sessionData.session_id
-        console.log('Created session:', sessionId.value)
-      }
+      const sessionResponse = await fetch('/api/files/session', { method: 'POST' })
+      if (!sessionResponse.ok) throw new Error('Failed to create session')
+
+      const sessionData = await sessionResponse.json()
+      sessionId.value = sessionData.session_id
+      console.log('Created session:', sessionId.value)
     } catch (error) {
       console.error('Failed to create session:', error)
       return
     }
 
-    // Fetch and upload the actual CSV file to the backend
-    try {
-      const response = await fetch('/test-data/ecSecB_apo.csv')
-      if (response.ok) {
-        const blob = await response.blob()
-        const file = new File([blob], 'ecSecB_apo.csv', { type: 'text/csv' })
+    // Upload test files
+    const csvUploaded = await uploadTestFile(
+      '/test-data/ecSecB_apo.csv',
+      'ecSecB_apo.csv',
+      'text/csv',
+      'data'
+    )
+    if (!csvUploaded) return
 
-        // Create FormData to upload the file
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('session_id', sessionId.value)
-        formData.append('file_type', 'data')
-
-        // Upload to backend
-        const uploadResponse = await fetch('/api/files/upload', {
-          method: 'POST',
-          body: formData
-        })
-
-        if (uploadResponse.ok) {
-          const backendResponse = await uploadResponse.json()
-          console.log('CSV file uploaded successfully; backend response (TEST):', backendResponse)
-
-          // Transform backend response (snake_case) to frontend format (camelCase)
-          const uploadedFile: UploadedFile = {
-            id: backendResponse.id,
-            filename: backendResponse.filename,
-            size: backendResponse.size,
-            detectedFormat: backendResponse.detected_format,
-            confirmedFormat: backendResponse.confirmed_format,
-            fileType: backendResponse.file_type
-          }
-
-          // Add to uploaded files using the same method as the UI
-          addUploadedFile(uploadedFile)
-        } else {
-          const errorText = await uploadResponse.text()
-          console.error('Failed to upload CSV file:', errorText)
-          alert(`Failed to upload CSV file: ${errorText}`)
-          return
-        }
-      }
-    } catch (error) {
-      console.error('Could not fetch and upload test CSV file:', error)
-      alert(`Error uploading CSV: ${error}`)
-      return
-    }
-
-    // Mock uploaded structure file
-    addUploadedFile({
-      id: 'file-structure-' + crypto.randomUUID(),
-      filename: 'protein_structure.pdb',
-      size: 2048,
-      fileType: 'structure',
-      detectedFormat: null,
-      confirmedFormat: null
-    })
+    const pdbUploaded = await uploadTestFile(
+      '/test-data/SecB_structure.pdb',
+      'SecB_structure.pdb',
+      'chemical/x-pdb',
+      'structure'
+    )
+    if (!pdbUploaded) return
 
     // Get the uploaded data file
     const dataFile = uploadedFiles.value.find(f => f.fileType === 'data')
@@ -314,7 +322,7 @@ export const useDatasetStore = defineStore('dataset', () => {
         name: 'SecB WT apo',
         description: 'Wild-type SecB in apo state',
         proteinState: {
-          sequence: 'MEKLFTVERLDGQIINSR',
+          sequence: 'MSEQNNTEMTFQIQRIYTKDISFEAPNAPHVFQKDWQPEVKLDLDTASSQLADDVYEVVLRVTVTASLGEETAFLCEVQQGGIFSIAGIEGTQMAHCLGAYCPNILFPYARECITSMVSRGTFPQLNLAPVNFDALFMNYLQQQAGEGTEEHQDA',
           nTerm: 1,
           cTerm: 155
         },

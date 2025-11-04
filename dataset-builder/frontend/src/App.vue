@@ -42,9 +42,9 @@ const store = useDatasetStore()
 // Check if in development mode
 const isDev = computed(() => import.meta.env.DEV)
 
-function loadTestData() {
+async function loadTestData() {
   if (confirm('This will replace all current data with test data. Continue?')) {
-    store.loadTestData()
+    await store.loadTestData()
     console.log('Test data loaded successfully!')
   }
 }
