@@ -23,9 +23,22 @@
       <div v-if="store.dataFiles.length > 0" class="file-list">
         <div v-for="file in store.dataFiles" :key="file.id" class="file-item">
           <div class="file-info">
-            <strong>{{ file.filename }}</strong>
-            <span class="file-size">{{ formatFileSize(file.size) }}</span>
-            <span v-if="file.detectedFormat" class="badge">{{ file.detectedFormat }}</span>
+            <div class="file-details">
+              <strong>{{ file.filename }}</strong>
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+              <span v-if="file.detectedFormat" class="badge">{{ file.detectedFormat }}</span>
+            </div>
+            <div class="dataframe-info">
+              <span v-if="getDataframeInfo(file.id) === 'loading'" class="loading-text">
+                Loading dataframe...
+              </span>
+              <span v-else-if="getDataframeInfo(file.id) === 'error'" class="error-text">
+                Failed to load
+              </span>
+              <span v-else-if="getDataframeSizeText(file.id)" class="dataframe-size">
+                {{ getDataframeSizeText(file.id) }}
+              </span>
+            </div>
           </div>
           <button class="danger" @click="removeFile(file.id)">Remove</button>
         </div>
@@ -78,13 +91,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
 import { apiService } from '@/services/api'
+import type { DataframeInfo } from '@/types/dataset'
 
 const store = useDatasetStore()
 const uploading = ref(false)
 const error = ref('')
+const dataframeInfoMap = ref<Map<string, DataframeInfo | 'loading' | 'error'>>(new Map())
 
 const handleFileSelect = async (event: Event, fileType: 'data' | 'structure') => {
   const target = event.target as HTMLInputElement
@@ -119,6 +134,11 @@ const uploadFiles = async (files: File[], fileType: 'data' | 'structure') => {
     for (const file of files) {
       const uploadedFile = await apiService.uploadFile(store.sessionId, file, fileType)
       store.addUploadedFile(uploadedFile)
+
+      // Load dataframe info for data files
+      if (fileType === 'data') {
+        loadDataframeInfo(uploadedFile.id)
+      }
     }
   } catch (e: any) {
     error.value = e.message || 'Upload failed'
@@ -127,10 +147,24 @@ const uploadFiles = async (files: File[], fileType: 'data' | 'structure') => {
   }
 }
 
+const loadDataframeInfo = async (fileId: string) => {
+  dataframeInfoMap.value.set(fileId, 'loading')
+
+  try {
+    const info = await apiService.getDataframeInfo(store.sessionId, fileId)
+    dataframeInfoMap.value.set(fileId, info)
+  } catch (e) {
+    console.error(`Failed to load dataframe info for ${fileId}:`, e)
+    dataframeInfoMap.value.set(fileId, 'error')
+  }
+}
+
 const removeFile = async (fileId: string) => {
   try {
     await apiService.deleteFile(store.sessionId, fileId)
     store.removeUploadedFile(fileId)
+    // Remove from dataframe info map
+    dataframeInfoMap.value.delete(fileId)
   } catch (e: any) {
     error.value = e.message || 'Failed to remove file'
   }
@@ -141,6 +175,29 @@ const formatFileSize = (bytes: number): string => {
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
+
+const formatDataframeSize = (rows: number, cols: number): string => {
+  return `${rows.toLocaleString()} rows × ${cols} columns`
+}
+
+const getDataframeInfo = (fileId: string): DataframeInfo | 'loading' | 'error' | null => {
+  return dataframeInfoMap.value.get(fileId) || null
+}
+
+const getDataframeSizeText = (fileId: string): string => {
+  const info = getDataframeInfo(fileId)
+  if (!info || info === 'loading' || info === 'error') return ''
+  return formatDataframeSize(info.shape.rows, info.shape.columns)
+}
+
+// Load dataframe info for existing data files on mount
+onMounted(() => {
+  store.dataFiles.forEach(file => {
+    if (!dataframeInfoMap.value.has(file.id)) {
+      loadDataframeInfo(file.id)
+    }
+  })
+})
 </script>
 
 <style scoped>
@@ -197,6 +254,13 @@ h2 {
 
 .file-info {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.file-details {
+  display: flex;
   gap: 15px;
   align-items: center;
 }
@@ -204,6 +268,26 @@ h2 {
 .file-size {
   color: #666;
   font-size: 14px;
+}
+
+.dataframe-info {
+  font-size: 13px;
+  padding-left: 2px;
+}
+
+.dataframe-size {
+  color: #555;
+  font-family: 'Courier New', monospace;
+}
+
+.loading-text {
+  color: #007bff;
+  font-style: italic;
+}
+
+.error-text {
+  color: #dc3545;
+  font-style: italic;
 }
 
 .badge {

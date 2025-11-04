@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { UploadedFile, ValidationResponse } from '@/types/dataset'
+import type { UploadedFile, ValidationResponse, DataframeInfo } from '@/types/dataset'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
@@ -90,6 +90,18 @@ export const apiService = {
       responseType: 'blob'
     })
     return response.data
+  },
+
+  // Data
+  async getDataframeInfo(sessionId: string, fileId: string): Promise<DataframeInfo> {
+    const response = await api.get<DataframeInfo>(`/data/dataframe/${fileId}`, {
+      params: { session_id: sessionId }
+    })
+    return {
+      fileId: response.data.fileId,
+      shape: response.data.shape,
+      columns: response.data.columns
+    }
   }
 }
 

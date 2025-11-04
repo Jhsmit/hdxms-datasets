@@ -6,6 +6,15 @@ export interface UploadedFile {
   fileType: 'data' | 'structure'
 }
 
+export interface DataframeInfo {
+  fileId: string
+  shape: {
+    rows: number
+    columns: number
+  }
+  columns: string[]
+}
+
 export interface ProteinIdentifiers {
   uniprotAccessionNumber?: string
   uniprotEntryName?: string

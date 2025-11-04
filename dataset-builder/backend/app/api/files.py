@@ -5,13 +5,11 @@ from pathlib import Path
 from typing import Optional
 import sys
 
-from hdxms_datasets.loader import BACKEND
-
 # Add parent directory to path to import hdxms_datasets
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from app.models.api_models import UploadedFileInfo
-from app.services import file_manager, session_manager
+from app.services import file_manager, session_manager, dataframe_cache
 
 router = APIRouter()
 
@@ -51,20 +49,22 @@ async def upload_file(
         assert file.filename
         file_id, file_path = file_manager.save_file(session_id, content, file.filename)
 
-        # Detect format for data files
+        # Detect format for data files and cache dataframe
         detected_format = None
         if file_type == "data":
             try:
                 from hdxms_datasets.models import PeptideFormat
-                import narwhals as nw
 
                 if file_path.suffix == ".hxms":
                     detected_format = "HXMS"
-                # Otherwise we assume csv and try to read and detect format
-                df = nw.read_csv(file_path, backend=BACKEND)
-                detected_format_obj = PeptideFormat.identify(df)
-                if detected_format_obj:
-                    detected_format = detected_format_obj.value
+                else:
+                    # Load dataframe asynchronously and cache it
+                    df = await dataframe_cache.get_dataframe(session_id, file_id, file_path)
+                    if df is not None:
+                        # Identify format from the cached dataframe
+                        detected_format_obj = PeptideFormat.identify(df)
+                        if detected_format_obj:
+                            detected_format = detected_format_obj.value
             except Exception as e:
                 # If detection fails, that's okay - user can specify manually
                 print(f"Format detection failed: {e}")
@@ -107,6 +107,9 @@ async def delete_file(file_id: str, session_id: str):
     success = file_manager.delete_file(session_id, file_id)
     if not success:
         raise HTTPException(status_code=404, detail="File not found")
+
+    # Invalidate dataframe cache for this file
+    dataframe_cache.invalidate(session_id, file_id)
 
     # Remove from session
     if "files" in session and file_id in session["files"]:

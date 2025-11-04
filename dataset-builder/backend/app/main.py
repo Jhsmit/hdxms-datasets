@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import files, validation, generation
+from app.api import files, validation, generation, data
 
 app = FastAPI(
     title="HDX-MS Dataset Builder API",
@@ -20,6 +20,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(files.router, prefix="/api/files", tags=["files"])
+app.include_router(data.router, prefix="/api/data", tags=["data"])
 app.include_router(validation.router, prefix="/api/validate", tags=["validation"])
 app.include_router(generation.router, prefix="/api/generate", tags=["generation"])
 
