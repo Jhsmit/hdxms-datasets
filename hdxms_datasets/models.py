@@ -540,6 +540,14 @@ class HDXDataSet(BaseModel):
 
         return self
 
+    @model_validator(mode="after")
+    def verify_unique_state_names(self):
+        """Ensure that all state names are unique within the dataset"""
+        state_names = [state.name for state in self.states]
+        if len(state_names) != len(set(state_names)):
+            raise ValueError("State names must be unique within the dataset.")
+        return self
+
     def hash_files(self) -> str:
         return hash_files(self.data_files)  # Ensure files are sorted and hashed consistently
 
