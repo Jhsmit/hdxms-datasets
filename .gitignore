@@ -127,3 +127,15 @@ dev/
 
 # unpublished datasets
 datasets_private/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+-error.log*
+dist/
+dist-ssr/
+*.local
+
+
+.claude
