@@ -3,14 +3,22 @@
     <header class="app-header">
       <h1>HDX-MS Dataset Builder</h1>
       <p>Create standardized HDX-MS datasets with ease</p>
-      <button
-        v-if="isDev"
-        class="test-data-button"
-        @click="loadTestData"
-        title="Load test data for development"
-      >
-        Load Test Data
-      </button>
+      <div v-if="isDev" class="dev-buttons">
+        <button
+          class="test-data-button"
+          @click="loadTestData"
+          title="Load test data for development"
+        >
+          Load Test Data
+        </button>
+        <button
+          class="clear-data-button"
+          @click="clearData"
+          title="Clear all data"
+        >
+          Clear Data
+        </button>
+      </div>
     </header>
 
     <main class="app-main">
@@ -38,6 +46,13 @@ function loadTestData() {
   if (confirm('This will replace all current data with test data. Continue?')) {
     store.loadTestData()
     console.log('Test data loaded successfully!')
+  }
+}
+
+function clearData() {
+  if (confirm('This will clear all data. Continue?')) {
+    store.reset()
+    console.log('All data cleared!')
   }
 }
 
@@ -91,10 +106,16 @@ onMounted(async () => {
   opacity: 0.9;
 }
 
-.test-data-button {
+.dev-buttons {
   position: absolute;
   top: 20px;
   right: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.test-data-button,
+.clear-data-button {
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.5);
@@ -106,10 +127,21 @@ onMounted(async () => {
   transition: all 0.3s ease;
 }
 
-.test-data-button:hover {
+.test-data-button:hover,
+.clear-data-button:hover {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.8);
   transform: translateY(-2px);
+}
+
+.clear-data-button {
+  background: rgba(255, 100, 100, 0.2);
+  border-color: rgba(255, 100, 100, 0.5);
+}
+
+.clear-data-button:hover {
+  background: rgba(255, 100, 100, 0.3);
+  border-color: rgba(255, 100, 100, 0.8);
 }
 
 .app-main {
