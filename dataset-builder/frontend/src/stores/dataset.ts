@@ -43,10 +43,10 @@ export const useDatasetStore = defineStore('dataset', () => {
         return structure.value !== null
       case 4: // States
         return states.value.length > 0 &&
-               states.value.every(s => s.peptides.length > 0)
+          states.value.every(s => s.peptides.length > 0)
       case 5: // Metadata
         return metadata.value.authors.length > 0 &&
-               metadata.value.license !== ''
+          metadata.value.license !== ''
       default:
         return false
     }
@@ -54,10 +54,10 @@ export const useDatasetStore = defineStore('dataset', () => {
 
   const isComplete = computed(() => {
     return uploadedFiles.value.length > 0 &&
-           structure.value !== null &&
-           states.value.length > 0 &&
-           metadata.value.authors.length > 0 &&
-           metadata.value.license !== ''
+      structure.value !== null &&
+      states.value.length > 0 &&
+      metadata.value.authors.length > 0 &&
+      metadata.value.license !== ''
   })
 
   // Actions
@@ -208,91 +208,127 @@ export const useDatasetStore = defineStore('dataset', () => {
     return false
   }
 
-  function loadTestData() {
-    // Mock session ID
-    sessionId.value = 'test-session-' + crypto.randomUUID()
+  async function loadTestData() {
+    // Clear existing data first
+    uploadedFiles.value = []
+    states.value = []
 
-    // Mock uploaded files
-    uploadedFiles.value = [
-      {
-        id: 'file-1',
-        filename: 'test_data.csv',
-        size: 1024,
-        fileType: 'data',
-        uploadedAt: new Date().toISOString()
-      },
-      {
-        id: 'file-2',
-        filename: 'protein_structure.pdb',
-        size: 2048,
-        fileType: 'structure',
-        uploadedAt: new Date().toISOString()
+    // Create a new session via the backend
+    try {
+      const sessionResponse = await fetch('/api/files/session', {
+        method: 'POST'
+      })
+      if (sessionResponse.ok) {
+        const sessionData = await sessionResponse.json()
+        sessionId.value = sessionData.session_id
+        console.log('Created session:', sessionId.value)
       }
-    ]
+    } catch (error) {
+      console.error('Failed to create session:', error)
+      return
+    }
+
+    // Fetch and upload the actual CSV file to the backend
+    try {
+      const response = await fetch('/test-data/ecSecB_apo.csv')
+      if (response.ok) {
+        const blob = await response.blob()
+        const file = new File([blob], 'ecSecB_apo.csv', { type: 'text/csv' })
+
+        // Create FormData to upload the file
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('session_id', sessionId.value)
+        formData.append('file_type', 'data')
+
+        // Upload to backend
+        const uploadResponse = await fetch('/api/files/upload', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (uploadResponse.ok) {
+          const backendResponse = await uploadResponse.json()
+          console.log('CSV file uploaded successfully; backend response (TEST):', backendResponse)
+
+          // Transform backend response (snake_case) to frontend format (camelCase)
+          const uploadedFile: UploadedFile = {
+            id: backendResponse.id,
+            filename: backendResponse.filename,
+            size: backendResponse.size,
+            detectedFormat: backendResponse.detected_format,
+            confirmedFormat: backendResponse.confirmed_format,
+            fileType: backendResponse.file_type
+          }
+
+          // Add to uploaded files using the same method as the UI
+          addUploadedFile(uploadedFile)
+        } else {
+          const errorText = await uploadResponse.text()
+          console.error('Failed to upload CSV file:', errorText)
+          alert(`Failed to upload CSV file: ${errorText}`)
+          return
+        }
+      }
+    } catch (error) {
+      console.error('Could not fetch and upload test CSV file:', error)
+      alert(`Error uploading CSV: ${error}`)
+      return
+    }
+
+    // Mock uploaded structure file
+    addUploadedFile({
+      id: 'file-structure-' + crypto.randomUUID(),
+      filename: 'protein_structure.pdb',
+      size: 2048,
+      fileType: 'structure',
+      detectedFormat: null,
+      confirmedFormat: null
+    })
+
+    // Get the uploaded data file
+    const dataFile = uploadedFiles.value.find(f => f.fileType === 'data')
+    const dataFileId = dataFile?.id || ''
+    const detectedFormat = dataFile?.detectedFormat || dataFile?.confirmedFormat || ''
 
     // Mock protein identifiers
     proteinIdentifiers.value = {
-      uniprotId: 'P12345',
-      name: 'Test Protein',
-      organism: 'Homo sapiens'
+      uniprotId: 'P0AG86',
+      name: 'SecB',
+      organism: 'Escherichia coli'
     }
 
     // Mock structure
     structure.value = {
-      fileId: 'file-2',
+      fileId: uploadedFiles.value.find(f => f.fileType === 'structure')?.id || '',
       format: 'pdb',
-      description: 'Crystal structure of test protein'
+      description: 'Crystal structure of SecB'
     }
 
     // Mock states with peptides
     const state1Id = crypto.randomUUID()
-    const state2Id = crypto.randomUUID()
 
     states.value = [
       {
         id: state1Id,
-        name: 'Apo state',
-        description: 'Protein without ligand',
+        name: 'SecB WT apo',
+        description: 'Wild-type SecB in apo state',
         proteinState: {
-          sequence: 'MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEKAVQVKVKALPDAQFEVVHSLAKWKRQTLGQHDFSAGEGLYTHMKALRPDEDRLSPLHSVYVDQWDWERVMGDGERQFSTLKSTVEAIWAGIKATEAAVSEEFGLAPFLPDQIHFVHSQELLSRYPDLDAKGRERAIAKDLGAVFLVGIGGKLSDGHRHDVRAPDYDDWSTPSELGHAGLNGDILVWNPVLEDAFELSSMGIRVDADTLKHQLALTGDEDRLELEWHQALLRGEMPQTIGGGIGQSRLTMLLLQLPHIGQVQAGVWPAAVRESVPSLL',
+          sequence: 'MEKLFTVERLDGQIINSR',
           nTerm: 1,
-          cTerm: 289
+          cTerm: 155
         },
         peptides: [
           {
             id: crypto.randomUUID(),
-            dataFileId: 'file-1',
-            dataFormat: 'DynamX_v3_state',
+            dataFileId: dataFileId,
+            dataFormat: detectedFormat,
             deuterationType: 'partially_deuterated',
-            pH: 7.4,
+            pH: 7.5,
             temperature: 293.15,
             dPercentage: 95.0,
-            filters: {},
+            filters: { state: 'SecB WT apo' },
             chain: ['A']
-          }
-        ]
-      },
-      {
-        id: state2Id,
-        name: 'Holo state',
-        description: 'Protein with ligand bound',
-        proteinState: {
-          sequence: 'MKTAYIAKQRQISFVKSHFSRQLEERLGLIEVQAPILSRVGDGTQDNLSGAEKAVQVKVKALPDAQFEVVHSLAKWKRQTLGQHDFSAGEGLYTHMKALRPDEDRLSPLHSVYVDQWDWERVMGDGERQFSTLKSTVEAIWAGIKATEAAVSEEFGLAPFLPDQIHFVHSQELLSRYPDLDAKGRERAIAKDLGAVFLVGIGGKLSDGHRHDVRAPDYDDWSTPSELGHAGLNGDILVWNPVLEDAFELSSMGIRVDADTLKHQLALTGDEDRLELEWHQALLRGEMPQTIGGGIGQSRLTMLLLQLPHIGQVQAGVWPAAVRESVPSLL',
-          nTerm: 1,
-          cTerm: 289,
-          oligomericState: 2
-        },
-        peptides: [
-          {
-            id: crypto.randomUUID(),
-            dataFileId: 'file-1',
-            dataFormat: 'HDExaminer_v3',
-            deuterationType: 'partially_deuterated',
-            pH: 7.4,
-            temperature: 293.15,
-            dPercentage: 95.0,
-            filters: {},
-            chain: ['A', 'B']
           }
         ]
       }
