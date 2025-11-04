@@ -15,7 +15,9 @@ from hdxms_datasets.verification import verify_dataset
 
 
 CATALOG_FILE = "datasets_catalog.csv"
-DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
+DATABASE_URL = (
+    "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
+)
 KNOWN_HDX_IDS = set[str]()
 
 
@@ -91,7 +93,9 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     data_dir.mkdir(exist_ok=True, parents=True)
 
     # copy the sequence file
-    shutil.copy(ds_copy.structure.data_file, data_dir / ds_copy.structure.data_file.name)
+    shutil.copy(
+        ds_copy.structure.data_file, data_dir / ds_copy.structure.data_file.name
+    )
     # the the path to the copied file relative path
     ds_copy.structure.data_file = Path("data") / ds_copy.structure.data_file.name
 
@@ -107,7 +111,9 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     Path(tgt_dir / "dataset.json").write_text(s)
 
 
-def generate_datasets_catalog(database_dir: Path, save_csv: bool = True) -> nw.DataFrame:
+def generate_datasets_catalog(
+    database_dir: Path, save_csv: bool = True
+) -> nw.DataFrame:
     """
     Generate an overview DataFrame of all datasets in the database directory.
     """
@@ -144,7 +150,9 @@ def find_file_hash_matches(dataset: HDXDataSet, database_dir: Path) -> list[str]
     Check if a new dataset matches an existing dataset in the database directory.
     """
     try:
-        catalog = nw.read_csv(str(database_dir / "datasets_catalog.csv"), backend=BACKEND)
+        catalog = nw.read_csv(
+            str(database_dir / "datasets_catalog.csv"), backend=BACKEND
+        )
     except FileNotFoundError:
         return []
 
@@ -193,7 +201,9 @@ def submit_dataset(
         matches = find_file_hash_matches(dataset_copy, database_dir)
         if matches:
             if len(matches) == 1:
-                msg = f"Dataset matches an existing dataset in the database: {matches[0]}"
+                msg = (
+                    f"Dataset matches an existing dataset in the database: {matches[0]}"
+                )
             else:
                 msg = f"Dataset matches existing datasets in the database: {', '.join(matches)}"
             return False, msg
@@ -205,7 +215,10 @@ def submit_dataset(
             dataset_id = mint_new_dataset_id(existing_ids)
             dataset_copy.hdx_id = dataset_id
         else:
-            return False, f"Dataset ID {dataset_copy.hdx_id} already exists in the database."
+            return (
+                False,
+                f"Dataset ID {dataset_copy.hdx_id} already exists in the database.",
+            )
     else:
         dataset_id = dataset_copy.hdx_id
 
@@ -224,7 +237,7 @@ def submit_dataset(
     # TODO: update instead of regenerate
     # TODO: lockfile? https://github.com/harlowja/fasteners
     # TODO: at the moment this also reads all the datasets again
-    generate_datasets_catalog(database_dir, save_csv=True)
+    # generate_datasets_catalog(database_dir, save_csv=True)
 
     return True, dataset_id
 
@@ -331,7 +344,9 @@ class RemoteDataBase(DataBase):
             return False, f"Error validating dataset JSON: {e}"
 
         # create a list of all Path objects in the dataset plus the dataset.json file
-        data_files = list(set(extract_values_by_types(dataset, Path))) + [Path("dataset.json")]
+        data_files = list(set(extract_values_by_types(dataset, Path))) + [
+            Path("dataset.json")
+        ]
 
         # create the target directory to store the dataset
         output_pth = self.database_dir / data_id
