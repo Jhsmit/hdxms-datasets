@@ -71,26 +71,20 @@
 
           <div class="form-group">
             <label>Data File *</label>
-            <select v-model="peptide.dataFileId">
-              <option value="">Select file...</option>
-              <option v-for="file in store.dataFiles" :key="file.id" :value="file.id">
-                {{ file.filename }}
-              </option>
-            </select>
+            <div class="file-select-with-badge">
+              <select v-model="peptide.dataFileId">
+                <option value="">Select file...</option>
+                <option v-for="file in store.dataFiles" :key="file.id" :value="file.id">
+                  {{ file.filename }}
+                </option>
+              </select>
+              <span v-if="getSelectedFileFormat(peptide.dataFileId)" class="badge">
+                {{ getSelectedFileFormat(peptide.dataFileId) }}
+              </span>
+            </div>
           </div>
 
           <div class="form-row">
-            <div class="form-group">
-              <label>Format *</label>
-              <select v-model="peptide.dataFormat">
-                <option value="">Auto-detect</option>
-                <option value="DynamX_v3_state">DynamX v3 (State)</option>
-                <option value="DynamX_v3_cluster">DynamX v3 (Cluster)</option>
-                <option value="HDExaminer_v3">HDExaminer v3</option>
-                <option value="OpenHDX">OpenHDX</option>
-              </select>
-            </div>
-
             <div class="form-group">
               <label>Deuteration Type *</label>
               <select v-model="peptide.deuterationType">
@@ -98,6 +92,26 @@
                 <option value="fully_deuterated">Fully Deuterated</option>
                 <option value="non_deuterated">Non-Deuterated</option>
               </select>
+            </div>
+
+            <div class="form-group">
+              <label>Structure Mapping (Optional)</label>
+              <select
+                v-model="peptide.structureMappingId"
+                :disabled="store.structureMappings.length === 0"
+              >
+                <option :value="undefined">None</option>
+                <option
+                  v-for="mapping in store.structureMappings"
+                  :key="mapping.id"
+                  :value="mapping.id"
+                >
+                  {{ mapping.name }}
+                </option>
+              </select>
+              <span v-if="store.structureMappings.length === 0" class="hint">
+                No structure mappings defined. Add mappings in Step 2 if needed.
+              </span>
             </div>
           </div>
 
@@ -115,26 +129,6 @@
               <input v-model.number="peptide.dPercentage" type="number" placeholder="90.0" />
             </div>
           </div>
-
-          <div class="form-group">
-            <label>Structure Mapping (Optional)</label>
-            <select
-              v-model="peptide.structureMappingId"
-              :disabled="store.structureMappings.length === 0"
-            >
-              <option :value="undefined">None</option>
-              <option
-                v-for="mapping in store.structureMappings"
-                :key="mapping.id"
-                :value="mapping.id"
-              >
-                {{ mapping.name }}
-              </option>
-            </select>
-            <span v-if="store.structureMappings.length === 0" class="hint">
-              No structure mappings defined. Add mappings in Step 2 if needed.
-            </span>
-          </div>
         </div>
       </div>
     </div>
@@ -150,6 +144,12 @@ const collapsedStates = ref<Record<string, boolean>>({})
 
 const toggleState = (stateId: string) => {
   collapsedStates.value[stateId] = !collapsedStates.value[stateId]
+}
+
+const getSelectedFileFormat = (fileId: string): string | null => {
+  if (!fileId) return null
+  const file = store.dataFiles.find((f) => f.id === fileId)
+  return file?.detectedFormat || null
 }
 </script>
 
@@ -256,5 +256,24 @@ h4 {
 select:disabled {
   background-color: #e9ecef;
   cursor: not-allowed;
+}
+
+.file-select-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-select-with-badge select {
+  flex: 1;
+}
+
+.badge {
+  background: #007bff;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 </style>
