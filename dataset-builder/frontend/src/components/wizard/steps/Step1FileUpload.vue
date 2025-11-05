@@ -78,6 +78,40 @@
           <button class="danger" @click="removeFile(file.id)">Remove</button>
         </div>
       </div>
+
+      <div v-if="store.structureFiles.length > 0" class="structure-metadata-form">
+        <h4>Structure Information (Optional)</h4>
+        <div class="form-group">
+          <label for="structure-description">Description</label>
+          <textarea
+            id="structure-description"
+            v-model="structureDescription"
+            placeholder="Brief description of the structure"
+            rows="2"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pdb-id">PDB ID</label>
+            <input
+              id="pdb-id"
+              v-model="pdbId"
+              type="text"
+              placeholder="e.g., 1ABC"
+              maxlength="4"
+            />
+          </div>
+          <div class="form-group">
+            <label for="alphafold-id">AlphaFold ID</label>
+            <input
+              id="alphafold-id"
+              v-model="alphafoldId"
+              type="text"
+              placeholder="e.g., AF-P12345-F1"
+            />
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-if="uploading" class="upload-progress">
@@ -91,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
 import { apiService } from '@/services/api'
 import type { DataframeInfo } from '@/types/dataset'
@@ -100,6 +134,11 @@ const store = useDatasetStore()
 const uploading = ref(false)
 const error = ref('')
 const dataframeInfoMap = ref<Map<string, DataframeInfo | 'loading' | 'error'>>(new Map())
+
+// Structure metadata refs
+const structureDescription = ref('')
+const pdbId = ref('')
+const alphafoldId = ref('')
 
 const handleFileSelect = async (event: Event, fileType: 'data' | 'structure') => {
   const target = event.target as HTMLInputElement
@@ -190,6 +229,47 @@ const getDataframeSizeText = (fileId: string): string => {
   return formatDataframeSize(info.shape.rows, info.shape.columns)
 }
 
+// Watch structure metadata changes and update store
+watch([structureDescription, pdbId, alphafoldId], () => {
+  if (store.structureFiles.length > 0) {
+    const structureFile = store.structureFiles[0]
+    const fileExtension = structureFile.filename.split('.').pop()?.toLowerCase()
+    const format = fileExtension === 'cif' ? 'cif' : 'pdb'
+
+    store.structure = {
+      fileId: structureFile.id,
+      format: format,
+      description: structureDescription.value || undefined,
+      pdbId: pdbId.value || undefined,
+      alphafoldId: alphafoldId.value || undefined
+    }
+  }
+})
+
+// Watch for structure file changes and initialize metadata
+watch(() => store.structureFiles, (newFiles) => {
+  if (newFiles.length > 0 && !store.structure) {
+    // Initialize structure in store when file is uploaded
+    const structureFile = newFiles[0]
+    const fileExtension = structureFile.filename.split('.').pop()?.toLowerCase()
+    const format = fileExtension === 'cif' ? 'cif' : 'pdb'
+
+    store.structure = {
+      fileId: structureFile.id,
+      format: format,
+      description: structureDescription.value || undefined,
+      pdbId: pdbId.value || undefined,
+      alphafoldId: alphafoldId.value || undefined
+    }
+  } else if (newFiles.length === 0) {
+    // Clear structure data when file is removed
+    store.structure = null
+    structureDescription.value = ''
+    pdbId.value = ''
+    alphafoldId.value = ''
+  }
+}, { deep: true })
+
 // Load dataframe info for existing data files on mount
 onMounted(() => {
   store.dataFiles.forEach(file => {
@@ -197,6 +277,13 @@ onMounted(() => {
       loadDataframeInfo(file.id)
     }
   })
+
+  // Load existing structure metadata from store
+  if (store.structure) {
+    structureDescription.value = store.structure.description || ''
+    pdbId.value = store.structure.pdbId || ''
+    alphafoldId.value = store.structure.alphafoldId || ''
+  }
 })
 </script>
 
@@ -302,5 +389,67 @@ h2 {
   text-align: center;
   padding: 20px;
   color: #007bff;
+}
+
+.structure-metadata-form {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.structure-metadata-form h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #495057;
+  font-size: 16px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
