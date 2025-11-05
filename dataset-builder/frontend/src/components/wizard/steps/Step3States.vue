@@ -2,7 +2,7 @@
   <div class="step-content">
     <div class="step-header">
       <div>
-        <h2>Step 4: Define States</h2>
+        <h2>Step 3: Define States</h2>
         <p>Define protein states and their peptides</p>
       </div>
       <button class="primary" @click="store.addState()">+ Add State</button>
