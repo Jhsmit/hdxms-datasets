@@ -88,10 +88,10 @@
           <div class="form-group">
             <label>Chains (comma-separated)</label>
             <input
-              :value="mapping.chain?.join(', ') || ''"
+              v-model="chainInputs[mapping.id]"
               type="text"
-              placeholder="e.g., A, B"
-              @input="updateChains(mapping.id, ($event.target as HTMLInputElement).value)"
+              placeholder="e.g., A, B, C"
+              @input="(e) => updateChains(mapping.id, (e.target as HTMLInputElement).value)"
             />
           </div>
         </div>
@@ -141,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, reactive } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
 
 const store = useDatasetStore()
@@ -154,7 +154,8 @@ const proteinIdentifiers = ref({
   proteinName: ''
 })
 
-
+// Local chain input values (not controlled by store directly)
+const chainInputs = reactive<Record<string, string>>({})
 
 // Watch protein identifiers and save to store
 watch(proteinIdentifiers, () => {
@@ -174,8 +175,19 @@ function updateMapping(mappingId: string) {
 }
 
 function updateChains(mappingId: string, value: string) {
+  chainInputs[mappingId] = value
   const chains = value.split(',').map(c => c.trim()).filter(c => c.length > 0)
   store.updateStructureMapping(mappingId, { chain: chains.length > 0 ? chains : undefined })
+}
+
+function getChainInput(mappingId: string): string {
+  if (chainInputs[mappingId] !== undefined) {
+    return chainInputs[mappingId]
+  }
+  const mapping = store.structureMappings.find(m => m.id === mappingId)
+  const value = mapping?.chain?.join(', ') || ''
+  chainInputs[mappingId] = value
+  return value
 }
 
 // Load existing data from store on mount
