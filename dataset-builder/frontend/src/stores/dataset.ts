@@ -4,6 +4,7 @@ import type {
   UploadedFile,
   ProteinIdentifiers,
   StructureData,
+  StructureMapping,
   StateData,
   MetadataData,
   PeptideData,
@@ -17,6 +18,7 @@ export const useDatasetStore = defineStore('dataset', () => {
   const uploadedFiles = ref<UploadedFile[]>([])
   const proteinIdentifiers = ref<ProteinIdentifiers>({})
   const structure = ref<StructureData | null>(null)
+  const structureMappings = ref<StructureMapping[]>([])
   const states = ref<StateData[]>([])
   const metadata = ref<MetadataData>({
     authors: [],
@@ -169,12 +171,44 @@ export const useDatasetStore = defineStore('dataset', () => {
     metadata.value.authors.splice(index, 1)
   }
 
+  function addStructureMapping() {
+    const newMapping: StructureMapping = {
+      id: crypto.randomUUID(),
+      name: `Mapping ${structureMappings.value.length + 1}`,
+      residueOffset: 0,
+      authResidueNumbers: false,
+      authChainLabels: false
+    }
+    structureMappings.value.push(newMapping)
+  }
+
+  function removeStructureMapping(mappingId: string) {
+    structureMappings.value = structureMappings.value.filter(m => m.id !== mappingId)
+
+    // Remove references to this mapping from all peptides
+    states.value.forEach(state => {
+      state.peptides.forEach(peptide => {
+        if (peptide.structureMappingId === mappingId) {
+          peptide.structureMappingId = undefined
+        }
+      })
+    })
+  }
+
+  function updateStructureMapping(mappingId: string, updates: Partial<StructureMapping>) {
+    const index = structureMappings.value.findIndex(m => m.id === mappingId)
+    if (index !== -1) {
+      structureMappings.value[index] = { ...structureMappings.value[index], ...updates }
+    }
+  }
+
   function reset() {
     sessionId.value = ''
     currentStep.value = 1
     uploadedFiles.value = []
     proteinIdentifiers.value = {}
     structure.value = null
+    structureMappings.value = []
     states.value = []
     metadata.value = {
       authors: [],
@@ -191,6 +225,7 @@ export const useDatasetStore = defineStore('dataset', () => {
       uploadedFiles: uploadedFiles.value,
       proteinIdentifiers: proteinIdentifiers.value,
       structure: structure.value,
+      structureMappings: structureMappings.value,
       states: states.value,
       metadata: metadata.value,
       datasetDescription: datasetDescription.value
@@ -208,6 +243,7 @@ export const useDatasetStore = defineStore('dataset', () => {
         uploadedFiles.value = data.uploadedFiles || []
         proteinIdentifiers.value = data.proteinIdentifiers || {}
         structure.value = data.structure || null
+        structureMappings.value = data.structureMappings || []
         states.value = data.states || []
         metadata.value = data.metadata || { authors: [], license: 'CC0' }
         datasetDescription.value = data.datasetDescription || ''
@@ -383,6 +419,7 @@ export const useDatasetStore = defineStore('dataset', () => {
     uploadedFiles,
     proteinIdentifiers,
     structure,
+    structureMappings,
     states,
     metadata,
     datasetDescription,
@@ -406,6 +443,9 @@ export const useDatasetStore = defineStore('dataset', () => {
     addPeptide,
     removePeptide,
     updatePeptide,
+    addStructureMapping,
+    removeStructureMapping,
+    updateStructureMapping,
     addAuthor,
     removeAuthor,
     reset,

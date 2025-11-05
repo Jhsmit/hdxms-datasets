@@ -115,6 +115,26 @@
               <input v-model.number="peptide.dPercentage" type="number" placeholder="90.0" />
             </div>
           </div>
+
+          <div class="form-group">
+            <label>Structure Mapping (Optional)</label>
+            <select
+              v-model="peptide.structureMappingId"
+              :disabled="store.structureMappings.length === 0"
+            >
+              <option :value="undefined">None</option>
+              <option
+                v-for="mapping in store.structureMappings"
+                :key="mapping.id"
+                :value="mapping.id"
+              >
+                {{ mapping.name }}
+              </option>
+            </select>
+            <span v-if="store.structureMappings.length === 0" class="hint">
+              No structure mappings defined. Add mappings in Step 2 if needed.
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -223,5 +243,18 @@ const toggleState = (stateId: string) => {
 h4 {
   margin: 20px 0 10px 0;
   color: #007bff;
+}
+
+.hint {
+  display: block;
+  margin-top: 5px;
+  color: #6c757d;
+  font-size: 12px;
+  font-style: italic;
+}
+
+select:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
 }
 </style>

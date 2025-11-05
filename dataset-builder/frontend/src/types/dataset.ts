@@ -29,6 +29,16 @@ export interface StructureData {
   alphafoldId?: string
 }
 
+export interface StructureMapping {
+  id: string
+  name: string
+  entityId?: string
+  chain?: string[]
+  residueOffset: number
+  authResidueNumbers: boolean
+  authChainLabels: boolean
+}
+
 export interface PeptideData {
   id: string
   dataFileId: string
@@ -39,6 +49,7 @@ export interface PeptideData {
   temperature?: number
   dPercentage?: number
   chain: string[]
+  structureMappingId?: string
 }
 
 export interface ProteinState {
