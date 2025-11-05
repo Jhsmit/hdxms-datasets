@@ -129,6 +129,26 @@
               <input v-model.number="peptide.dPercentage" type="number" placeholder="90.0" />
             </div>
           </div>
+
+          <!-- Filter Section -->
+          <div v-if="shouldShowFilters(peptide)" class="filters-section">
+            <h5>Data Filters</h5>
+            <p class="filter-hint">
+              Select which rows from the data file to include based on column values
+            </p>
+            <div
+              v-for="columnName in getFilterColumnsForPeptide(peptide)"
+              :key="columnName"
+              class="filter-item"
+            >
+              <FilterSelector
+                :label="columnName"
+                :options="getMockOptionsForColumn(columnName)"
+                :model-value="getPeptideFilterValues(peptide, columnName)"
+                @update:model-value="(values) => updatePeptideFilter(state.id, peptide.id, columnName, values)"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -138,6 +158,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
+import FilterSelector from '@/components/wizard/FilterSelector.vue'
+import { getFilterColumns, getMockFilterOptions, hasFilters } from '@/utils/formatFilters'
 
 const store = useDatasetStore()
 const collapsedStates = ref<Record<string, boolean>>({})
@@ -150,6 +172,36 @@ const getSelectedFileFormat = (fileId: string): string | null => {
   if (!fileId) return null
   const file = store.dataFiles.find((f) => f.id === fileId)
   return file?.detectedFormat || null
+}
+
+const getFilterColumnsForPeptide = (peptide: any) => {
+  const format = getSelectedFileFormat(peptide.dataFileId)
+  return getFilterColumns(format)
+}
+
+const getMockOptionsForColumn = (columnName: string) => {
+  return getMockFilterOptions(columnName)
+}
+
+const updatePeptideFilter = (stateId: string, peptideId: string, columnName: string, values: string[]) => {
+  const state = store.states.find(s => s.id === stateId)
+  if (state) {
+    const peptide = state.peptides.find(p => p.id === peptideId)
+    if (peptide) {
+      // Update the filters object
+      const updatedFilters = { ...peptide.filters, [columnName]: values }
+      store.updatePeptide(stateId, peptideId, { filters: updatedFilters })
+    }
+  }
+}
+
+const getPeptideFilterValues = (peptide: any, columnName: string): string[] => {
+  return peptide.filters?.[columnName] || []
+}
+
+const shouldShowFilters = (peptide: any) => {
+  const format = getSelectedFileFormat(peptide.dataFileId)
+  return format && hasFilters(format)
 }
 </script>
 
@@ -275,5 +327,29 @@ select:disabled {
   border-radius: 4px;
   font-size: 12px;
   white-space: nowrap;
+}
+
+.filters-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.filters-section h5 {
+  margin: 0 0 5px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filter-hint {
+  margin: 0 0 15px 0;
+  color: #6c757d;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.filter-item {
+  margin-bottom: 10px;
 }
 </style>
