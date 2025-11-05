@@ -15,7 +15,7 @@
           style="display: none"
         />
         <p>Drag and drop data files here or</p>
-        <button class="primary" @click="$refs.dataFileInput.click()">
+        <button class="primary" @click="dataFileInput?.click()">
           Browse Files
         </button>
       </div>
@@ -61,7 +61,7 @@
           style="display: none"
         />
         <p>Drag and drop structure file here or</p>
-        <button class="primary" @click="$refs.structureFileInput.click()">
+        <button class="primary" @click="structureFileInput?.click()">
           Browse File
         </button>
       </div>
@@ -125,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
 import { apiService } from '@/services/api'
 import type { DataframeInfo } from '@/types/dataset'
@@ -134,6 +134,10 @@ const store = useDatasetStore()
 const uploading = ref(false)
 const error = ref('')
 const dataframeInfoMap = ref<Map<string, DataframeInfo | 'loading' | 'error'>>(new Map())
+
+// Element refs for hidden file inputs (typed for TS)
+const dataFileInput = ref<HTMLInputElement | null>(null)
+const structureFileInput = ref<HTMLInputElement | null>(null)
 
 // Structure metadata refs
 const structureDescription = ref('')
