@@ -34,7 +34,7 @@
       </button>
 
       <button
-        v-if="store.currentStep < 6"
+        v-if="store.currentStep < 5"
         class="primary"
         @click="store.nextStep()"
         :disabled="!store.canProceed"
@@ -58,21 +58,19 @@
 import { computed } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
 import Step1FileUpload from './steps/Step1FileUpload.vue'
-import Step2ProteinInfo from './steps/Step2ProteinInfo.vue'
-import Step3Structure from './steps/Step3Structure.vue'
-import Step4States from './steps/Step4States.vue'
-import Step5Metadata from './steps/Step5Metadata.vue'
-import Step6Review from './steps/Step6Review.vue'
+import Step2ProteinStructure from './steps/Step2ProteinStructure.vue'
+import Step3States from './steps/Step3States.vue'
+import Step4Metadata from './steps/Step4Metadata.vue'
+import Step5Review from './steps/Step5Review.vue'
 
 const store = useDatasetStore()
 
 const steps = [
   { number: 1, label: 'Upload Files' },
-  { number: 2, label: 'Protein Info' },
-  { number: 3, label: 'Structure' },
-  { number: 4, label: 'States' },
-  { number: 5, label: 'Metadata' },
-  { number: 6, label: 'Review' }
+  { number: 2, label: 'Protein & Structure' },
+  { number: 3, label: 'States' },
+  { number: 4, label: 'Metadata' },
+  { number: 5, label: 'Review' }
 ]
 
 const canAccessStep = (stepNumber: number) => {
@@ -87,11 +85,10 @@ const handleStepClick = (stepNumber: number) => {
 
 const stepComponents = {
   1: Step1FileUpload,
-  2: Step2ProteinInfo,
-  3: Step3Structure,
-  4: Step4States,
-  5: Step5Metadata,
-  6: Step6Review
+  2: Step2ProteinStructure,
+  3: Step3States,
+  4: Step4Metadata,
+  5: Step5Review
 }
 
 const currentStepComponent = computed(() => {

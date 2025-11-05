@@ -41,24 +41,21 @@ export const useDatasetStore = defineStore('dataset', () => {
     if (dataFiles.value.length === 0 || structureFiles.value.length === 0) return maxStep
     maxStep = 2
 
-    // Step 3 requires protein identifiers (optional, always allow)
+    // Step 3 requires structure to be defined
+    if (structure.value === null) return maxStep
     maxStep = 3
 
-    // Step 4 requires structure to be defined
-    if (structure.value === null) return maxStep
-    maxStep = 4
-
-    // Step 5 requires states with peptides
+    // Step 4 requires states with peptides
     const hasValidStates = states.value.length > 0 &&
                           states.value.every((s: StateData) => s.peptides.length > 0)
     if (!hasValidStates) return maxStep
-    maxStep = 5
+    maxStep = 4
 
-    // Step 6 requires metadata
+    // Step 5 requires metadata
     const hasValidMetadata = metadata.value.authors.length > 0 &&
                             metadata.value.license !== ''
     if (!hasValidMetadata) return maxStep
-    maxStep = 6
+    maxStep = 5
 
     return maxStep
   })
@@ -77,7 +74,7 @@ export const useDatasetStore = defineStore('dataset', () => {
 
   // Actions
   function nextStep() {
-    if (canProceed.value && currentStep.value < 6) {
+    if (canProceed.value && currentStep.value < 5) {
       currentStep.value++
     }
   }
@@ -89,7 +86,7 @@ export const useDatasetStore = defineStore('dataset', () => {
   }
 
   function goToStep(step: number) {
-    if (step >= 1 && step <= 6) {
+    if (step >= 1 && step <= 5) {
       currentStep.value = step
     }
   }
