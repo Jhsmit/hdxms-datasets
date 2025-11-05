@@ -65,7 +65,7 @@
 
         <div v-for="(peptide, pIndex) in state.peptides" :key="peptide.id" class="peptide-card">
           <div class="peptide-header">
-            <strong>Peptide {{ pIndex + 1 }}</strong>
+            <strong>Peptides {{ pIndex + 1 }}</strong>
             <button class="danger" @click="store.removePeptide(state.id, peptide.id)">Remove</button>
           </div>
 
@@ -117,15 +117,15 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>pH</label>
-              <input v-model.number="peptide.pH" type="number" step="0.1" placeholder="8.0" />
+              <label>pH read</label>
+              <input v-model.number="peptide.pH" type="number" placeholder="8.0" />
             </div>
             <div class="form-group">
               <label>Temperature (K)</label>
               <input v-model.number="peptide.temperature" type="number" placeholder="303.15" />
             </div>
             <div class="form-group">
-              <label>D%</label>
+              <label>Percentage D</label>
               <input v-model.number="peptide.dPercentage" type="number" placeholder="90.0" />
             </div>
           </div>
