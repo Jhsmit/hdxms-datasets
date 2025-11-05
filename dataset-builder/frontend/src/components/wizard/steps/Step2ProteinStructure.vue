@@ -123,8 +123,8 @@ const handleStructureFileChange = () => {
 // Watch protein identifiers and save to store
 watch(proteinIdentifiers, () => {
   store.proteinIdentifiers = {
-    uniprotAccession: proteinIdentifiers.value.uniprotAccession || undefined,
-    uniprotEntry: proteinIdentifiers.value.uniprotEntry || undefined,
+    uniprotAccessionNumber: proteinIdentifiers.value.uniprotAccession || undefined,
+    uniprotEntryName: proteinIdentifiers.value.uniprotEntry || undefined,
     proteinName: proteinIdentifiers.value.proteinName || undefined
   }
 }, { deep: true })
@@ -162,8 +162,8 @@ onMounted(() => {
   // Load protein identifiers
   if (store.proteinIdentifiers) {
     proteinIdentifiers.value = {
-      uniprotAccession: store.proteinIdentifiers.uniprotAccession || '',
-      uniprotEntry: store.proteinIdentifiers.uniprotEntry || '',
+      uniprotAccession: store.proteinIdentifiers.uniprotAccessionNumber || '',
+      uniprotEntry: store.proteinIdentifiers.uniprotEntryName || '',
       proteinName: store.proteinIdentifiers.proteinName || ''
     }
   }
