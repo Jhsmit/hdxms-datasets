@@ -44,11 +44,11 @@ export interface PeptideData {
   dataFileId: string
   dataFormat: string
   deuterationType: 'partially_deuterated' | 'fully_deuterated' | 'non_deuterated'
-  filters: Record<string, any>
+  filters: Map<string, any>
   pH?: number
   temperature?: number
   dPercentage?: number
-  chain: string[]
+  chain: string[] //TODO: unused
   structureMappingId?: string
 }
 

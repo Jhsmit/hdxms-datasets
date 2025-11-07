@@ -143,10 +143,13 @@
             >
               <FilterSelector
                 :label="columnName"
-                :options="getMockOptionsForColumn(columnName)"
+                :options="getOptionsForColumn(peptide, columnName)"
                 :model-value="getPeptideFilterValues(peptide, columnName)"
                 @update:model-value="(values) => updatePeptideFilter(state.id, peptide.id, columnName, values)"
               />
+            </div>
+            <div v-if="loadingFilters[peptide.id]" class="loading-hint">
+              Loading filter options...
             </div>
           </div>
         </div>
@@ -156,13 +159,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useDatasetStore } from '@/stores/dataset'
 import FilterSelector from '@/components/wizard/FilterSelector.vue'
-import { getFilterColumns, getMockFilterOptions, hasFilters } from '@/utils/formatFilters'
+import { getFilterColumns, fetchFilterOptions, hasFilters } from '@/utils/formatFilters'
 
 const store = useDatasetStore()
 const collapsedStates = ref<Record<string, boolean>>({})
+
+// Store filter options for each peptide: peptideId -> { columnName: string[] }
+const filterOptionsCache = ref<Record<string, Record<string, string[]>>>({})
+
+// Track loading state for each peptide
+const loadingFilters = ref<Record<string, boolean>>({})
+
+// Track which peptides we've loaded options for (to avoid re-triggering on unrelated changes)
+const loadedPeptideFiles = ref<Record<string, string>>({})
 
 const toggleState = (stateId: string) => {
   collapsedStates.value[stateId] = !collapsedStates.value[stateId]
@@ -179,18 +191,27 @@ const getFilterColumnsForPeptide = (peptide: any) => {
   return getFilterColumns(format)
 }
 
-const getMockOptionsForColumn = (columnName: string) => {
-  return getMockFilterOptions(columnName)
+const getOptionsForColumn = (peptide: any, columnName: string): string[] => {
+  const options = filterOptionsCache.value[peptide.id]?.[columnName] || []
+  return options
 }
 
-const updatePeptideFilter = (stateId: string, peptideId: string, columnName: string, values: string[]) => {
-  const state = store.states.find(s => s.id === stateId)
+const updatePeptideFilter = async (
+  stateId: string,
+  peptideId: string,
+  columnName: string,
+  values: string[]
+) => {
+  const state = store.states.find((s) => s.id === stateId)
   if (state) {
-    const peptide = state.peptides.find(p => p.id === peptideId)
+    const peptide = state.peptides.find((p) => p.id === peptideId)
     if (peptide) {
       // Update the filters object
       const updatedFilters = { ...peptide.filters, [columnName]: values }
       store.updatePeptide(stateId, peptideId, { filters: updatedFilters })
+
+      // Refresh filter options with cascading behavior
+      await loadFilterOptions(peptide)
     }
   }
 }
@@ -203,6 +224,51 @@ const shouldShowFilters = (peptide: any) => {
   const format = getSelectedFileFormat(peptide.dataFileId)
   return format && hasFilters(format)
 }
+
+const loadFilterOptions = async (peptide: any) => {
+  if (!peptide.dataFileId || !store.sessionId) return
+
+  const format = getSelectedFileFormat(peptide.dataFileId)
+  if (!format || !hasFilters(format)) return
+
+  loadingFilters.value[peptide.id] = true
+
+  try {
+    // Fetch filter options considering current filter selections
+    const options = await fetchFilterOptions(store.sessionId, peptide.dataFileId, peptide.filters || {})
+    console.log('Fetched filter options for peptide', peptide.id, options, peptide, peptide.filters)
+    filterOptionsCache.value[peptide.id] = options
+    // Track that we've loaded options for this peptide's file
+    loadedPeptideFiles.value[peptide.id] = peptide.dataFileId
+  } catch (error) {
+    console.error('Failed to load filter options:', error)
+    // Keep existing options on error
+  } finally {
+    loadingFilters.value[peptide.id] = false
+  }
+}
+
+// Watch for changes to peptides and load filter options only when dataFileId changes
+watch(
+  () => store.states,
+  (newStates) => {
+    newStates.forEach((state) => {
+      state.peptides.forEach((peptide) => {
+        // Only load if:
+        // 1. Peptide has a dataFileId
+        // 2. AND we haven't loaded options for this peptide yet
+        // 3. OR the dataFileId has changed from what we previously loaded
+        if (
+          peptide.dataFileId &&
+          loadedPeptideFiles.value[peptide.id] !== peptide.dataFileId
+        ) {
+          loadFilterOptions(peptide)
+        }
+      })
+    })
+  },
+  { deep: true, immediate: true }
+)
 </script>
 
 <style scoped>
@@ -351,5 +417,17 @@ select:disabled {
 
 .filter-item {
   margin-bottom: 10px;
+}
+
+.loading-hint {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #f0f8ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 4px;
+  color: #0066cc;
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
 }
 </style>
