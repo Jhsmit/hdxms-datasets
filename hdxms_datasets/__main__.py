@@ -34,6 +34,7 @@ def generate_template_script(
     num_states: int = 1,
     ph: float = 7.5,
     temperature: float = 293.15,
+    d_percentage: float = 90.0,
 ) -> str:
     """Generate a minimal create_dataset.py script based on user choices."""
 
@@ -63,7 +64,7 @@ states.append(
                 filters={{}},  # Add filters as needed, e.g. {{"State": "WT", "Exposure": [0.5, 1.0, 10.0]}}
                 pH={ph},  # pH as read with the pH meter
                 temperature={temperature},  # Temperature in Kelvin
-                d_percentage=90.0,  # Deuterium percentage
+                d_percentage={d_percentage},  # Deuterium percentage
                 structure_mapping=mapping,  # Adjust chain and offset as needed
             ),
             Peptides(
@@ -71,7 +72,7 @@ states.append(
                 data_format=PeptideFormat.{data_format.value},
                 deuteration_type=DeuterationType.fully_deuterated,
                 filters={{}},  # Add filters as needed, e.g. {{"State": "Fully Deuterated", "Exposure": "0.167"}}
-                d_percentage=90.0,  # Deuterium percentage
+                d_percentage={d_percentage},  # Deuterium percentage
                 structure_mapping=mapping,
             ),
             Peptides(
@@ -120,7 +121,7 @@ cwd = Path(__file__).parent
 # Directory containing your raw data files
 data_dir = cwd / "data"
 
-# Directory where the dataset will be published (parent/<HDX_ID>/output)
+# Directory where the dataset will be published (parent/output/<HDX_ID>)
 database_dir = cwd.parent / "output"
 database_dir.mkdir(exist_ok=True)
 
@@ -150,14 +151,12 @@ mapping = StructureMapping(chain=["A"], residue_offset=0)  # Adjust chain and of
 # This section defines the protein states and which peptides belong to the state
 # Add or remove peptide types as needed. The format supports multiple peptides of the same type
 # for example for multi pH/temperature datasets.
+# Filters can be used to select the relevant rows from your data file
+# Leave empty to select all rows.
 
 states = []
 {states_blocks}
 
-# List of peptide groups corresponding to each state
-# Each inner list contains Peptides objects for that state
-# Filters can be used to select the relevant rows from your data file
-# Leave empty to select all rows.
 
 # =============================================================================
 # METADATA: Publication and author information
@@ -195,8 +194,9 @@ dataset = HDXDataSet(  # type: ignore[call-arg]
 # =============================================================================
 success, msg_or_id = submit_dataset(dataset, database_dir, allow_mint_new_id=False)
 if success:
-    print(f"✓ Dataset submitted successfully with ID: {{msg_or_id}}")
+    print(f"✓ Dataset created successfully with ID: {{msg_or_id}}")
     print(f"  Dataset location: {{database_dir / msg_or_id}}")
+    print("Create a pull request with your dataset to contribute it to the public database.")
 else:
     print(f"✗ Failed to submit dataset: {{msg_or_id}}")
 '''
@@ -214,7 +214,7 @@ def create(
         None,
         "--short-name",
         "-s",
-        help="Optional short name to append to the timestamp folder name",
+        help="Optional short name to append to the timestamp folder name. Suggested name is 'authorname_proteinname'",
     ),
     num_states: int = typer.Option(
         1,
@@ -238,6 +238,12 @@ def create(
         "--temperature",
         "-t",
         help="Experimental temperature in Kelvin (default: 293.15 K = 20°C)",
+    ),
+    d_percentage: float = typer.Option(
+        90.0,
+        "--d-percentage",
+        "-dperc",
+        help="Deuterium percentage of the labeling solution (default: 90.0)",
     ),
     database_dir: Path = typer.Option(
         None,
@@ -309,6 +315,7 @@ def create(
         num_states=num_states,
         ph=ph,
         temperature=temperature,
+        d_percentage=d_percentage,
     )
 
     script_path = dataset_dir / "create_dataset.py"
