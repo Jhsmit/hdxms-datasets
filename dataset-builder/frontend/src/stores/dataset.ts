@@ -49,13 +49,13 @@ export const useDatasetStore = defineStore('dataset', () => {
 
     // Step 4 requires states with peptides
     const hasValidStates = states.value.length > 0 &&
-                          states.value.every((s: StateData) => s.peptides.length > 0)
+      states.value.every((s: StateData) => s.peptides.length > 0)
     if (!hasValidStates) return maxStep
     maxStep = 4
 
     // Step 5 requires metadata
     const hasValidMetadata = metadata.value.authors.length > 0 &&
-                            metadata.value.license !== ''
+      metadata.value.license !== ''
     if (!hasValidMetadata) return maxStep
     maxStep = 5
 
@@ -157,6 +157,20 @@ export const useDatasetStore = defineStore('dataset', () => {
         state.peptides[peptideIndex] = { ...state.peptides[peptideIndex], ...updates }
       }
     }
+  }
+
+  function updatePeptideFilter(stateId: string, peptideId: string, columnName: string, values: string[]) {
+    const state = states.value.find(s => s.id === stateId)
+    if (state) {
+      const peptide = state.peptides.find(p => p.id === peptideId)
+      if (peptide) {
+        // Update the filters Record
+        const updatedFilters = { ...peptide.filters, [columnName]: values }
+        peptide.filters = updatedFilters
+        return peptide
+      }
+    }
+    return null
   }
 
   function addAuthor() {
@@ -261,7 +275,7 @@ export const useDatasetStore = defineStore('dataset', () => {
     filename: string,
     mimeType: string,
     fileType: 'data' | 'structure'
-  // @ts-ignore - False positive: ES2020 includes Promise support
+    // @ts-ignore - False positive: ES2020 includes Promise support
   ): Promise<boolean> {
     try {
       const response = await fetch(url)
@@ -382,7 +396,7 @@ export const useDatasetStore = defineStore('dataset', () => {
             pH: 7.5,
             temperature: 293.15,
             dPercentage: 95.0,
-            filters: { state: 'SecB WT apo' },
+            filters: { state: ['SecB WT apo'] },
             chain: ['A']
           }
         ]
@@ -443,6 +457,7 @@ export const useDatasetStore = defineStore('dataset', () => {
     addPeptide,
     removePeptide,
     updatePeptide,
+    updatePeptideFilter,
     addStructureMapping,
     removeStructureMapping,
     updateStructureMapping,
