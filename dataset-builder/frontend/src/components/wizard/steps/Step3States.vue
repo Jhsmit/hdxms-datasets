@@ -196,26 +196,22 @@ const getOptionsForColumn = (peptide: any, columnName: string): string[] => {
   return options
 }
 
+// updater filter from UI
 const updatePeptideFilter = async (
   stateId: string,
   peptideId: string,
   columnName: string,
   values: string[]
 ) => {
-  const state = store.states.find((s) => s.id === stateId)
-  if (state) {
-    const peptide = state.peptides.find((p) => p.id === peptideId)
-    if (peptide) {
-      // Update the filters object
-      const updatedFilters = { ...peptide.filters, [columnName]: values }
-      store.updatePeptide(stateId, peptideId, { filters: updatedFilters })
+  // Update the peptide and get the updated peptide object
+  const peptide = store.updatePeptideFilter(stateId, peptideId, columnName, values)
 
-      // Refresh filter options with cascading behavior
-      await loadFilterOptions(peptide)
-    }
+  if (peptide) {
+    // Refresh filter options with cascading behavior
+    await loadFilterOptions(peptide)
   }
 }
-
+// get current values for UI
 const getPeptideFilterValues = (peptide: any, columnName: string): string[] => {
   return peptide.filters?.[columnName] || []
 }
