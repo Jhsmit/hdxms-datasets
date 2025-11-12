@@ -120,7 +120,7 @@ FORMATS = [
             "RT",
             "RT SD",
         ],
-        filter_columns=["Protein", "Exposure"],
+        filter_columns=["Protein", "State", "Exposure"],
         converter=from_dynamx_state,
         aggregated=True,
     ),
@@ -167,7 +167,7 @@ FORMATS = [
             "Inten",
             "Center",
         ],
-        filter_columns=["State", "Exposure"],  # filter by 'Protein' field?
+        filter_columns=["Protein", "State", "Exposure"],  # filter by 'Protein' field?
         converter=from_dynamx_cluster,
         aggregated=False,
     ),
