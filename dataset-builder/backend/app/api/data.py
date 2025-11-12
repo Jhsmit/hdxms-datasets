@@ -238,7 +238,7 @@ async def get_filter_options(
             return values
 
     def serialize_values(values: list) -> list:
-        """Convert values to JSON-serializable strings."""
+        """Convert values to JSON-serializable strings and sort them."""
         serialized = []
         for val in values:
             if val is None:
@@ -247,7 +247,20 @@ async def get_filter_options(
                 serialized.append("inf" if val > 0 else "-inf")
             else:
                 serialized.append(str(val))
-        return serialized
+
+        # Sort the values - try numeric sort first, fall back to string sort
+        try:
+            # Attempt to sort numerically
+            sorted_vals = sorted(
+                serialized,
+                key=lambda x: float(x)
+                if x not in [None, "inf", "-inf"]
+                else (float("inf") if x == "inf" else (float("-inf") if x == "-inf" else 0)),
+            )
+            return sorted_vals
+        except (ValueError, TypeError):
+            # Fall back to string sorting if numeric fails
+            return sorted(serialized, key=lambda x: (x is None, x))
 
     try:
         # For each filter column, compute available options considering only EARLIER filters
