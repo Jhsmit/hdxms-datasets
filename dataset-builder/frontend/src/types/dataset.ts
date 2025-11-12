@@ -44,7 +44,7 @@ export interface PeptideData {
   dataFileId: string
   dataFormat: string
   deuterationType: 'partially_deuterated' | 'fully_deuterated' | 'non_deuterated'
-  filters: Map<string, any>
+  filters: Record<string, any>
   pH?: number
   temperature?: number
   dPercentage?: number
