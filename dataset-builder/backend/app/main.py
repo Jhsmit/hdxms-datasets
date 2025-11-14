@@ -32,7 +32,7 @@ async def root():
     return {"message": "HDX-MS Dataset Builder API", "docs": "/docs", "version": "0.1.0"}
 
 
-@app.get("/health")
+@app.get("/api/health")
 async def health():
     return {"status": "healthy"}
 
