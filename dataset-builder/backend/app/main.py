@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import files, validation, generation, data
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 app = FastAPI(
     title="HDX-MS Dataset Builder API",
     description="API for creating HDX-MS datasets",
-    version="0.1.0"
+    version="0.1.0",
 )
 
 # Configure CORS - permissive for development
@@ -15,7 +17,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
+    expose_headers=["*"],
 )
 
 # Include routers
@@ -25,15 +27,17 @@ app.include_router(validation.router, prefix="/api/validate", tags=["validation"
 app.include_router(generation.router, prefix="/api/generate", tags=["generation"])
 
 
-@app.get("/")
+@app.get("/api")
 async def root():
-    return {
-        "message": "HDX-MS Dataset Builder API",
-        "docs": "/docs",
-        "version": "0.1.0"
-    }
+    return {"message": "HDX-MS Dataset Builder API", "docs": "/docs", "version": "0.1.0"}
 
 
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
+
+
+# Serve frontend static files (production only)
+frontend_dist = Path(__file__).parent.parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
