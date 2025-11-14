@@ -3,21 +3,27 @@
     <header class="app-header">
       <h1>HDX-MS Dataset Builder</h1>
       <p>Create standardized HDX-MS datasets with ease</p>
-      <div v-if="isDev" class="dev-buttons">
-        <button
-          class="test-data-button"
-          @click="loadTestData"
-          title="Load test data for development"
-        >
-          Load Test Data
-        </button>
-        <button
-          class="clear-data-button"
-          @click="clearData"
-          title="Clear all data"
-        >
-          Clear Data
-        </button>
+      <div v-if="isDev" class="dev-controls">
+        <div class="session-info" v-if="store.sessionId">
+          <span class="session-label">Session ID:</span>
+          <code class="session-id">{{ store.sessionId }}</code>
+        </div>
+        <div class="dev-buttons">
+          <button
+            class="test-data-button"
+            @click="loadTestData"
+            title="Load test data for development"
+          >
+            Load Test Data
+          </button>
+          <button
+            class="clear-data-button"
+            @click="clearData"
+            title="Clear all data"
+          >
+            Clear Data
+          </button>
+        </div>
       </div>
     </header>
 
@@ -106,10 +112,42 @@ onMounted(async () => {
   opacity: 0.9;
 }
 
-.dev-buttons {
+.dev-controls {
   position: absolute;
   top: 20px;
   right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.session-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.session-label {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.session-id {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dev-buttons {
   display: flex;
   gap: 10px;
 }
