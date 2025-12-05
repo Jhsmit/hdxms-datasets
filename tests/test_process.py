@@ -14,13 +14,12 @@ DATA_ID_CLUSTER_SECA = "HDX_3BAE2080"
 DATA_ID_STATE_SECA = "HDX_C1198C76"
 
 
-# Creating a DataVault without giving a cache path name uses $home/.hdxms_datasets by default
-vault = DataBase(TEST_PTH / "datasets")
+db = DataBase(TEST_PTH / "datasets")
 
 
 def test_load_convert_cluster():
     """Load and compare to saved result"""
-    dataset = vault.load_dataset(DATA_ID_CLUSTER_SECA)
+    dataset = db.load_dataset(DATA_ID_CLUSTER_SECA)
 
     state = dataset.get_state(0)
     merged = merge_peptides(state.peptides)
@@ -33,7 +32,7 @@ def test_load_convert_cluster():
 
 def test_load_convert_state():
     """Load and compare to saved result"""
-    dataset = vault.load_dataset(DATA_ID_STATE_SECA)
+    dataset = db.load_dataset(DATA_ID_STATE_SECA)
 
     state = dataset.get_state(0)
     merged = merge_peptides(state.peptides)
