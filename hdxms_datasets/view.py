@@ -218,7 +218,7 @@ class StructureView:
         return self
 
     def get_query_param(self, resi: int, **kwargs):
-        resi = resi + self.mapping.residue_offset
+        resi = self.mapping.map(resi)
 
         # TODO entity support
         c_dict = {
@@ -229,8 +229,8 @@ class StructureView:
         return c_dict
 
     def get_query_param_range(self, start: int, end: int, **kwargs):
-        start = start + self.mapping.residue_offset
-        end = end + self.mapping.residue_offset
+        start = self.mapping.map(start)
+        end = self.mapping.map(end)
 
         # TODO entity support
         c_dict = {
