@@ -22,13 +22,20 @@ def verify_peptides(dataset: HDXDataSet):
     for state in dataset.states:
         sequence = state.protein_state.sequence
         for i, peptides in enumerate(state.peptides):
-            peptide_table = peptides.load()
+            try:
+                peptide_table = peptides.load()
+            except Exception as e:
+                raise ValueError(
+                    f"State: {state.name}, Peptides[{i}] failed to load: {e}"
+                )
             try:
                 mismatches = verify_sequence(
                     peptide_table, sequence, n_term=state.protein_state.n_term
                 )
             except IndexError as e:
-                raise IndexError(f"State: {state.name}, Peptides[{i}] has an index error: {e}")
+                raise IndexError(
+                    f"State: {state.name}, Peptides[{i}] has an index error: {e}"
+                )
             if mismatches:
                 raise ValueError(
                     f"State: {state.name}, Peptides[{i}] does not match protein sequence, mismatches: {mismatches}"
@@ -116,7 +123,10 @@ def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
         .with_columns(
             [
                 pl.col("resi"),
-                pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA"),
+                pl.col("resn")
+                .replace_strict(one_to_three)
+                .str.to_uppercase()
+                .alias("resn_TLA"),
             ]
         )
     )
@@ -136,7 +146,12 @@ def residue_df_from_sequence(
     residue_df = (
         pl.DataFrame({"resn": list(sequence)})
         .with_columns(
-            [pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA")]
+            [
+                pl.col("resn")
+                .replace_strict(one_to_three)
+                .str.to_uppercase()
+                .alias("resn_TLA")
+            ]
         )
         .with_row_index(offset=n_term, name="resi")
     )
@@ -162,7 +177,9 @@ def build_structure_peptides_comparison(
 
     # apply residue offset to peptides
     residue_df = residue_df.with_columns(
-        (pl.col("resi") + peptides.structure_mapping.residue_offset).cast(str).alias("resi")
+        (pl.col("resi") + peptides.structure_mapping.residue_offset)
+        .cast(str)
+        .alias("resi")
     )
 
     chains = (
