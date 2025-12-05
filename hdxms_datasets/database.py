@@ -15,9 +15,7 @@ from hdxms_datasets.verification import verify_dataset
 
 
 CATALOG_FILE = "datasets_catalog.csv"
-DATABASE_URL = (
-    "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
-)
+DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
 KNOWN_HDX_IDS = set[str]()
 
 
@@ -93,9 +91,7 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     data_dir.mkdir(exist_ok=True, parents=True)
 
     # copy the sequence file
-    shutil.copy(
-        ds_copy.structure.data_file, data_dir / ds_copy.structure.data_file.name
-    )
+    shutil.copy(ds_copy.structure.data_file, data_dir / ds_copy.structure.data_file.name)
     # the the path to the copied file relative path
     ds_copy.structure.data_file = Path("data") / ds_copy.structure.data_file.name
 
@@ -146,9 +142,7 @@ def find_file_hash_matches(dataset: HDXDataSet, database_dir: Path) -> list[str]
     Check if a new dataset matches an existing dataset in the database directory.
     """
     try:
-        catalog = nw.read_csv(
-            str(database_dir / "datasets_catalog.csv"), backend=BACKEND
-        )
+        catalog = nw.read_csv(str(database_dir / "datasets_catalog.csv"), backend=BACKEND)
     except FileNotFoundError:
         return []
 
@@ -198,9 +192,7 @@ def submit_dataset(
         matches = find_file_hash_matches(dataset_copy, database_dir)
         if matches:
             if len(matches) == 1:
-                msg = (
-                    f"Dataset matches an existing dataset in the database: {matches[0]}"
-                )
+                msg = f"Dataset matches an existing dataset in the database: {matches[0]}"
             else:
                 msg = f"Dataset matches existing datasets in the database: {', '.join(matches)}"
             return False, msg
@@ -257,17 +249,8 @@ class DataBase:
 
         return (path / "dataset.json").exists()
 
-    def clear_cache(self) -> None:
-        for dir in self.database_dir.iterdir():
-            shutil.rmtree(dir)
-
     def load_dataset(self, dataset_id: str) -> HDXDataSet:
-        dataset_root = self.database_dir / dataset_id
-        dataset = HDXDataSet.model_validate_json(
-            Path(dataset_root, "dataset.json").read_text(),
-            context={"dataset_root": dataset_root},
-        )
-        return dataset
+        return load_dataset(self.database_dir / dataset_id)
 
 
 class RemoteDataBase(DataBase):
@@ -313,6 +296,11 @@ class RemoteDataBase(DataBase):
         """List of available datasets in the local database directory"""
         return self.datasets
 
+    def clear(self) -> None:
+        """Clear all datasets from the local database directory"""
+        for dir in self.database_dir.iterdir():
+            shutil.rmtree(dir)
+
     def fetch_dataset(self, data_id: str) -> tuple[bool, str]:
         """
         Download a dataset from the online repository to `database_dir`
@@ -341,9 +329,7 @@ class RemoteDataBase(DataBase):
             return False, f"Error validating dataset JSON: {e}"
 
         # create a list of all Path objects in the dataset plus the dataset.json file
-        data_files = list(set(extract_values_by_types(dataset, Path))) + [
-            Path("dataset.json")
-        ]
+        data_files = list(set(extract_values_by_types(dataset, Path))) + [Path("dataset.json")]
 
         # create the target directory to store the dataset
         output_pth = self.database_dir / data_id
