@@ -2,12 +2,13 @@ from __future__ import annotations
 from hdxms_datasets.models import HDXDataSet, Peptides, Structure, StructureMapping
 from hdxms_datasets.utils import reconstruct_sequence, verify_sequence
 from typing import TYPE_CHECKING, Literal, TypedDict, overload
+from packaging.version import Version
 
 if TYPE_CHECKING:
     import polars as pl
 
 
-def verify_dataset(dataset: HDXDataSet):
+def verify_dataset(dataset: HDXDataSet, strict: bool = True):
     """Verify the integrity of the dataset by checking sequences and data files."""
     verify_peptides(dataset)
     if not datafiles_exist(dataset):
@@ -15,6 +16,29 @@ def verify_dataset(dataset: HDXDataSet):
 
     if dataset.file_hash is None:
         raise ValueError("Dataset file hash is not set")
+
+    if strict:
+        verify_version(dataset)
+
+
+def verify_version(dataset: HDXDataSet):
+    """Verify that the dataset was created with a pep 440 compliant version."""
+    ver_str = dataset.metadata.package_version
+
+    v = Version(ver_str)  # type: ignore
+
+    if v.pre:
+        raise ValueError(
+            f"A pre-release version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+    if v.dev:
+        raise ValueError(
+            f"A development version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+    if v.local:
+        raise ValueError(
+            f"A local version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
 
 
 def verify_peptides(dataset: HDXDataSet):
@@ -25,17 +49,13 @@ def verify_peptides(dataset: HDXDataSet):
             try:
                 peptide_table = peptides.load()
             except Exception as e:
-                raise ValueError(
-                    f"State: {state.name}, Peptides[{i}] failed to load: {e}"
-                )
+                raise ValueError(f"State: {state.name}, Peptides[{i}] failed to load: {e}")
             try:
                 mismatches = verify_sequence(
                     peptide_table, sequence, n_term=state.protein_state.n_term
                 )
             except IndexError as e:
-                raise IndexError(
-                    f"State: {state.name}, Peptides[{i}] has an index error: {e}"
-                )
+                raise IndexError(f"State: {state.name}, Peptides[{i}] has an index error: {e}")
             if mismatches:
                 raise ValueError(
                     f"State: {state.name}, Peptides[{i}] does not match protein sequence, mismatches: {mismatches}"
@@ -123,10 +143,7 @@ def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
         .with_columns(
             [
                 pl.col("resi"),
-                pl.col("resn")
-                .replace_strict(one_to_three)
-                .str.to_uppercase()
-                .alias("resn_TLA"),
+                pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA"),
             ]
         )
     )
@@ -146,12 +163,7 @@ def residue_df_from_sequence(
     residue_df = (
         pl.DataFrame({"resn": list(sequence)})
         .with_columns(
-            [
-                pl.col("resn")
-                .replace_strict(one_to_three)
-                .str.to_uppercase()
-                .alias("resn_TLA")
-            ]
+            [pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA")]
         )
         .with_row_index(offset=n_term, name="resi")
     )
@@ -177,9 +189,7 @@ def build_structure_peptides_comparison(
 
     # apply residue offset to peptides
     residue_df = residue_df.with_columns(
-        (pl.col("resi") + peptides.structure_mapping.residue_offset)
-        .cast(str)
-        .alias("resi")
+        (pl.col("resi") + peptides.structure_mapping.residue_offset).cast(str).alias("resi")
     )
 
     chains = (

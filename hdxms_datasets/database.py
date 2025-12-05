@@ -158,6 +158,7 @@ def submit_dataset(
     allow_mint_new_id: bool = False,
     check_existing: bool = True,
     verify: bool = True,
+    strict: bool = True,
 ) -> tuple[bool, str]:
     """
     Submit a dataset to a local HDX-MS database.
@@ -168,6 +169,7 @@ def submit_dataset(
         allow_mint_new_id: If True, allows minting a new dataset ID if it is already present in the database.
         check_existing: If True, checks if the dataset already exists in the database.
         verify: If True, verifies the dataset before submission.
+        strict: If True, performs strict verification of the dataset.
 
     Returns:
         A tuple (success: bool, message: str):
@@ -180,7 +182,7 @@ def submit_dataset(
     dataset_copy = dataset.model_copy(deep=True)
 
     if verify:
-        verify_dataset(dataset_copy)
+        verify_dataset(dataset_copy, strict=strict)
 
     if not database_dir.is_absolute():
         raise ValueError("Database directory must be an absolute path.")
