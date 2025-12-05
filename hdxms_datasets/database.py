@@ -111,9 +111,7 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     Path(tgt_dir / "dataset.json").write_text(s)
 
 
-def generate_datasets_catalog(
-    database_dir: Path, save_csv: bool = True
-) -> nw.DataFrame:
+def generate_datasets_catalog(database_dir: Path) -> nw.DataFrame:
     """
     Generate an overview DataFrame of all datasets in the database directory.
     """
@@ -139,8 +137,6 @@ def generate_datasets_catalog(
             )
 
     df = nw.from_dict(records_to_dict(records), backend=BACKEND)
-    if save_csv:
-        df.write_csv(database_dir / "datasets_catalog.csv")
 
     return df
 
@@ -186,6 +182,7 @@ def submit_dataset(
 
     """
 
+    # copy the datasets in case we need to update the ID
     dataset_copy = dataset.model_copy(deep=True)
 
     if verify:
