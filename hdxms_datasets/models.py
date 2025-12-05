@@ -183,11 +183,17 @@ class DeuterationType(str, Enum):
 
 
 class StructureMapping(BaseModel):
-    """Maps peptide HDX-MS data to a structure"""
+    """Maps peptide HDX-MS data to a structure
+
+    Residue numbers can be mapped from HDX-MS data to a structure using either an residue number
+    offset or a specific dictionary mapping.
+
+    """
 
     entity_id: Annotated[Optional[str], Field(None, description="Entity identifier")] = None
     chain: Annotated[Optional[list[str]], Field(None, description="Chain identifiers")] = None
     residue_offset: Annotated[int, Field(None, description="Residue number offset to apply")] = 0
+    mapping: dict[int, int] = Field(default_factory=dict, description="Residue number mapping")
 
     auth_residue_numbers: Annotated[
         bool, Field(default=False, description="Use author residue numbers")
@@ -195,6 +201,15 @@ class StructureMapping(BaseModel):
     auth_chain_labels: Annotated[
         bool, Field(default=False, description="Use author chain labels")
     ] = False
+
+    def map(self, residue_number: int) -> int:
+        """Map a residue number using the mapping dictionary and offset"""
+        if self.residue_offset:
+            return residue_number + self.residue_offset
+        elif self.mapping:
+            return self.mapping.get(residue_number, residue_number)
+        else:
+            return residue_number
 
 
 class Peptides(BaseModel):
