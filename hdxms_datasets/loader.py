@@ -253,7 +253,7 @@ def parse_hxms_lines(lines: Iterable[str], read_content: bool = True) -> HXMSRes
 
     # check read columns against expected columns
     if columns:
-        expected_columns = list(HXMS_DTYPES)[: len(columns)] + ["sequence"]
+        expected_columns = list(HXMS_DTYPES)[: len(columns)]
         if columns != expected_columns:
             warnings.warn(
                 f"Columns in HXMS file do not match expected columns. "
