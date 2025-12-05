@@ -121,8 +121,8 @@ cwd = Path(__file__).parent
 # Directory containing your raw data files
 data_dir = cwd / "data"
 
-# Directory where the dataset will be published (parent/output/<HDX_ID>)
-database_dir = cwd.parent / "output"
+# Directory where the dataset will be published
+database_dir = cwd / "output"
 database_dir.mkdir(exist_ok=True)
 
 # =============================================================================
