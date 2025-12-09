@@ -138,23 +138,6 @@ time_map = {
 
 # %%
 
-pub = Publication(
-    title="Simple and Fast Maximally Deuterated Control (maxD) Preparation for Hydrogen-Deuterium Exchange Mass Spectrometry Experiments",
-    doi="10.1021/acs.analchem.2c01446",
-    url="https://pubs.acs.org/doi/10.1021/acs.analchem.2c01446",
-)
-
-# %%
-# Make sure to add the correct licsense for your dataset
-# If you are the author, you can choose any license you like
-# The preferred / default license is CC0
-metadata = DatasetMetadata(  # type: ignore[call-arg]
-    authors=[Author(name="Daniele Peterle", affiliation="Northeastern University")],
-    publication=pub,
-    license="CC BY-NC 4.0",
-    conversion_notes="Converted published Supplementary data",
-)
-
 protein_info = ProteinIdentifiers(
     uniprot_accession_number="P68082",
     uniprot_entry_name="MYG_HORSE",
@@ -238,10 +221,25 @@ state = State(
 
 # %%
 
+pub = Publication(
+    title="Simple and Fast Maximally Deuterated Control (maxD) Preparation for Hydrogen-Deuterium Exchange Mass Spectrometry Experiments",
+    doi="10.1021/acs.analchem.2c01446",
+    url="https://pubs.acs.org/doi/10.1021/acs.analchem.2c01446",
+)
+
+# Make sure to add the correct licsense for your dataset
+# If you are the author, you can choose any license you like
+# The preferred / default license is CC0
+
 dataset = HDXDataSet(  # type: ignore[call-arg]
     states=[state],
     description="1 Mb dataset from Peterle et al. 2022",
-    metadata=metadata,
+    metadata=DatasetMetadata(  # type: ignore[call-arg]
+        authors=[Author(name="Daniele Peterle", affiliation="Northeastern University")],
+        publication=pub,
+        license="CC BY-NC 4.0",
+        conversion_notes="Converted published Supplementary data",
+    ),
     protein_identifiers=protein_info,
     structure=structure,
 )

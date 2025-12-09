@@ -1,7 +1,7 @@
 """Top-level package for HDXMS Datasets."""
 
 from hdxms_datasets.__version__ import __version__
-from hdxms_datasets.database import DataBase, RemoteDataBase, load_dataset
+from hdxms_datasets.database import DataBase, RemoteDataBase, load_dataset, submit_dataset
 from hdxms_datasets.loader import load_peptides, read_csv
 from hdxms_datasets.models import (
     Author,
@@ -36,6 +36,7 @@ __all__ = [
     "DataBase",
     "RemoteDataBase",
     "load_dataset",
+    "submit_dataset",
     "load_peptides",
     "read_csv",
     "merge_peptides",

@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,11 +29,13 @@ jobs:
         with:
           name: req-artifact-${{ matrix.os }}-${{ matrix.python-version }}
           path: requirements-${{ matrix.os }}-${{ matrix.python-version }}.txt
+ 
+  
   merge:
     runs-on: ubuntu-latest
     needs: generate-requirements
     steps:
-      - name: Merge Artifacts
+      - name: Merge Requirements Artifacts
         uses: actions/upload-artifact/merge@v4
         with:
           name: all-requirements

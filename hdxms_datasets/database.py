@@ -107,7 +107,7 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     Path(tgt_dir / "dataset.json").write_text(s)
 
 
-def generate_datasets_catalog(database_dir: Path, save_csv: bool = True) -> nw.DataFrame:
+def generate_datasets_catalog(database_dir: Path) -> nw.DataFrame:
     """
     Generate an overview DataFrame of all datasets in the database directory.
     """
@@ -133,8 +133,6 @@ def generate_datasets_catalog(database_dir: Path, save_csv: bool = True) -> nw.D
             )
 
     df = nw.from_dict(records_to_dict(records), backend=BACKEND)
-    if save_csv:
-        df.write_csv(database_dir / "datasets_catalog.csv")
 
     return df
 
@@ -160,6 +158,7 @@ def submit_dataset(
     allow_mint_new_id: bool = False,
     check_existing: bool = True,
     verify: bool = True,
+    strict: bool = True,
 ) -> tuple[bool, str]:
     """
     Submit a dataset to a local HDX-MS database.
@@ -170,6 +169,7 @@ def submit_dataset(
         allow_mint_new_id: If True, allows minting a new dataset ID if it is already present in the database.
         check_existing: If True, checks if the dataset already exists in the database.
         verify: If True, verifies the dataset before submission.
+        strict: If True, performs strict verification of the dataset.
 
     Returns:
         A tuple (success: bool, message: str):
@@ -178,10 +178,11 @@ def submit_dataset(
 
     """
 
+    # copy the datasets in case we need to update the ID
     dataset_copy = dataset.model_copy(deep=True)
 
     if verify:
-        verify_dataset(dataset_copy)
+        verify_dataset(dataset_copy, strict=strict)
 
     if not database_dir.is_absolute():
         raise ValueError("Database directory must be an absolute path.")
@@ -205,7 +206,10 @@ def submit_dataset(
             dataset_id = mint_new_dataset_id(existing_ids)
             dataset_copy.hdx_id = dataset_id
         else:
-            return False, f"Dataset ID {dataset_copy.hdx_id} already exists in the database."
+            return (
+                False,
+                f"Dataset ID {dataset_copy.hdx_id} already exists in the database.",
+            )
     else:
         dataset_id = dataset_copy.hdx_id
 
@@ -223,7 +227,8 @@ def submit_dataset(
     # update the catalogue
     # TODO: update instead of regenerate
     # TODO: lockfile? https://github.com/harlowja/fasteners
-    generate_datasets_catalog(database_dir, save_csv=True)
+    # TODO: at the moment this also reads all the datasets again
+    # generate_datasets_catalog(database_dir, save_csv=True)
 
     return True, dataset_id
 
@@ -246,17 +251,8 @@ class DataBase:
 
         return (path / "dataset.json").exists()
 
-    def clear_cache(self) -> None:
-        for dir in self.database_dir.iterdir():
-            shutil.rmtree(dir)
-
     def load_dataset(self, dataset_id: str) -> HDXDataSet:
-        dataset_root = self.database_dir / dataset_id
-        dataset = HDXDataSet.model_validate_json(
-            Path(dataset_root, "dataset.json").read_text(),
-            context={"dataset_root": dataset_root},
-        )
-        return dataset
+        return load_dataset(self.database_dir / dataset_id)
 
 
 class RemoteDataBase(DataBase):
@@ -301,6 +297,11 @@ class RemoteDataBase(DataBase):
     def local_datasets(self) -> list[str]:
         """List of available datasets in the local database directory"""
         return self.datasets
+
+    def clear(self) -> None:
+        """Clear all datasets from the local database directory"""
+        for dir in self.database_dir.iterdir():
+            shutil.rmtree(dir)
 
     def fetch_dataset(self, data_id: str) -> tuple[bool, str]:
         """

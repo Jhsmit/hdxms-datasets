@@ -8,13 +8,13 @@ description = "Download and parse curated HDX-MS datasets"
 authors = [{ name = "Jochem Smit", email = "jhsmit@gmail.com" }]
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Science/Research",
 ]
 
@@ -26,6 +26,7 @@ dependencies = [
     'uncertainties',
     'numpy',
     'pydantic',
+    'typer>=0.9.0',
 ]
 
 dynamic = ["version"]
@@ -50,6 +51,9 @@ test = ["pytest>=7.2.0", "polars", "biopython"]
 [project.urls]
 Source = "https://github.com/Jhsmit/hdxms-datasets/"
 Documentation = "https://jhsmit.github.io/hdxms-datasets/"
+
+[project.scripts]
+hdxms-datasets = "hdxms_datasets.__main__:main"
 
 [tool.hatch.build]
 exclude = ["_versioneer.py"]

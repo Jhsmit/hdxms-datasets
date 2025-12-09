@@ -89,7 +89,13 @@ Standard deviation of the uptake value
 ## Calculated fields:
 These fields are derived from other fields defined in the above sections.
 
+### n_replicates
+added after data aggregation
+Total number of replicates that were aggregated together
 
+### n_clusters
+added after data aggregation
+Total number of isotopic clusters that were aggregated together. When replicates include multiple isotopic clusters (different charged states), this value will be larger than n_replicates.
 
 ### frac_fd_control (float)
 Fractional deuterium uptake with respect to fully deuterated control sample

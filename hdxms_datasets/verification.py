@@ -2,12 +2,13 @@ from __future__ import annotations
 from hdxms_datasets.models import HDXDataSet, Peptides, Structure, StructureMapping
 from hdxms_datasets.utils import reconstruct_sequence, verify_sequence
 from typing import TYPE_CHECKING, Literal, TypedDict, overload
+from packaging.version import Version
 
 if TYPE_CHECKING:
     import polars as pl
 
 
-def verify_dataset(dataset: HDXDataSet):
+def verify_dataset(dataset: HDXDataSet, strict: bool = True):
     """Verify the integrity of the dataset by checking sequences and data files."""
     verify_peptides(dataset)
     if not datafiles_exist(dataset):
@@ -16,13 +17,39 @@ def verify_dataset(dataset: HDXDataSet):
     if dataset.file_hash is None:
         raise ValueError("Dataset file hash is not set")
 
+    if strict:
+        verify_version(dataset)
+
+
+def verify_version(dataset: HDXDataSet):
+    """Verify that the dataset was created with a pep 440 compliant version."""
+    ver_str = dataset.metadata.package_version
+
+    v = Version(ver_str)  # type: ignore
+
+    if v.pre:
+        raise ValueError(
+            f"A pre-release version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+    if v.dev:
+        raise ValueError(
+            f"A development version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+    if v.local:
+        raise ValueError(
+            f"A local version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+
 
 def verify_peptides(dataset: HDXDataSet):
     """Verify that all peptide sequences match the protein sequence in the dataset states."""
     for state in dataset.states:
         sequence = state.protein_state.sequence
         for i, peptides in enumerate(state.peptides):
-            peptide_table = peptides.load()
+            try:
+                peptide_table = peptides.load()
+            except Exception as e:
+                raise ValueError(f"State: {state.name}, Peptides[{i}] failed to load: {e}")
             try:
                 mismatches = verify_sequence(
                     peptide_table, sequence, n_term=state.protein_state.n_term
