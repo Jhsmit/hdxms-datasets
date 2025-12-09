@@ -18,6 +18,7 @@ markdown_extensions:
   - codehilite
   - markdown.extensions.codehilite:
       guess_lang: false
+  - markdown.extensions.nl2br
 
 nav:
   - Overview: index.md
