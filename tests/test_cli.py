@@ -1,11 +1,18 @@
 """Tests for the CLI module."""
 
+import re
 from typer.testing import CliRunner
 
 from hdxms_datasets.__main__ import app, generate_template_script, DataFormat
 
 
 runner = CliRunner(env={"NO_COLOR": "1"})
+
+
+def strip_ansi_codes(text: str) -> str:
+    """Remove ANSI escape codes from text."""
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+    return ansi_escape.sub('', text)
 
 
 def test_generate_template_single_state():
@@ -47,16 +54,20 @@ def test_generate_template_multiple_states():
 def test_cli_create_help():
     """Test that help message works."""
     result = runner.invoke(app, ["create", "--help"], color=False)
+    # Strip ANSI codes for consistent testing across Python versions
+    stdout = strip_ansi_codes(result.stdout)
     assert result.exit_code == 0
-    assert "Create a new HDX-MS dataset" in result.stdout
-    assert "--num-states" in result.stdout
-    assert "--format" in result.stdout
-    assert "--ph" in result.stdout
-    assert "--temperature" in result.stdout
+    assert "Create a new HDX-MS dataset" in stdout
+    assert "--num-states" in stdout
+    assert "--format" in stdout
+    assert "--ph" in stdout
+    assert "--temperature" in stdout
 
 
 def test_app_help():
     """Test main app help."""
     result = runner.invoke(app, ["--help"], color=False)
+    # Strip ANSI codes for consistent testing across Python versions
+    stdout = strip_ansi_codes(result.stdout)
     assert result.exit_code == 0
-    assert "hdxms-datasets" in result.stdout
+    assert "hdxms-datasets" in stdout
