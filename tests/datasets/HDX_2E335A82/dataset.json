@@ -1,0 +1,281 @@
+{
+  "hdx_id": "HDX_2E335A82",
+  "description": "HDX-MS dataset for E. coli dihydrofolate reductase in apo and inhibitor-bound forms",
+  "states": [
+    {
+      "name": "ec_DHFR_WT",
+      "peptides": [
+        {
+          "data_file": "data/ecDHFR_2025-09-23_APO.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "TIME(Sec)": [
+              43.0,
+              46.0,
+              105.0,
+              373.0,
+              377.0,
+              378.0,
+              562.0,
+              563.0,
+              572.0,
+              573.0,
+              1072.0,
+              2002.0,
+              2003.0,
+              2011.0,
+              2012.0,
+              5071.0,
+              7760.0,
+              7763.0,
+              7771.0,
+              7772.0,
+              10071.0,
+              28885.0,
+              30812.0,
+              30813.0,
+              40071.0,
+              43291.0,
+              54073.0
+            ]
+          },
+          "pH": 7.0,
+          "temperature": 293.15,
+          "d_percentage": 90.0,
+          "structure_mapping": {
+            "chain": [
+              "A"
+            ],
+            "residue_offset": -15,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        },
+        {
+          "data_file": "data/ecDHFR_2025-09-23_APO.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "TIME(Sec)": 0.0
+          },
+          "structure_mapping": {
+            "residue_offset": 0,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        },
+        {
+          "data_file": "data/ecDHFR_2025-09-23_APO.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "TIME(Sec)": "Infinity"
+          },
+          "structure_mapping": {
+            "residue_offset": 0,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        }
+      ],
+      "description": "E. coli DHFR wild-type",
+      "protein_state": {
+        "sequence": "MTGHHHHHHENLYFQSISLIAALAVDRVIGMENAMPWNLPADLAWFKRNTLDKPVIMGRHTWESIGRPLPGRKNIILSSQPGTDDRVTWVKSVDEAIAACGDVPEIMVIGGGRVYEQFLPKAQKLYLTHIDAEVEGDTHFPDYEPDDWESVFSEFHDADAQNSHSYCFEILERR",
+        "n_term": 1,
+        "c_term": 174
+      }
+    },
+    {
+      "name": "ec_DHFR_metrotrexate",
+      "peptides": [
+        {
+          "data_file": "data/ecDHFR_2025-09-23_MTX.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "TIME(Sec)": [
+              42.0,
+              43.0,
+              104.0,
+              106.0,
+              261.0,
+              573.0,
+              1074.0,
+              1085.0,
+              1784.0,
+              5070.0,
+              10070.0,
+              11071.0,
+              18189.0,
+              40072.0,
+              54073.0
+            ]
+          },
+          "pH": 7.0,
+          "temperature": 293.15,
+          "d_percentage": 90.0,
+          "structure_mapping": {
+            "chain": [
+              "A"
+            ],
+            "residue_offset": -15,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        },
+        {
+          "data_file": "data/ecDHFR_2025-09-23_MTX.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "TIME(Sec)": 0.0
+          },
+          "structure_mapping": {
+            "residue_offset": 0,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        },
+        {
+          "data_file": "data/ecDHFR_2025-09-23_MTX.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "TIME(Sec)": "Infinity"
+          },
+          "structure_mapping": {
+            "residue_offset": 0,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        }
+      ],
+      "description": "E. coli DHFR in complex with metrotrexate",
+      "protein_state": {
+        "sequence": "MTGHHHHHHENLYFQSISLIAALAVDRVIGMENAMPWNLPADLAWFKRNTLDKPVIMGRHTWESIGRPLPGRKNIILSSQPGTDDRVTWVKSVDEAIAACGDVPEIMVIGGGRVYEQFLPKAQKLYLTHIDAEVEGDTHFPDYEPDDWESVFSEFHDADAQNSHSYCFEILERR",
+        "n_term": 1,
+        "c_term": 174,
+        "ligand": "metrotrexate"
+      }
+    },
+    {
+      "name": "ec_DHFR_trimethoprim",
+      "peptides": [
+        {
+          "data_file": "data/ecDHFR_2025-09-23_TRI.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "partially_deuterated",
+          "filters": {
+            "TIME(Sec)": [
+              46.0,
+              47.0,
+              374.0,
+              376.0,
+              378.0,
+              561.0,
+              564.0,
+              572.0,
+              573.0,
+              2001.0,
+              2003.0,
+              2011.0,
+              2013.0,
+              7760.0,
+              7763.0,
+              7771.0,
+              7773.0,
+              28883.0,
+              30810.0,
+              30812.0,
+              43292.0,
+              43293.0
+            ]
+          },
+          "pH": 7.0,
+          "temperature": 293.15,
+          "d_percentage": 90.0,
+          "structure_mapping": {
+            "chain": [
+              "A"
+            ],
+            "residue_offset": -15,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        },
+        {
+          "data_file": "data/ecDHFR_2025-09-23_TRI.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "non_deuterated",
+          "filters": {
+            "TIME(Sec)": 0.0
+          },
+          "structure_mapping": {
+            "residue_offset": 0,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        },
+        {
+          "data_file": "data/ecDHFR_2025-09-23_TRI.hxms",
+          "data_format": "HXMS",
+          "deuteration_type": "fully_deuterated",
+          "filters": {
+            "TIME(Sec)": "Infinity"
+          },
+          "structure_mapping": {
+            "residue_offset": 0,
+            "mapping": {},
+            "auth_residue_numbers": false,
+            "auth_chain_labels": false
+          }
+        }
+      ],
+      "description": "E. coli DHFR in complex with trimethoprim",
+      "protein_state": {
+        "sequence": "MTGHHHHHHENLYFQSISLIAALAVDRVIGMENAMPWNLPADLAWFKRNTLDKPVIMGRHTWESIGRPLPGRKNIILSSQPGTDDRVTWVKSVDEAIAACGDVPEIMVIGGGRVYEQFLPKAQKLYLTHIDAEVEGDTHFPDYEPDDWESVFSEFHDADAQNSHSYCFEILERR",
+        "n_term": 1,
+        "c_term": 174,
+        "ligand": "trimethoprim"
+      }
+    }
+  ],
+  "structure": {
+    "data_file": "data/6XG5.cif",
+    "format": "cif",
+    "description": "X-ray structure of Escherichia coli dihydrofolate reductase in complex with trimethoprim",
+    "pdb_id": "6XG5"
+  },
+  "protein_identifiers": {
+    "uniprot_accession_number": "P0ABQ4",
+    "uniprot_entry_name": "DYR_ECOLI"
+  },
+  "metadata": {
+    "authors": [
+      {
+        "name": "Andrew Reckers",
+        "orcid": "0000-0002-7567-8540",
+        "affiliation": "Department of Biochemistry and Molecular Biophysics, Columbia University Irving Medical Center, New York, NY, United States"
+      }
+    ],
+    "license": "CC BY 4.0",
+    "publication": {
+      "title": "HXMS: a standardized file format for HX/MS data",
+      "doi": "10.1101/2025.10.14.682397 "
+    },
+    "created_date": "2025-12-05T15:28:05.249972",
+    "modified_date": "2025-12-05T15:28:05.249977",
+    "package_version": "0.2.0+201.gf661a80",
+    "dataset_version": 1
+  },
+  "file_hash": "21c800b2b1129a32"
+}

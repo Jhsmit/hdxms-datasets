@@ -1,23 +1,32 @@
 from __future__ import annotations
 import itertools
-from typing import Sequence
+from typing import Optional
 from hdxms_datasets.utils import peptide_redundancy
-from hdxms_datasets.models import Peptides, Structure, ValueType
+from hdxms_datasets.models import Structure, StructureMapping, ValueType
 import narwhals as nw
 
 from hdxms_datasets.utils import contiguous_peptides, non_overlapping_peptides
 
 
 class StructureView:
-    def __init__(self, structure: Structure, hide_water=True, **kwargs: ValueType):
+    def __init__(
+        self,
+        structure: Structure,
+        mapping: StructureMapping = StructureMapping(),
+        hide_water=True,
+        **kwargs: dict,
+    ):
         """
         Initialize the PDBeMolstar visualization namespace.
+        Can uses a `StructureMapping` which relates peptides to the structure
 
         Args:
             structure: The structure to visualize.
+            mapping: Optional structure mapping information.
             **kwargs: Additional keyword arguments for customization.
         """
         self.structure = structure
+        self.mapping = mapping
 
         from ipymolstar import PDBeMolstar
 
@@ -27,48 +36,47 @@ class StructureView:
             **kwargs,
         )
 
-    @staticmethod
-    def resolve_peptides(peptides: Peptides | nw.DataFrame) -> nw.DataFrame:
-        """
-        Loads peptides as a DataFrame or returns the DataFrame.
-        """
-        if isinstance(peptides, Peptides):
-            df = peptides.load()
-        else:
-            df = peptides
-
-        return df
-
-    @staticmethod
-    def resolve_chain(peptides: Peptides | nw.DataFrame, chain: list[str] | None) -> list[str]:
-        """
-        Resolves the chain information from a Peptides object or a DataFrame.
-        """
-        if isinstance(chain, list):
-            return chain
-        elif isinstance(peptides, Peptides):
-            return peptides.chain if peptides.chain else []
-        else:
-            return []
-
-    def show(self) -> StructureView:
+    def show(self):
         return self.view
+
+    def highlight(self, resi: int) -> StructureView:
+        """
+        Highlights a residue in the structure.
+
+        Args:
+            resi: Residue number to highlight.
+
+        Returns:
+            The updated StructureView object.
+        """
+        param = self.get_query_param(resi)
+        data = self._augment_chain([param])
+        self.view.highlight = {"data": data}
+
+        return self
 
     def color_peptide(
         self,
         start: int,
         end: int,
-        chain: list[str] | None = None,
         color: str = "red",
         non_selected_color: str = "lightgray",
     ) -> StructureView:
-        c_dict = {
-            "start_" + self.structure.residue_name: int(start),
-            "end_" + self.structure.residue_name: int(end),
-            "color": color,
-        }
+        """
+        Color a peptide by start and end residue numbers.
 
-        data = self._augment_chain([c_dict], chain or [])
+        Args:
+            start: Start residue number.
+            end: End residue number.
+            color: Color for the peptide.
+            non_selected_color: Color for non-selected regions.
+
+        Returns:
+            The updated StructureView object.
+        """
+        kwargs = {"color": color}
+        param = self.get_query_param_range(start, end, **kwargs)
+        data = self._augment_chain([param])
 
         color_data = {
             "data": data,
@@ -82,35 +90,26 @@ class StructureView:
 
     def peptide_coverage(
         self,
-        peptides: Peptides | nw.DataFrame,
+        peptides: nw.DataFrame,
         color: str = "darkgreen",
-        chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
-    ) -> StructureView:
+    ):
         """
         Plots peptide coverage on the structure.
 
         Args:
             peptides: Peptides object or DataFrame containing peptide data.
             color: Color for the covered regions.
-            chain: List of chains to apply the coloring to.
             non_selected_color: Color for non-covered regions.
+
+        Returns:
+            The updated StructureView object.
         """
-        df = self.resolve_peptides(peptides)
-        chain = self.resolve_chain(peptides, chain)
-        intervals = contiguous_peptides(df)
+        intervals = contiguous_peptides(peptides)
 
-        data = []
-        for start, end in intervals:
-            elem = {
-                f"start_{self.structure.residue_name}": int(start),
-                f"end_{self.structure.residue_name}": int(end),
-                "color": color,
-            }
-            data.append(elem)
-
+        data = [self.get_query_param_range(start, end, color=color) for start, end in intervals]
         color_data = {
-            "data": self._augment_chain(data, chain),
+            "data": self._augment_chain(data),
             "nonSelectedColor": non_selected_color,
         }
 
@@ -120,28 +119,24 @@ class StructureView:
 
     def non_overlapping_peptides(
         self,
-        peptides: Peptides | nw.DataFrame,
+        peptides: nw.DataFrame,
         colors: list[str] | None = None,
-        chain: list[str] | None = None,
         non_selected_color: str = "lightgray",
-    ) -> StructureView:
+    ):
         """Selects a set of non-overlapping peptides to display on the structure. Starts with the first
         peptide and successively adds peptides that do not overlap with already selected peptides.
 
         Args:
             peptides: Peptides object or DataFrame containing peptide data.
             colors: List of colors to cycle through for different peptides.
-            chain: List of chains to apply the coloring to.
             non_selected_color: Color for non-covered regions.
 
         Returns:
-            StructureView: The updated StructureView object.
+            The updated StructureView object.
 
         """
-        df = self.resolve_peptides(peptides)
-        chain = self.resolve_chain(peptides, chain)
 
-        intervals = non_overlapping_peptides(df)
+        intervals = non_overlapping_peptides(peptides)
 
         colors = (
             colors
@@ -152,95 +147,127 @@ class StructureView:
         cdata = []
         tdata = []
         for (start, end), color in zip(intervals, itertools.cycle(colors)):
-            cdata.append(
-                {
-                    f"start_{self.structure.residue_name}": int(start),
-                    f"end_{self.structure.residue_name}": int(end),
-                    "color": color,
-                }
-            )
-            df_f = df.filter((nw.col("start") == start) & (nw.col("end") == end)).to_native()
+            cdata.append(self.get_query_param_range(start, end, color=color))
+            df_f = peptides.filter((nw.col("start") == start) & (nw.col("end") == end)).to_native()
             sequence = df_f["sequence"].unique().first()
-            tdata.append(
-                {
-                    f"start_{self.structure.residue_name}": int(start),
-                    f"end_{self.structure.residue_name}": int(end),
-                    "tooltip": f"Peptide: {sequence}",
-                }
-            )
+            tdata.append(self.get_query_param_range(start, end, tooltip=f"Peptide: {sequence}"))
 
         color_data = {
-            "data": self._augment_chain(cdata, chain),
+            "data": self._augment_chain(cdata),
             "nonSelectedColor": non_selected_color,
         }
 
         self.view.color_data = color_data
-        self.view.tooltips = {"data": self._augment_chain(tdata, chain)}
+        self.view.tooltips = {"data": self._augment_chain(tdata)}
         return self
 
     def peptide_redundancy(
         self,
-        peptides: Peptides | nw.DataFrame,
-        chain: list[str] | None = None,
+        peptides: nw.DataFrame,
         colors: list[str] | None = None,
+        clip: Optional[int] = None,
         non_selected_color: str = "lightgray",
-    ) -> StructureView:
+    ):
         """Colors residues by peptide redundancy.
 
         Args:
-            peptides: Peptides object or DataFrame containing peptide data.
-            chain: List of chains to apply the coloring to.
+            peptides: Peptides DataFrame containing peptide data.
             colors: List of colors to use for different redundancy levels.
+            clip: Optional maximum redundancy value for clipping.
             non_selected_color: Color for non-covered regions.
 
-        """
-        df = self.resolve_peptides(peptides)
-        chain = self.resolve_chain(peptides, chain)
+        Returns:
+            The updated StructureView object.
 
-        r_number, redundancy = peptide_redundancy(df)
+        """
+        r_number, redundancy = peptide_redundancy(peptides)
 
         colors = (
             colors
             if colors is not None
             else ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
         )
-        color_lut = {i + 1: colors[i] for i in range(len(colors))}
+
+        if clip:
+            vals = ((redundancy.clip(None, clip) / clip) * (len(colors) - 1)).astype(int)
+        else:
+            vals = ((redundancy / redundancy.max()) * (len(colors) - 1)).astype(int)
 
         data = []
         tooltips = []
-        for rn, rv in zip(r_number, redundancy.clip(0, len(colors) - 1)):
-            tooltips.append(
-                {
-                    f"{self.structure.residue_name}": int(rn),
-                    "tooltip": f"Redundancy: {rv} peptides",
-                }
-            )
+        for rn, rv, rv_clip in zip(r_number, redundancy, vals):
+            tooltips.append(self.get_query_param(int(rn), tooltip=f"Redundancy: {rv} peptides"))
 
             if rv == 0:
                 continue
-            color_elem = {
-                f"{self.structure.residue_name}": int(rn),
-                "color": color_lut[rv],
-            }
+
+            color_elem = self.get_query_param(int(rn), color=colors[rv_clip])
             data.append(color_elem)
 
         color_data = {
-            "data": self._augment_chain(data, chain),
+            "data": self._augment_chain(data),
             "nonSelectedColor": non_selected_color,
         }
 
         self.view.color_data = color_data
-        self.view.tooltips = {"data": self._augment_chain(tooltips, chain)}
+        self.view.tooltips = {"data": self._augment_chain(tooltips)}
         return self
 
+    def set_mapping(self, mapping: StructureMapping):
+        self.mapping = mapping
+        return self
+
+    def get_query_param(self, resi: int, **kwargs):
+        resi = self.mapping.map(resi)
+
+        # TODO entity support
+        c_dict = {
+            self.residue_name: int(resi),
+            **kwargs,
+        }
+
+        return c_dict
+
+    def get_query_param_range(self, start: int, end: int, **kwargs):
+        start = self.mapping.map(start)
+        end = self.mapping.map(end)
+
+        # TODO entity support
+        c_dict = {
+            "start_" + self.residue_name: int(start),
+            "end_" + self.residue_name: int(end),
+            **kwargs,
+        }
+
+        return c_dict
+
+    @property
+    def residue_name(self) -> str:
+        """
+        Returns the residue name based on whether auth residue numbers are used.
+        """
+        return "auth_residue_number" if self.mapping.auth_residue_numbers else "residue_number"
+
+    @property
+    def chain_name(self) -> str:
+        """
+        Returns the chain name based on whether auth chain labels are used.
+
+        Note that 'struct_asym_id' used in PDBeMolstar is equivalent to
+        'label_asym_id' in mmCIF.
+
+        """
+        return "auth_asym_id" if self.mapping.auth_chain_labels else "struct_asym_id"
+
     def _augment_chain(
-        self, data: list[dict[str, ValueType]], chains: Sequence[str]
+        self,
+        data: list[dict[str, ValueType]],
     ) -> list[dict[str, ValueType]]:
         """Augment a list of data with chain information"""
-        if chains:
+        if self.mapping.chain:
             aug_data = []
-            for elem, chain in itertools.product(data, chains):
-                aug_data.append(elem | {self.structure.chain_name: chain})
+            for elem, chain in itertools.product(data, self.mapping.chain):
+                aug_data.append(elem | {self.chain_name: chain})
         else:
             aug_data = data
 

@@ -1,13 +1,14 @@
 from __future__ import annotations
-from hdxms_datasets.models import HDXDataSet, Peptides, Structure
+from hdxms_datasets.models import HDXDataSet, Peptides, Structure, StructureMapping
 from hdxms_datasets.utils import reconstruct_sequence, verify_sequence
 from typing import TYPE_CHECKING, Literal, TypedDict, overload
+from packaging.version import Version
 
 if TYPE_CHECKING:
     import polars as pl
 
 
-def verify_dataset(dataset: HDXDataSet):
+def verify_dataset(dataset: HDXDataSet, strict: bool = True):
     """Verify the integrity of the dataset by checking sequences and data files."""
     verify_peptides(dataset)
     if not datafiles_exist(dataset):
@@ -16,13 +17,39 @@ def verify_dataset(dataset: HDXDataSet):
     if dataset.file_hash is None:
         raise ValueError("Dataset file hash is not set")
 
+    if strict:
+        verify_version(dataset)
+
+
+def verify_version(dataset: HDXDataSet):
+    """Verify that the dataset was created with a pep 440 compliant version."""
+    ver_str = dataset.metadata.package_version
+
+    v = Version(ver_str)  # type: ignore
+
+    if v.pre:
+        raise ValueError(
+            f"A pre-release version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+    if v.dev:
+        raise ValueError(
+            f"A development version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+    if v.local:
+        raise ValueError(
+            f"A local version of `hdxms-datasets` was used to create this dataset: {ver_str}"
+        )
+
 
 def verify_peptides(dataset: HDXDataSet):
     """Verify that all peptide sequences match the protein sequence in the dataset states."""
     for state in dataset.states:
         sequence = state.protein_state.sequence
         for i, peptides in enumerate(state.peptides):
-            peptide_table = peptides.load()
+            try:
+                peptide_table = peptides.load()
+            except Exception as e:
+                raise ValueError(f"State: {state.name}, Peptides[{i}] failed to load: {e}")
             try:
                 mismatches = verify_sequence(
                     peptide_table, sequence, n_term=state.protein_state.n_term
@@ -48,7 +75,9 @@ def datafiles_exist(dataset: HDXDataSet) -> bool:
     return True
 
 
-def residue_df_from_structure(structure: Structure) -> pl.DataFrame:
+def residue_df_from_structure(
+    structure: Structure, mapping: StructureMapping = StructureMapping()
+) -> pl.DataFrame:
     """Create a dataframe from the structure with chain, resi, resn_TLA"""
     if structure.format not in ["cif", "mmcif"]:
         raise ValueError(f"Unsupported structure format: {structure.format}")
@@ -64,8 +93,8 @@ def residue_df_from_structure(structure: Structure) -> pl.DataFrame:
     AA_codes = [a.upper() for a in list(one_to_three.values())]
 
     # create a dataframe with chain, resi, resn_TLA from structure
-    chain_name = "label_asym_id" if not structure.auth_chain_labels else "auth_asym_id"
-    resn_name = "label_seq_id" if not structure.auth_residue_numbers else "auth_seq_id"
+    chain_name = "label_asym_id" if not mapping.auth_chain_labels else "auth_asym_id"
+    resn_name = "label_seq_id" if not mapping.auth_residue_numbers else "auth_seq_id"
 
     structure_df = (
         pl.DataFrame(
@@ -83,7 +112,19 @@ def residue_df_from_structure(structure: Structure) -> pl.DataFrame:
 
 
 def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
-    """Create a dataframe from the peptides with resi, resn_TLA"""
+    """Create a dataframe from the peptides with resi, resn_TLA.
+
+    Args:
+        peptides: Peptides object
+
+    Returns:
+        DataFrame with columns:
+            resi: residue number (int)
+            resn: one letter amino acid code (str)
+            resn_TLA: three letter amino acid code (str)
+
+
+    """
     from Bio.Data import IUPACData
     import polars as pl
 
@@ -101,12 +142,31 @@ def residue_df_from_peptides(peptides: Peptides) -> pl.DataFrame:
         .filter(pl.col("resn") != "X")
         .with_columns(
             [
-                pl.col("resi").cast(str),
+                pl.col("resi"),
                 pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA"),
             ]
         )
     )
 
+    return residue_df
+
+
+def residue_df_from_sequence(
+    sequence: str,
+    n_term: int = 1,
+) -> pl.DataFrame:
+    from Bio.Data import IUPACData
+    import polars as pl
+
+    one_to_three = IUPACData.protein_letters_1to3
+
+    residue_df = (
+        pl.DataFrame({"resn": list(sequence)})
+        .with_columns(
+            [pl.col("resn").replace_strict(one_to_three).str.to_uppercase().alias("resn_TLA")]
+        )
+        .with_row_index(offset=n_term, name="resi")
+    )
     return residue_df
 
 
@@ -117,21 +177,29 @@ def build_structure_peptides_comparison(
     """
     Compares residue numbering and identity between a structure and peptides.
 
-    Returns:  dictionary with:
-        - total_residues: Total number of residues in the peptides (considering chains)
-        - matched_residues: Number of residues that are matched to the structure (by chain and resi)
-        - identical_residues: Number of matched residues that have the correct amino acid identity
+    Applies any residue offset defined in the peptides' structure mapping.
 
+    Returns:
+        A DataFrame merging structure and peptide residue information.
     """
-    structure_df = residue_df_from_structure(structure)
+    structure_df = residue_df_from_structure(structure, peptides.structure_mapping)
     residue_df = residue_df_from_peptides(peptides)
 
+    import polars as pl
+
+    # apply residue offset to peptides
+    residue_df = residue_df.with_columns(
+        (pl.col("resi") + peptides.structure_mapping.residue_offset).cast(str).alias("resi")
+    )
+
     chains = (
-        peptides.chain if peptides.chain is not None else structure_df["chain"].unique().to_list()
+        peptides.structure_mapping.chain
+        if peptides.structure_mapping.chain is not None
+        else structure_df["chain"].unique().to_list()
     )
 
     # supplement the residue_df with all chains
-    # multie-chain peptides are expected to correspond to homomultimers
+    # multi-chain peptides are expected to correspond to homomultimers
     import polars as pl
 
     residue_df_chain = pl.concat(

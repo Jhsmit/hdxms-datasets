@@ -2,7 +2,12 @@ from typing import Callable, Optional
 from dataclasses import dataclass
 import narwhals as nw
 
-from hdxms_datasets.convert import from_dynamx_cluster, from_dynamx_state, from_hdexaminer
+from hdxms_datasets.convert import (
+    from_dynamx_cluster,
+    from_dynamx_state,
+    from_hdexaminer,
+    from_hxms,
+)
 
 
 # a list of supported columns for open HDX peptide tables
@@ -81,6 +86,18 @@ class FormatSpec:
         return False
 
 
+def hxms_is_aggregated(df: nw.DataFrame) -> bool:
+    """
+    The HXMS format both supports data which contains the individual measurements or as aggregated data.
+    The "REP" column (experiment number) indicates replicate ID.
+    However, some files have a unique "REP" value for all rows, but still contain multiple measurements per
+    peptide timepoint, we check for this case here.
+
+    """
+
+    return len(df.unique(["START", "END", "TIME(Sec)"])) == len(df)
+
+
 # Format registry - order matters for identification
 FORMATS = [
     FormatSpec(
@@ -103,7 +120,7 @@ FORMATS = [
             "RT",
             "RT SD",
         ],
-        filter_columns=["Protein", "Exposure"],
+        filter_columns=["Protein", "State", "Exposure"],
         converter=from_dynamx_state,
         aggregated=True,
     ),
@@ -150,7 +167,7 @@ FORMATS = [
             "Inten",
             "Center",
         ],
-        filter_columns=["State", "Exposure"],  # filter by 'Protein' field?
+        filter_columns=["Protein", "State", "Exposure"],  # filter by 'Protein' field?
         converter=from_dynamx_cluster,
         aggregated=False,
     ),
@@ -188,6 +205,13 @@ FORMATS = [
         filter_columns=[],
         converter=lambda df: df,  # No conversion needed for OpenHDX
         aggregated=lambda df: "replicate" not in df.columns,
+    ),
+    FormatSpec(
+        name="HXMS",
+        required_columns=["START", "END", "SEQUENCE", "TIME(Sec)", "REP"],
+        filter_columns=["TIME(Sec)"],
+        converter=from_hxms,
+        aggregated=hxms_is_aggregated,
     ),
 ]
 

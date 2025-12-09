@@ -85,6 +85,49 @@ def serialize_datafile_path(x: Path, info: ValidationInfo) -> str:
     return x.as_posix()
 
 
+def serialize_nonfinite_numbers_recursive(obj: Any, info: ValidationInfo):
+    import math
+
+    # floats -> sentinel strings
+    if isinstance(obj, float):
+        if math.isinf(obj):
+            return "Infinity" if obj > 0 else "-Infinity"
+        if math.isnan(obj):
+            return "NaN"
+        return obj
+
+    # Pydantic model -> dict
+    if isinstance(obj, BaseModel):
+        return serialize_nonfinite_numbers_recursive(obj.__dict__, info)
+
+    # containers
+    if isinstance(obj, dict):
+        return {k: serialize_nonfinite_numbers_recursive(v, info) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [serialize_nonfinite_numbers_recursive(v, info) for v in obj]
+
+    return obj
+
+
+def validate_nonfinite_numbers_recursive(x: Any, info: ValidationInfo):
+    # sentinel strings -> floats; recursive for containers
+    if isinstance(x, str):
+        if x == "Infinity":
+            return float("inf")
+        if x == "-Infinity":
+            return float("-inf")
+        if x == "NaN":
+            return float("nan")
+        return x
+
+    if isinstance(x, dict):
+        return {k: validate_nonfinite_numbers_recursive(v, info) for k, v in x.items()}
+    if isinstance(x, list):
+        return [validate_nonfinite_numbers_recursive(v, info) for v in x]
+
+    return x
+
+
 TEXT_FILE_FORMATS = [".csv", ".txt", ".yaml", ".yml", ".json", ".pdb", ".cif"]
 
 
@@ -117,6 +160,7 @@ class PeptideFormat(str, Enum):
     DynamX_v3_cluster = "DynamX_v3_cluster"
     DynamX_vx_state = "DynamX_vx_state"
     HDExaminer_v3 = "HDExaminer_v3"
+    HXMS = "HXMS"
     OpenHDX = "OpenHDX"
 
     @classmethod
@@ -138,6 +182,36 @@ class DeuterationType(str, Enum):
     non_deuterated = "non_deuterated"
 
 
+class StructureMapping(BaseModel):
+    """Maps peptide HDX-MS data to a structure
+
+    Residue numbers can be mapped from HDX-MS data to a structure using either an residue number
+    offset or a specific dictionary mapping.
+
+    """
+
+    entity_id: Annotated[Optional[str], Field(None, description="Entity identifier")] = None
+    chain: Annotated[Optional[list[str]], Field(None, description="Chain identifiers")] = None
+    residue_offset: Annotated[int, Field(None, description="Residue number offset to apply")] = 0
+    mapping: dict[int, int] = Field(default_factory=dict, description="Residue number mapping")
+
+    auth_residue_numbers: Annotated[
+        bool, Field(default=False, description="Use author residue numbers")
+    ] = False
+    auth_chain_labels: Annotated[
+        bool, Field(default=False, description="Use author chain labels")
+    ] = False
+
+    def map(self, residue_number: int) -> int:
+        """Map a residue number using the mapping dictionary and offset"""
+        if self.residue_offset:
+            return residue_number + self.residue_offset
+        elif self.mapping:
+            return self.mapping.get(residue_number, residue_number)
+        else:
+            return residue_number
+
+
 class Peptides(BaseModel):
     """Information about HDX-MS peptides"""
 
@@ -146,14 +220,11 @@ class Peptides(BaseModel):
     deuteration_type: Annotated[
         DeuterationType, Field(description="Type of the peptide (e.g., fully_deuterated)")
     ]
-    entity_id: Annotated[
-        Optional[str],
-        Field(description="Entity identifier if multiple entities are present in the structure"),
-    ] = None
-    chain: Annotated[Optional[list[str]], Field(description="Chain identifiers")] = None
     filters: Annotated[
         dict[str, ValueType | list[ValueType]],
         Field(default_factory=dict, description="Filters applied to the data"),
+        AfterValidator(validate_nonfinite_numbers_recursive),
+        PlainSerializer(serialize_nonfinite_numbers_recursive),
     ]
     pH: Annotated[
         Optional[float], Field(description="pH (read, uncorrected) of the experiment")
@@ -161,6 +232,10 @@ class Peptides(BaseModel):
     temperature: Annotated[Optional[float], Field(description="Temperature in Kelvin")] = None
     d_percentage: Annotated[Optional[float], Field(description="Deuteration percentage")] = None
     ionic_strength: Annotated[Optional[float], Field(description="Ionic strength in Molar")] = None
+
+    structure_mapping: Annotated[
+        StructureMapping, Field(description="Structure mapping information")
+    ] = StructureMapping()
 
     def load(
         self,
@@ -282,13 +357,6 @@ class Structure(BaseModel):
 
     If your HDX data uses the author numbering/labels, set `auth_residue_numbers` and/or
     `auth_chain_labels` to True.
-
-    You can also offset the residue numbering by setting `residue_offset`. For example, if your add
-    an N-terminal his tag and renumber to start at 1 for the extended sequence.
-
-    If you use both author numbers and offset, the offset is applied first and then translated to
-    canonical residue numbers.
-
     """
 
     data_file: DataFilePath
@@ -298,18 +366,6 @@ class Structure(BaseModel):
     # source database identifiers
     pdb_id: Annotated[Optional[str], Field(None, description="RCSB PDB ID")] = None
     alphafold_id: Annotated[Optional[str], Field(None, description="AlphaFold ID")] = None
-
-    auth_residue_numbers: Annotated[
-        bool, Field(default=False, description="Use author residue numbers")
-    ] = False
-    auth_chain_labels: Annotated[
-        bool, Field(default=False, description="Use author chain labels")
-    ] = False
-
-    label_auth_mapping: Annotated[
-        Optional[dict[tuple[str, str], tuple[str, str]]],
-        Field(init=False, description="Maps author residue numbers to canonical residue numbers"),
-    ] = None
 
     def pdbemolstar_custom_data(self) -> dict[str, Any]:
         """
@@ -345,24 +401,6 @@ class Structure(BaseModel):
             mapping = residue_number_mapping(self.data_file)
             self.label_auth_mapping = mapping
             return mapping
-
-    @property
-    def residue_name(self) -> str:
-        """
-        Returns the residue name based on whether auth residue numbers are used.
-        """
-        return "auth_residue_number" if self.auth_residue_numbers else "residue_number"
-
-    @property
-    def chain_name(self) -> str:
-        """
-        Returns the chain name based on whether auth chain labels are used.
-
-        Note that 'struct_asym_id' used in PDBeMolstar is equivalent to
-        'label_asym_id' in mmCIF.
-
-        """
-        return "auth_asym_id" if self.auth_chain_labels else "struct_asym_id"
 
     def to_biopython(self) -> BioStructure:
         """Load the structure using Biopython"""
@@ -426,11 +464,12 @@ class Author(BaseModel):
 class DatasetMetadata(BaseModel):
     # Authors, publication, license
     authors: Annotated[list[Author], Field(..., description="Dataset authors")]
+    license: Annotated[str, Field(description="License for the dataset")]
+
     publication: Annotated[Optional[Publication], Field(description="Associated publication")] = (
         None
     )
     repository: Annotated[Optional[DataRepository], Field(description="Data repository")] = None
-    license: Annotated[str, Field(description="License for the dataset")] = "CC0"
 
     # Technical information
     created_date: Annotated[
@@ -455,9 +494,31 @@ class DatasetMetadata(BaseModel):
         Optional[str], Field(None, description="Notes about data conversion")
     ] = None
 
+    @model_validator(mode="before")
+    def ensure_license_present(cls, values):
+        # `values` is the raw input mapping; raise a ValueError with a custom message
+        if isinstance(values, dict):
+            lic = values.get("license")
+            if lic is None or (isinstance(lic, str) and not lic.strip()):
+                raise ValueError(
+                    "Missing required field 'license': please provide a license; we recommend using 'CC0' or 'CC BY 4.0'."
+                )
+        return values
+
+
+def id_factory() -> str:
+    """Factory function to generate a new dataset ID"""
+    from hdxms_datasets.database import mint_new_dataset_id
+
+    return mint_new_dataset_id()
+
 
 class HDXDataSet(BaseModel):
     """HDX-MS dataset containing multiple states"""
+
+    hdx_id: Annotated[
+        str, Field(default_factory=id_factory, description="HDX-MS dataset identifier")
+    ]
 
     # Basic information
     description: Annotated[Optional[str], Field(None, description="Dataset description")]
@@ -473,6 +534,17 @@ class HDXDataSet(BaseModel):
     ]
 
     @model_validator(mode="after")
+    def validate_hdx_id(self):
+        """Validate hdx_id format: 'HDX_' followed by 8 uppercase alphanumeric chars (e.g. HDX_3BAE2080)."""
+        from hdxms_datasets.database import valid_id
+
+        if not valid_id(self.hdx_id):
+            raise ValueError(
+                "hdx_id must match pattern 'HDX_XXXXXXXX' where X are uppercase letters or digits, e.g. 'HDX_3BAE2080'"
+            )
+        return self
+
+    @model_validator(mode="after")
     def compute_file_hash(self):
         """Compute a hash of the dataset based on its data files"""
         if any(not p.exists() for p in self.data_files):
@@ -481,6 +553,14 @@ class HDXDataSet(BaseModel):
 
         self.file_hash = self.hash_files()[:16]  # Shorten to 16 characters
 
+        return self
+
+    @model_validator(mode="after")
+    def verify_unique_state_names(self):
+        """Ensure that all state names are unique within the dataset"""
+        state_names = [state.name for state in self.states]
+        if len(state_names) != len(set(state_names)):
+            raise ValueError("State names must be unique within the dataset.")
         return self
 
     def hash_files(self) -> str:
