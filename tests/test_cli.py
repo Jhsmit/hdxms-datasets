@@ -46,7 +46,7 @@ def test_generate_template_multiple_states():
 
 def test_cli_create_help():
     """Test that help message works."""
-    result = runner.invoke(app, ["create", "--help"])
+    result = runner.invoke(app, ["create", "--help"], color=False)
     assert result.exit_code == 0
     assert "Create a new HDX-MS dataset" in result.stdout
     assert "--num-states" in result.stdout
@@ -57,6 +57,6 @@ def test_cli_create_help():
 
 def test_app_help():
     """Test main app help."""
-    result = runner.invoke(app, ["--help"])
+    result = runner.invoke(app, ["--help"], color=False)
     assert result.exit_code == 0
     assert "hdxms-datasets" in result.stdout
