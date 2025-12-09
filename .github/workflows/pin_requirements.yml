@@ -48,8 +48,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: generate-requirements
     steps:
-      - name: Merge Artifacts
+      - name: Merge Requirements Artifacts
         uses: actions/upload-artifact/merge@v4
         with:
           name: all-requirements
           pattern: req-artifact-*
+
+      - name: Merge Lock File Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: all-lockfiles
+          pattern: lock-artifact-*
