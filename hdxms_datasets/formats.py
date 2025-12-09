@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Callable, Optional
 from dataclasses import dataclass
 import narwhals as nw
@@ -220,9 +221,24 @@ FORMATS = [
 FORMAT_LUT = {fmt.name: fmt for fmt in FORMATS}
 
 
-def identify_format(df: nw.DataFrame) -> Optional[FormatSpec]:
+def identify_format_from_path(path: Path) -> Optional[FormatSpec]:
+    """Identify format from file path by reading a sample of the data."""
+
+    raise NotImplementedError("Function not yet implemented")
+
+
+def identify_format_from_df(df: nw.DataFrame) -> Optional[FormatSpec]:
     """Identify format from DataFrame columns"""
     for fmt in FORMATS:
         if fmt.matches(df):
             return fmt
     return None
+
+
+def identify_format(src: nw.DataFrame | Path) -> Optional[FormatSpec]:
+    """Identify format from DataFrame columns"""
+    if isinstance(src, Path):
+        return identify_format_from_path(src)
+
+    elif isinstance(src, nw.DataFrame):
+        return identify_format_from_df(src)
