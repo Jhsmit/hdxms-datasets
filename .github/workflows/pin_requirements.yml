@@ -24,25 +24,12 @@ jobs:
       - name: Generate requirements file
         run: uv pip compile --all-extras pyproject.toml -o requirements-${{ matrix.os }}-${{ matrix.python-version }}.txt
 
-      - name: Generate lock file
-        run: uv lock
-
-      - name: Rename lock file
-        run: |
-          cp uv.lock uv-${{ matrix.os }}-${{ matrix.python-version }}.lock
-
       - name: Upload requirements file
         uses: actions/upload-artifact@v4
         with:
           name: req-artifact-${{ matrix.os }}-${{ matrix.python-version }}
           path: requirements-${{ matrix.os }}-${{ matrix.python-version }}.txt
-
-      - name: Upload lock file
-        uses: actions/upload-artifact@v4
-        with:
-          name: lock-artifact-${{ matrix.os }}-${{ matrix.python-version }}
-          path: uv-${{ matrix.os }}-${{ matrix.python-version }}.lock
-  
+ 
   
   merge:
     runs-on: ubuntu-latest
@@ -53,9 +40,3 @@ jobs:
         with:
           name: all-requirements
           pattern: req-artifact-*
-
-      - name: Merge Lock File Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          name: all-lockfiles
-          pattern: lock-artifact-*
