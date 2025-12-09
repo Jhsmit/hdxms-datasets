@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import IO, Any, NotRequired, Optional, TypedDict
+from typing import IO, NotRequired, TypedDict
 from collections.abc import Iterable, Iterator
 
 import narwhals as nw
