@@ -5,7 +5,7 @@ from typer.testing import CliRunner
 from hdxms_datasets.__main__ import app, generate_template_script, DataFormat
 
 
-runner = CliRunner()
+runner = CliRunner(env={"NO_COLOR": "1"})
 
 
 def test_generate_template_single_state():
