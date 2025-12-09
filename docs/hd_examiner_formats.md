@@ -168,4 +168,9 @@ To export the deuteration level table to a .csv file, switch to the Peptides Vie
 To export all tables to a .csv file, switch to the Analysis View, then select any experiment. Select “Tools”, then “Export”, then “All Results Tables…” or right-click on the results table and select “Export All Tables…”. Specify a filename. HDExaminer will save the combined tables to that file. 
 
 **Note on back-exchange correction**
+
+In Masson et al., Nat Methods 16, 595–602 (2019), the HDX community codified many recommendations for the design, analysis and reporting of HDX experiments. HDExaminer’s data export features now adhere to the recommendations set forth in that paper. 
+
 Note that Recommendation 3.1 of that paper states that reported #D results should not be back-exchange corrected. In light of this recommendation, the #D results reported in HDExaminer’s Uptake Summary Table are not corrected for back exchange, regardless of your HDExaminer settings. This is a change in behavior from previous versions of HDExaminer. 
+
+Unfortunately, its not known which verions of HDExaminer this change applies to and which files/formats are affected. 
