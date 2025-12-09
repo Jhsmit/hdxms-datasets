@@ -51,7 +51,7 @@ def get_backend():
 
 
 BACKEND = get_backend()
-HXMS_DTYPES = {
+HXMS_SCHEMA = {
     "INDEX": nw.Int32(),
     "MOD": nw.String(),
     "START": nw.Int64(),
@@ -64,7 +64,124 @@ HXMS_DTYPES = {
 }
 
 
-def read_csv(source: Path | IO | bytes) -> nw.DataFrame:
+# schema for hdx examiner peptide pool initial 8 columns
+HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA = nw.Schema(
+    {
+        "State": nw.String(),
+        "Protein": nw.String(),
+        "Start": nw.Int64(),
+        "End": nw.Int64(),
+        "Sequence": nw.String(),
+        "Search RT": nw.Float64(),
+        "Charge": nw.Int64(),
+        "Max D": nw.Int64(),
+    }
+)
+
+# schema for hdx examiner peptide pool repeated columns
+HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA = nw.Schema(
+    {
+        "Start RT": nw.Float64(),
+        "End RT": nw.Float64(),
+        "#D": nw.Float64(),
+        "%D": nw.Float64(),
+        "#D right": nw.String(),
+        "%D right": nw.String(),
+        "Score": nw.Float64(),
+        "Conf": nw.String(),
+    }
+)
+
+
+def deduplicate_name(name: str):
+    """Deduplicate column name by removing trailing '_duplicated_xx"""
+    import re
+
+    return re.sub(r"_duplicated_\d+$", "", name)
+
+
+def read_hdexaminer_peptide_pool(source: Path) -> nw.DataFrame:
+    """
+    Read an HDX-Examiner peptide pool file and return a Narwhals DataFrame.
+
+    Args:
+        source: Source object representing the HDX-Examiner peptide pool data.
+
+    """
+
+    df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
+
+    with open(source, "r") as fh:
+        exposure_line = fh.readline()
+        header_line = fh.readline()
+
+    exposure_columns = exposure_line.strip().split(",")
+    header_columns = header_line.strip().split(",")
+
+    found_schema = df[:, 0:8].schema
+    if found_schema != HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA:
+        print(found_schema)
+        print(HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA)
+        raise ValueError("HDX-Examiner peptide pool file has an unexpected columns schema.")
+
+    combined_schema = nw.Schema(
+        {
+            k: v
+            for k, v in zip(
+                HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.names()
+                + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.names(),
+                HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.dtypes()
+                + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.dtypes(),
+            )
+        }
+        | {"Exposure": nw.String()}
+    )
+
+    # create empty dataframe to hold combined data
+    combined_df = nw.DataFrame.from_dict({}, schema=combined_schema, backend=BACKEND)
+
+    # find indices of exposure markers in header
+    has_entry_with_end = [i for i, col in enumerate(exposure_columns) if col] + [
+        len(exposure_columns)
+    ]
+
+    output_dfs = []
+    dtype_lut = dict(HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.items())
+
+    # to be repeated row-wise initial 8 columns
+    initial_df = df[:, :8]
+
+    for i, j in zip(has_entry_with_end[1:-1], has_entry_with_end[2:]):
+        exposure = exposure_columns[i]
+
+        sub_frame = df[:, i:j]
+
+        expected_columns = header_columns[i:j]
+
+        drop_cols = set(expected_columns) - set(HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.names())
+        # rename duplicated columns, drop non-accepted columns, cast to correct dtype, add exposure column
+        sub_frame = (
+            sub_frame.rename({col: name for col, name in zip(sub_frame.columns, expected_columns)})
+            .drop(drop_cols)
+            .with_columns(
+                [
+                    nw.col(name).cast(dtype_lut[name])
+                    for name in expected_columns
+                    if name not in drop_cols
+                ]
+                + [nw.lit(str(exposure)).alias("Exposure")]
+            )
+        )
+
+        combined_i = nw.concat([initial_df, sub_frame], how="horizontal")
+        output_dfs.append(combined_i)
+
+    final_output = nw.concat(output_dfs, how="diagonal")
+
+    return final_output
+
+
+def read_csv(source: Path | IO | bytes, **kwargs) -> nw.DataFrame:
     """
     Read a CSV file and return a Narwhals DataFrame.
 
@@ -77,22 +194,22 @@ def read_csv(source: Path | IO | bytes) -> nw.DataFrame:
     """
 
     if isinstance(source, Path):
-        return nw.read_csv(source.as_posix(), backend=BACKEND)
+        return nw.read_csv(source.as_posix(), backend=BACKEND, **kwargs)
     elif isinstance(source, bytes):
         import polars as pl
 
-        return nw.from_native(pl.read_csv(source))
+        return nw.from_native(pl.read_csv(source), **kwargs)
     elif isinstance(source, IO):
         try:
             import polars as pl
 
-            return nw.from_native(pl.read_csv(source))
+            return nw.from_native(pl.read_csv(source), **kwargs)
         except ImportError:
             pass
         try:
             import pandas as pd
 
-            return nw.from_native(pd.read_csv(source))  # type: ignore
+            return nw.from_native(pd.read_csv(source), **kwargs)  # type: ignore
         except ImportError:
             raise ValueError("No suitable backend found for reading file-like objects")
     else:
@@ -174,7 +291,7 @@ def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
     first_row = next(line_gen)
     content = _line_content(first_row)
 
-    used_columns = list(HXMS_DTYPES)[: len(content)]
+    used_columns = list(HXMS_SCHEMA)[: len(content)]
     data_dict = dict(zip(used_columns, content))
     data_dict["sequence"] = sequence[int(data_dict["START"]) - 1 : int(data_dict["END"])]
     dicts.append(data_dict)
@@ -189,7 +306,7 @@ def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
 
         dicts.append(data_dict)
 
-    schema = nw.Schema({col: HXMS_DTYPES[col] for col in used_columns} | {"sequence": nw.String()})
+    schema = nw.Schema({col: HXMS_SCHEMA[col] for col in used_columns} | {"sequence": nw.String()})
     df = nw.from_dicts(dicts, schema=schema, backend=BACKEND)
 
     return df
@@ -253,7 +370,7 @@ def parse_hxms_lines(lines: Iterable[str], read_content: bool = True) -> HXMSRes
 
     # check read columns against expected columns
     if columns:
-        expected_columns = list(HXMS_DTYPES)[: len(columns)]
+        expected_columns = list(HXMS_SCHEMA)[: len(columns)]
         if columns != expected_columns:
             warnings.warn(
                 f"Columns in HXMS file do not match expected columns. "
