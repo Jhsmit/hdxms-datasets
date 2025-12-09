@@ -4,6 +4,13 @@ There are multiple different file format formats of HD Examiner exported HDX-MS 
 
 See docs/hd_examiner_files for a collection of example files. 
 
+It appears that there are three different export formats from HD examiner; 'all results', 'peptide pool results' and 'uptake summary table'. The latter two contain the same data but have different layouts.
+
+
+## List of found HD examiner exported data
+
+Below is a list of found HD examiner exported data files, with their source, columns and comments.
+
 ### HDgraphiX pool output
 
 File: 'HDgraphiX Sample HDExaminer Pool.csv'
@@ -33,7 +40,8 @@ Source: [HDGraphix](https://hdgraphix.net/).
 Columns:
 Protein State,Protein,Start,End,Sequence,Peptide Mass,RT (min),Deut Time (sec),maxD,Theor Uptake,#D,%D,Conf Interval (#D),#Rep,Confidence,Stddev,p
 
-Format: HDgraphiX Summary
+Format: HD examiner summary
+FD control: 'Full-D'
 
 Comments:
 Data itself has alternating empty lines?
@@ -47,10 +55,10 @@ Columns:
 Same as HDgrapix pool output
 
 Format: HD examiner peptide pool / HD examiner pool
+FD control: 'Full-D'
 
 Comments:
 This is similar to HDgraphix pool output, no alternating empty lines.
-FD control exposure is labelled as 'Full-D'
 
 Reading: [Huggingface code](https://huggingface.co/spaces/glasgow-lab/PFLink/blob/main/Parsers.py#L278)
 
@@ -62,12 +70,17 @@ Source: Data provided by Vladimir Sarpe from Trajan (not public)
 Columns:
 'Protein State,Deut Time,Experiment,Start,End,Sequence,Charge,Search RT,Actual RT,# Spectra,Peak Width Da,m/z Shift Da,Max Inty,Exp Cent,Theor Cent,Score,Cent Diff,# Deut,Deut %,Confidence'
 
-'Deut Time' columns are in seconds, stored as strings formatted as '0s'. FD control is labelled as 'FD' in this columns. 
-
+'Deut Time' columns are in seconds, stored as strings formatted as '0s'.
 Format: HD examiner V3.4 (as currently used in `hdxms-datasets`)
 
+FD control: 'FD'
+
 Comments:
-Unknown name of export function used in HD Examiner v3.4
+Unknown name of export function used in HD Examiner v3.4, suspected it is an export of the 'Results Table'.
+Differences with tuttlelm 'all_results' and bryan et al (this, other):
+
+- (Peak Width Da, Peak Width)
+- (m/z Shift Da, m/z Shift)
 
 
 ### Tang et al HD examiner export
@@ -113,3 +126,43 @@ Columns: Protein State,Deut Time,Experiment,Start,End,Sequence,Charge,Search RT,
 Format: Unkown
 
 Looks like HD examiner but doesnt match previously seen columns
+
+
+### tuttlelm all_results
+
+File: all_results.csv
+Source: PyHDX PR by Lisa Tuttle (https://github.com/Jhsmit/PyHDX/pull/350)
+
+Columns: Protein State,Deut Time,Experiment,Start,End,Sequence,Charge,Search RT,Actual RT,# Spectra,Peak Width,m/z Shift,Max Inty,Exp Cent,Theor Cent,Score,Cent Diff,# Deut,Deut %,Confidence
+
+Format:
+FD control: 'FD'
+
+Comments:
+Equal to Bryan et al HD examiner export
+not an aggregated format
+
+
+### tuttlelm uptake_summary
+
+File: uptake_summary.csv
+Source: PyHDX PR by Lisa Tuttle (https://github.com/Jhsmit/PyHDX/pull/350)
+
+Columns: Protein State,Protein,Start,End,Sequence,Peptide Mass,RT (min),Deut Time (sec),maxD,Theor Uptake #D,#D,%D,Conf Interval (#D),#Rep,Confidence,Stddev,p
+
+Format: (almost!) HD examiner summary file
+
+'Theor Uptake #D' instead of 'Theor #D'
+
+FD control: 'MAX' (older version)
+
+Comments:
+
+
+## HD Examiner manual on exporting data
+
+**Peptide Pool Results / Uptake Summary Table**
+To export the deuteration level table to a .csv file, switch to the Peptides View, then select a Peptide Pool or any peptide in that pool. Select “Tools”, then “Export”, then “Peptide Pool Results…” or “Uptake Summary Table…” or right-click on any Peptide Pool or peptide and select “Export Peptide Pool Results…” or “Export Uptake Summary Table…”. Specify a filename. HDExaminer will save the table to that file. The two tables contain the same data, but are formatted differently (one peptide per line versus one result per line). 
+
+**'All results'**
+To export all tables to a .csv file, switch to the Analysis View, then select any experiment. Select “Tools”, then “Export”, then “All Results Tables…” or right-click on the results table and select “Export All Tables…”. Specify a filename. HDExaminer will save the combined tables to that file. 
