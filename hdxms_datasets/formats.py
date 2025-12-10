@@ -145,7 +145,7 @@ FORMATS = [
             "RT",
             "RT SD",
         ],
-        filter_columns=["State", "Exposure"],
+        filter_columns=["Protein", "State", "Exposure"],
         converter=from_dynamx_state,
         aggregated=True,
     ),
