@@ -140,22 +140,6 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
     if found_schema != HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA:
         raise ValueError("HDX-Examiner peptide pool file has an unexpected columns schema.")
 
-    # combined_schema = nw.Schema(
-    #     {
-    #         k: v
-    #         for k, v in zip(
-    #             HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.names()
-    #             + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.names(),
-    #             HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.dtypes()
-    #             + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.dtypes(),
-    #         )
-    #     }
-    #     | {"Exposure": nw.String()}
-    # )
-
-    # # create empty dataframe to hold combined data
-    # combined_df = nw.DataFrame.from_dict({}, schema=combined_schema, backend=BACKEND)
-
     # find indices of exposure markers in header
     has_entry_with_end = [i for i, col in enumerate(exposure_columns) if col] + [
         len(exposure_columns)
