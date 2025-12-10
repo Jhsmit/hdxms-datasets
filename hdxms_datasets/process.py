@@ -11,7 +11,7 @@ from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
-from hdxms_datasets.loader import load_peptides, BACKEND
+from hdxms_datasets.reader import load_peptides, BACKEND
 from hdxms_datasets.models import DeuterationType, Peptides, ValueType
 from hdxms_datasets.utils import peptides_are_unique, records_to_dict
 
@@ -200,12 +200,14 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
 
     """
 
-    if "state" in df.columns:
-        assert df["state"].n_unique() == 1, (
-            "DataFrame must be filtered to a single state before aggregation."
-        )
+    # these must be unique before aggregating makes sense
+    unique_columns = ["protein", "state"]
+    for col in unique_columns:
+        if col in df.columns:
+            assert df[col].n_unique() == 1, f"Column {col} must be unique before aggregating."
 
     # columns which are intesity weighed averaged
+    # TODO global variable
     candidate_columns = ["uptake", "centroid_mz", "centroid_mass", "rt"]
     intensity_wt_avg_columns = [col for col in candidate_columns if col in df.columns]
 
@@ -222,6 +224,9 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     excluded = {"intensity"}
     output = {k: [] for k in output_columns if k not in excluded}
     groups = df.group_by(["start", "end", "exposure"])
+
+    # TODO: if we don't have an intensity column, we can do a normal aggregate
+    # instead of needing a for loop
     for (start, end, exposure), df_group in groups:
         record = {}
         record["start"] = start

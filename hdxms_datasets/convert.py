@@ -100,12 +100,19 @@ def _fmt_extra_columns(columns: list[str] | dict[str, str] | str | None) -> dict
         raise ValueError("additional_columns must be a list or dict, not {}".format(type(columns)))
 
 
-def from_hdexaminer(
+def from_hdexaminer_all_results(
     hd_examiner_df: nw.DataFrame,
     extra_columns: list[str] | dict[str, str] | str | None = None,
 ) -> nw.DataFrame:
     """
-    Convert an HDExaminer DataFrame to OpenHDX format.
+    Convert an HDExaminer 'All results' exported DataFrame to OpenHDX format.
+
+    To export as all results (from HDExaminer documentation):
+
+    To export all tables to a .csv file, switch to the Analysis View, then select any experiment.
+    Select “Tools”, then “Export”, then “All Results Tables…” or right-click on the results table
+    and select “Export All Tables…”. Specify a filename. HDExaminer will save the combined tables
+    to that file.
 
     Args:
         hd_examiner_df: DataFrame in HDExaminer format.
@@ -116,7 +123,7 @@ def from_hdexaminer(
         A DataFrame in OpenHDX format.
 
     """
-    from hdxms_datasets.loader import BACKEND
+    from hdxms_datasets.reader import BACKEND
 
     column_mapping = {
         "Protein State": "state",
@@ -139,6 +146,7 @@ def from_hdexaminer(
     column_mapping.update(cols)
     column_order.extend(cols.values())
 
+    # TODO: parse to two columns, start_rt, end_rt
     rt_values = [convert_rt(rt_str) for rt_str in hd_examiner_df["Actual RT"]]
     rt_series = nw.new_series(values=rt_values, name="rt", backend=BACKEND)
 
@@ -146,7 +154,9 @@ def from_hdexaminer(
         hd_examiner_df.rename(column_mapping)
         .with_columns([centroid_mass, rt_series])
         .select(column_order)
-        .sort(by=["state", "exposure", "start", "end", "replicate"])
+        .sort(
+            by=["state", "exposure", "start", "end", "replicate"]
+        )  # TODO sort by protein first, take from global var
     )
 
     return cast_exposure(df)

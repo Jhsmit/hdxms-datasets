@@ -5,7 +5,7 @@ from urllib.error import HTTPError
 import uuid
 
 import requests
-from hdxms_datasets.loader import BACKEND, read_csv
+from hdxms_datasets.reader import BACKEND, read_csv
 from hdxms_datasets.models import HDXDataSet, extract_values_by_types
 import shutil
 import narwhals as nw

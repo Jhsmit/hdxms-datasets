@@ -4,14 +4,14 @@ Module for loading various HDX-MS formats.
 
 from __future__ import annotations
 
+from io import StringIO
 import warnings
 from pathlib import Path
-from typing import IO, NotRequired, TypedDict
+from typing import IO, Literal, NotRequired, TypedDict, overload
 from collections.abc import Iterable, Iterator
 
 import narwhals as nw
 
-from hdxms_datasets.formats import FORMAT_LUT
 from hdxms_datasets.models import Peptides
 
 
@@ -100,7 +100,7 @@ def deduplicate_name(name: str):
     return re.sub(r"_duplicated_\d+$", "", name)
 
 
-def read_hdexaminer_peptide_pool(source: Path) -> nw.DataFrame:
+def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
     """
     Read an HDX-Examiner peptide pool file and return a Narwhals DataFrame.
 
@@ -109,36 +109,52 @@ def read_hdexaminer_peptide_pool(source: Path) -> nw.DataFrame:
 
     """
 
-    df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
+    # read the data
+    if isinstance(source, StringIO):
+        try:
+            import polars as pl
 
-    with open(source, "r") as fh:
-        exposure_line = fh.readline()
-        header_line = fh.readline()
+            df = nw.from_native(pl.read_csv(source, skip_rows=1, has_header=True))
+        except ImportError:
+            import pandas as pd
+
+            df = nw.from_native(pd.read_csv(source, skiprows=[0]))
+
+    else:
+        df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
+
+    # read the header
+    if isinstance(source, StringIO):
+        source.seek(0)
+        exposure_line = source.readline()
+        header_line = source.readline()
+    else:
+        with open(source, "r") as fh:
+            exposure_line = fh.readline()
+            header_line = fh.readline()
 
     exposure_columns = exposure_line.strip().split(",")
     header_columns = header_line.strip().split(",")
 
     found_schema = df[:, 0:8].schema
     if found_schema != HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA:
-        print(found_schema)
-        print(HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA)
         raise ValueError("HDX-Examiner peptide pool file has an unexpected columns schema.")
 
-    combined_schema = nw.Schema(
-        {
-            k: v
-            for k, v in zip(
-                HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.names()
-                + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.names(),
-                HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.dtypes()
-                + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.dtypes(),
-            )
-        }
-        | {"Exposure": nw.String()}
-    )
+    # combined_schema = nw.Schema(
+    #     {
+    #         k: v
+    #         for k, v in zip(
+    #             HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.names()
+    #             + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.names(),
+    #             HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA.dtypes()
+    #             + HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.dtypes(),
+    #         )
+    #     }
+    #     | {"Exposure": nw.String()}
+    # )
 
-    # create empty dataframe to hold combined data
-    combined_df = nw.DataFrame.from_dict({}, schema=combined_schema, backend=BACKEND)
+    # # create empty dataframe to hold combined data
+    # combined_df = nw.DataFrame.from_dict({}, schema=combined_schema, backend=BACKEND)
 
     # find indices of exposure markers in header
     has_entry_with_end = [i for i, col in enumerate(exposure_columns) if col] + [
@@ -380,9 +396,19 @@ def parse_hxms_lines(lines: Iterable[str], read_content: bool = True) -> HXMSRes
     return result
 
 
-def read_hxms(source: Path | IO | bytes) -> HXMSResult:
+@overload
+def read_hxms(source: Path | IO | bytes, returns: Literal["HXMSResult"]) -> HXMSResult: ...
+
+
+@overload
+def read_hxms(source: Path | IO | bytes, returns: Literal["DataFrame"]) -> nw.DataFrame: ...
+
+
+def read_hxms(
+    source: Path | IO | bytes, returns: Literal["HXMSResult", "DataFrame"] = "HXMSResult"
+) -> HXMSResult | nw.DataFrame:
     """
-    Read an HXMS file and return a Narwhals DataFrame.
+    Read an HXMS file and return a HXMSResult or Narwhals DataFrame.
 
     Args:
         source: Source object representing the HXMS data.
@@ -398,12 +424,18 @@ def read_hxms(source: Path | IO | bytes) -> HXMSResult:
     # first get column names
     result = parse_hxms_lines(line_gen, read_content=True)
 
-    return result
+    if returns == "HXMSResult":
+        return result
+    elif returns == "DataFrame":
+        assert "DATA" in result, "No data found in HXMS file"
+        return result["DATA"]
+    else:
+        raise ValueError(f"Unsupported returns value: {returns!r}")
 
 
-def load_data(data_file: Path) -> nw.DataFrame:
+def read_peptide_data(data_file: Path) -> nw.DataFrame:
     """
-    Load data from the specified file and return a Narwhals DataFrame.
+    Read peptide data from the specified file and return a Narwhals DataFrame.
 
     Args:
         data_file: Path to the data file.
@@ -412,6 +444,8 @@ def load_data(data_file: Path) -> nw.DataFrame:
         A Narwhals DataFrame containing the loaded data.
 
     """
+
+    # TODO identify format and then load
 
     if data_file.suffix.lower() == ".csv":
         df = read_csv(data_file)
@@ -458,11 +492,14 @@ def load_peptides(
         data_path = base_dir / peptides.data_file
 
     # Load the raw data
-    df = load_data(data_path)
+    # TODO via fmt.read( .. )
+    df = read_peptide_data(data_path)
 
     from hdxms_datasets import process
 
     df = process.apply_filters(df, **peptides.filters)
+
+    from hdxms_datasets.formats import FORMAT_LUT
 
     format_spec = FORMAT_LUT.get(peptides.data_format)
     assert format_spec is not None, f"Unknown format: {peptides.data_format}"

@@ -1,3 +1,4 @@
+from functools import partial
 from pathlib import Path
 from typing import Callable, Optional
 from dataclasses import dataclass
@@ -6,9 +7,11 @@ import narwhals as nw
 from hdxms_datasets.convert import (
     from_dynamx_cluster,
     from_dynamx_state,
-    from_hdexaminer,
+    from_hdexaminer_all_results,
     from_hxms,
 )
+
+from hdxms_datasets.reader import read_csv, read_hdexaminer_peptide_pool, read_hxms
 
 
 # a list of supported columns for open HDX peptide tables
@@ -53,24 +56,34 @@ class FormatSpec:
 
     Args:
         name: Name of the format.
-        required_columns: List of columns required to identify this format.
+        returned_columns: List of columns returned by .read(). May return
+            additional columns depending on the format.
         filter_columns: List of columns that can be used to filter data.
+        reader: Function to read a file into a DataFrame.
         converter: Function to convert a DataFrame to OpenHDX format.
         aggregated: Whether the format is aggregated, or a function to determine if a DataFrame is aggregated.
+        doc: Optional documentation string.
 
     """
 
     name: str
-    required_columns: list[str]
+    returned_columns: list[str]
     filter_columns: list[str]
+    reader: Callable[[Path], nw.DataFrame]
     converter: Callable[[nw.DataFrame], nw.DataFrame]
     aggregated: bool | Callable[[nw.DataFrame], bool]
+
+    doc: str = ""
 
     def matches(self, df: nw.DataFrame) -> bool:
         """Check if a DataFrame matches this format."""
         df_cols = set(df.columns)
-        required_cols = set(self.required_columns)
+        required_cols = set(self.returned_columns)
         return required_cols.issubset(df_cols)
+
+    def read(self, path: Path) -> nw.DataFrame:
+        """Read data using the format's reader."""
+        return self.reader(path)
 
     def convert(self, df: nw.DataFrame) -> nw.DataFrame:
         """Convert DataFrame to OpenHDX format."""
@@ -103,7 +116,7 @@ def hxms_is_aggregated(df: nw.DataFrame) -> bool:
 FORMATS = [
     FormatSpec(
         name="DynamX_v3_state",
-        required_columns=[
+        returned_columns=[
             "Protein",
             "Start",
             "End",
@@ -122,6 +135,7 @@ FORMATS = [
             "RT SD",
         ],
         filter_columns=["Protein", "State", "Exposure"],
+        reader=read_csv,
         converter=from_dynamx_state,
         aggregated=True,
     ),
@@ -129,7 +143,7 @@ FORMATS = [
     # DynamX_v3_state first to ensure correct identification
     FormatSpec(
         name="DynamX_vx_state",
-        required_columns=[
+        returned_columns=[
             "Protein",
             "Start",
             "End",
@@ -146,12 +160,13 @@ FORMATS = [
             "RT SD",
         ],
         filter_columns=["Protein", "State", "Exposure"],
+        reader=read_csv,
         converter=from_dynamx_state,
         aggregated=True,
     ),
     FormatSpec(
         name="DynamX_v3_cluster",
-        required_columns=[
+        returned_columns=[
             "Protein",
             "Start",
             "End",
@@ -168,13 +183,14 @@ FORMATS = [
             "Inten",
             "Center",
         ],
-        filter_columns=["Protein", "State", "Exposure"],  # filter by 'Protein' field?
+        filter_columns=["Protein", "State", "Exposure"],
+        reader=read_csv,
         converter=from_dynamx_cluster,
         aggregated=False,
     ),
     FormatSpec(
-        name="HDExaminer_v3",
-        required_columns=[
+        name="HDExaminer_all_results",
+        returned_columns=[
             "Protein State",
             "Deut Time",
             "Experiment",
@@ -197,23 +213,54 @@ FORMATS = [
             "Confidence",
         ],
         filter_columns=["Protein State", "Deut Time"],
-        converter=from_hdexaminer,
+        reader=read_csv,
+        converter=from_hdexaminer_all_results,
         aggregated=False,
     ),
-    FormatSpec(
-        name="OpenHDX",
-        required_columns=["start", "end", "sequence"],
-        filter_columns=[],
-        converter=lambda df: df,  # No conversion needed for OpenHDX
-        aggregated=lambda df: "replicate" not in df.columns,
-    ),
-    FormatSpec(
-        name="HXMS",
-        required_columns=["START", "END", "SEQUENCE", "TIME(Sec)", "REP"],
-        filter_columns=["TIME(Sec)"],
-        converter=from_hxms,
-        aggregated=hxms_is_aggregated,
-    ),
+    # FormatSpec(
+    #     name="HDExaminer_peptide_pool",
+    #     returned_columns=[
+    #         [
+    #             "State",
+    #             "Protein",
+    #             "Start",
+    #             "End",
+    #             "Sequence",
+    #             "Search RT",
+    #             "Charge",
+    #             "Max D",
+    #             "Start RT",
+    #             "End RT",
+    #             "#D",
+    #             "%D",
+    #             "#D right",
+    #             "%D right",
+    #             "Score",
+    #             "Conf",
+    #             "Exposure",
+    #         ]
+    #     ],
+    #     filter_columns=["State", "Exposure"],
+    #     reader=read_hdexaminer_peptide_pool,
+    #     # converter=from_hdexaminer_peptide_pool,
+    #     aggregated=False,
+    # ),
+    # FormatSpec(
+    #     name="OpenHDX",
+    #     returned_columns=["start", "end", "sequence"],
+    #     filter_columns=[],
+    #     reader=read_csv,
+    #     converter=lambda df: df,  # No conversion needed for OpenHDX
+    #     aggregated=lambda df: "replicate" not in df.columns,
+    # ),
+    # FormatSpec(
+    #     name="HXMS",
+    #     returned_columns=["START", "END", "SEQUENCE", "TIME(Sec)", "REP"],
+    #     filter_columns=["TIME(Sec)"],
+    #     reader=partial(read_hxms, returns="DataFrame"),
+    #     converter=from_hxms,
+    #     aggregated=hxms_is_aggregated,
+    # ),
 ]
 
 

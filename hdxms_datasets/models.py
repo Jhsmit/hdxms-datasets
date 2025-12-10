@@ -256,7 +256,7 @@ class Peptides(BaseModel):
 
         """
         if self.data_file.exists():
-            from hdxms_datasets.loader import load_peptides
+            from hdxms_datasets.reader import load_peptides
 
             return load_peptides(
                 self,
