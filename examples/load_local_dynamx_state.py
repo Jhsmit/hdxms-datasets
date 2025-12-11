@@ -44,9 +44,9 @@ state.protein_state.sequence  # Get the sequence of the first state
 # load the partially deuterated peptides
 df = state.peptides[0].load(
     convert=True,
-    aggregate=True,
-    # sort_rows=True,
-    # sort_columns=True,
+    aggregate=None,  # dynamx state data is already aggregated
+    sort_rows=True,
+    sort_columns=True,
 )
 print(df.columns)
 # > ['start', 'end', 'sequence', 'state', 'exposure', 'centroid_mz', 'rt', 'rt_sd', 'uptake', 'uptake_sd']
@@ -112,12 +112,12 @@ df_f
 # %%
 # show a single peptide
 start, end = processed["start", "end"].row(10)
-view = StructureView(dataset.structure).color_peptide(start, end, chain=["A"])
+view = StructureView(dataset.structure).color_peptide(start, end)
 view
 
 # %%
 # select a set of peptides for further viusualization
-peptides = dataset.states[0].peptides[0]
+peptides = dataset.states[0].peptides[0].load()
 
 # %%
 # show regions of the structure that are covered by peptides

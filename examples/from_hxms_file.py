@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 from hdxms_datasets.database import populate_known_ids, submit_dataset
-from hdxms_datasets.loader import (
+from hdxms_datasets.reader import (
     read_hxms,
 )
 from hdxms_datasets.models import (
