@@ -109,7 +109,7 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
 
     """
 
-    # read the data
+    # read the data and header
     if isinstance(source, StringIO):
         try:
             import polars as pl
@@ -120,15 +120,12 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
 
             df = nw.from_native(pd.read_csv(source, skiprows=[0]))
 
-    else:
-        df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
-
-    # read the header
-    if isinstance(source, StringIO):
         source.seek(0)
         exposure_line = source.readline()
         header_line = source.readline()
+
     else:
+        df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
         with open(source, "r") as fh:
             exposure_line = fh.readline()
             header_line = fh.readline()
@@ -151,7 +148,7 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
     # to be repeated row-wise initial 8 columns
     initial_df = df[:, :8]
 
-    for i, j in zip(has_entry_with_end[1:-1], has_entry_with_end[2:]):
+    for i, j in zip(has_entry_with_end[:-1], has_entry_with_end[1:]):
         exposure = exposure_columns[i]
 
         sub_frame = df[:, i:j]
