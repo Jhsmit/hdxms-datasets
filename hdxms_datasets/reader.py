@@ -4,7 +4,9 @@ Module for loading various HDX-MS formats.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from io import StringIO
+import itertools
 import warnings
 from pathlib import Path
 from typing import IO, Literal, NotRequired, TypedDict, overload
@@ -142,38 +144,41 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
         len(exposure_columns)
     ]
 
-    output_dfs = []
-    dtype_lut = dict(HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.items())
+    num_blocks = len(has_entry_with_end) - 1
+    initial_df = nw.concat([df[:, :8]] * num_blocks, how="vertical")
 
-    # to be repeated row-wise initial 8 columns
-    initial_df = df[:, :8]
+    has_entry_with_end = [i for i, col in enumerate(exposure_columns) if col] + [
+        len(exposure_columns)
+    ]
 
+    output = defaultdict(list)
     for i, j in zip(has_entry_with_end[:-1], has_entry_with_end[1:]):
         exposure = exposure_columns[i]
+        found_columns = header_columns[i:j]
 
-        sub_frame = df[:, i:j]
+        # iterate over the expected columns, extract the series and append to output
+        # for missing columns, create a series of nulls
+        for col, dtype in HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.items():
+            if col in found_columns:
+                column_index = found_columns.index(col) + i
+                frame = df[:, column_index].cast(dtype).alias(col).to_frame()
+            else:
+                c = itertools.repeat(None, len(df))
+                frame = nw.Series.from_iterable(
+                    name=col, values=c, dtype=dtype, backend=BACKEND
+                ).to_frame()
 
-        expected_columns = header_columns[i:j]
+            output[col].append(frame)
 
-        drop_cols = set(expected_columns) - set(HDEXAMINER_PEPTIDE_POOL_REPEATED_SCHEMA.names())
-        # rename duplicated columns, drop non-accepted columns, cast to correct dtype, add exposure column
-        sub_frame = (
-            sub_frame.rename({col: name for col, name in zip(sub_frame.columns, expected_columns)})
-            .drop(drop_cols)
-            .with_columns(
-                [
-                    nw.col(name).cast(dtype_lut[name])
-                    for name in expected_columns
-                    if name not in drop_cols
-                ]
-                + [nw.lit(str(exposure)).alias("Exposure")]
-            )
-        )
+        c = itertools.repeat(exposure, len(df))
+        frame = nw.Series.from_iterable(
+            name="Exposure", values=c, dtype=dtype, backend=BACKEND
+        ).to_frame()
+        output["Exposure"].append(frame)
 
-        combined_i = nw.concat([initial_df, sub_frame], how="horizontal")
-        output_dfs.append(combined_i)
-
-    final_output = nw.concat(output_dfs, how="diagonal")
+    # combine all 1-column frames first vertically and then horizontally with initial_df
+    concatenated = {k: nw.concat(v, how="vertical") for k, v in output.items()}
+    final_output = nw.concat([initial_df, *concatenated.values()], how="horizontal")
 
     return final_output
 
