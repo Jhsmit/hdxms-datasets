@@ -53,7 +53,7 @@ selected = processed.filter(pl.col("exposure") == exposure_value)
 plot_peptides(selected, domain=(0, 1), value="frac_max_uptake")
 
 # %%
-peptides = dataset.states[0].peptides[0]
+peptides = dataset.states[0].peptides[0].load()
 StructureView(dataset.structure).peptide_coverage(peptides)
 
 # %%
