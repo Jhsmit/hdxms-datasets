@@ -13,6 +13,12 @@ residue number of the last amino acid in the peptide
 ### sequence (str)
 fasta sequence of the peptide
 
+### protein (str)
+protein name or identifier
+
+HDExaminer name: Protein
+DynamX name: Protein
+
 ### state (str)
 state label
 
