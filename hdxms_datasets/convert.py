@@ -40,6 +40,7 @@ def from_dynamx_state(dynamx_df: nw.DataFrame) -> nw.DataFrame:
     Convert a DynamX state DataFrame to OpenHDX format.
     """
     column_mapping = {
+        # TODO add Protein
         "State": "state",
         "Exposure": "exposure",
         "Start": "start",
@@ -156,8 +157,30 @@ def from_hdexaminer_all_results(
         .select(column_order)
         .sort(
             by=["state", "exposure", "start", "end", "replicate"]
-        )  # TODO sort by protein first, take from global var
+        )  # TODO sort by protein first (if available), take from global var
     )
+
+    return cast_exposure(df)
+
+
+def from_hdexaminer_peptide_pool(df: nw.DataFrame) -> nw.DataFrame:
+    column_mapping = {
+        "State": "state",
+        "Exposure": "exposure",
+        "Start": "start",
+        "End": "end",
+        "Sequence": "sequence",
+        "Charge": "charge",
+        "#D": "uptake",
+        "Start RT": "start_rt",
+        "End RT": "end_rt",
+        "Search RT": "search_rt",
+    }
+
+    df = df.rename(column_mapping)
+    column_order = list(column_mapping.values())
+
+    df = df.select(column_order)  # .sort(by=["state", "exposure", "start", "end"])
 
     return cast_exposure(df)
 

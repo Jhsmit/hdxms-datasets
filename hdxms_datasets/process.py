@@ -11,7 +11,7 @@ from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
-from hdxms_datasets.reader import load_peptides, BACKEND
+from hdxms_datasets.reader import BACKEND
 from hdxms_datasets.models import DeuterationType, Peptides, ValueType
 from hdxms_datasets.utils import peptides_are_unique, records_to_dict
 
@@ -201,6 +201,7 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     """
 
     # these must be unique before aggregating makes sense
+    # TODO: we can group also by these columns to avoid this requirement
     unique_columns = ["protein", "state"]
     for col in unique_columns:
         if col in df.columns:
@@ -289,6 +290,94 @@ def drop_null_columns(df: nw.DataFrame) -> nw.DataFrame:
     """Drop columns that are all null from the DataFrame."""
     all_null_columns = [col for col in df.columns if df[col].is_null().all()]
     return df.drop(all_null_columns)
+
+
+def load_peptides(
+    peptides: Peptides,
+    base_dir: Path = Path.cwd(),
+    convert: bool = True,
+    aggregate: bool | None = None,
+    sort_rows: bool = True,
+    sort_columns: bool = True,
+    drop_null: bool = True,
+) -> nw.DataFrame:
+    """
+    Load peptides from the data file and return a Narwhals DataFrame.
+
+    Args:
+        peptides: Peptides object containing metadata and file path.
+        base_dir: Base directory to resolve relative file paths. Defaults to the current working directory.
+        convert: Whether to convert the data to a standard format.
+        aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.
+        sort_rows: Whether to sort the rows.
+        sort_columns: Whether to sort the columns in a standard order.
+        drop_null: Whether to drop columns that are entirely null.
+
+    Returns:
+        A Narwhals DataFrame containing the loaded peptide data.
+
+    """
+
+    # Resolve the data file path
+    if peptides.data_file.is_absolute():
+        data_path = peptides.data_file
+    else:
+        data_path = base_dir / peptides.data_file
+
+    from hdxms_datasets.formats import FMT_REGISTRY, is_aggregated
+
+    format_spec = FMT_REGISTRY.get(peptides.data_format)
+    assert format_spec is not None, f"Unknown format: {peptides.data_format}"
+
+    df = format_spec.read(data_path)
+
+    from hdxms_datasets import process
+
+    df = process.apply_filters(df, **peptides.filters)
+
+    if not convert and sort_rows:
+        warnings.warn("Cannot sort rows without conversion. Sorting will be skipped.")
+        sort_rows = False
+
+    if not convert and sort_columns:
+        warnings.warn("Cannot sort columns without conversion. Sorting will be skipped.")
+        sort_columns = False
+
+    if convert:
+        df = format_spec.convert(df)
+
+    peptides_are_aggregated = format_spec.aggregated or is_aggregated(df)
+
+    if callable(format_spec.aggregated):
+        peptides_are_aggregated = format_spec.aggregated(df)
+    else:
+        peptides_are_aggregated = format_spec.aggregated
+
+    # if aggregation is not specified, by default aggregate if the data is not already aggregated
+    if aggregate is None:
+        aggregate = not peptides_are_aggregated
+
+    if aggregate and peptides_are_aggregated:
+        warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
+        aggregate = False
+
+    if not convert and aggregate:
+        warnings.warn("Cannot aggregate data without conversion. Aggregation will be skipped.")
+        aggregate = False
+
+    if aggregate:
+        df = process.aggregate(df)
+
+    if drop_null:
+        df = process.drop_null_columns(df)
+
+    if sort_rows:
+        df = process.sort_rows(df)
+
+    if sort_columns:
+        df = process.sort_columns(df)
+
+    return df
 
 
 def left_join(

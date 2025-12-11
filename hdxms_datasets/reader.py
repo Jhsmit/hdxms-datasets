@@ -9,12 +9,10 @@ from io import StringIO
 import itertools
 import warnings
 from pathlib import Path
-from typing import IO, Literal, NotRequired, TypedDict, overload
+from typing import IO, Any, Literal, NotRequired, TypedDict, overload
 from collections.abc import Iterable, Iterator
 
 import narwhals as nw
-
-from hdxms_datasets.models import Peptides
 
 
 def get_backend():
@@ -271,6 +269,24 @@ def _line_content(line: str) -> list[str]:
     return content
 
 
+def _cast_envelope(data_dict: dict[str, Any]) -> dict[str, Any]:
+    """
+    Cast the ENVELOPE field in the data dictionary to a list of floats.
+
+    Args:
+        data_dict: A dictionary containing HXMS data.
+    Returns:
+        The updated dictionary with the ENVELOPE field cast to a list of floats.
+    """
+    if "ENVELOPE" in data_dict:
+        envelope_str = data_dict["ENVELOPE"]
+        if envelope_str:
+            data_dict["ENVELOPE"] = [float(val) for val in envelope_str.split(",")]
+        else:
+            data_dict["ENVELOPE"] = []
+    return data_dict
+
+
 def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
     """
     Parse the TITLE_TP section of an HXMS file and return a Narwhals DataFrame.
@@ -294,8 +310,9 @@ def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
     content = _line_content(first_row)
 
     used_columns = list(HXMS_SCHEMA)[: len(content)]
-    data_dict = dict(zip(used_columns, content))
+    data_dict: dict[str, Any] = dict(zip(used_columns, content))
     data_dict["sequence"] = sequence[int(data_dict["START"]) - 1 : int(data_dict["END"])]
+    data_dict = _cast_envelope(data_dict)
     dicts.append(data_dict)
 
     # continue parsing data rows
@@ -305,7 +322,7 @@ def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
         content = _line_content(line)
         data_dict = dict(zip(used_columns, content))
         data_dict["sequence"] = sequence[int(data_dict["START"]) - 1 : int(data_dict["END"])]
-
+        data_dict = _cast_envelope(data_dict)
         dicts.append(data_dict)
 
     schema = nw.Schema({col: HXMS_SCHEMA[col] for col in used_columns} | {"sequence": nw.String()})
@@ -417,117 +434,3 @@ def read_hxms(
         return result["DATA"]
     else:
         raise ValueError(f"Unsupported returns value: {returns!r}")
-
-
-def read_peptide_data(data_file: Path) -> nw.DataFrame:
-    """
-    Read peptide data from the specified file and return a Narwhals DataFrame.
-
-    Args:
-        data_file: Path to the data file.
-
-    Returns:
-        A Narwhals DataFrame containing the loaded data.
-
-    """
-
-    # TODO identify format and then load
-
-    if data_file.suffix.lower() == ".csv":
-        df = read_csv(data_file)
-    elif data_file.suffix.lower() == ".hxms":
-        result = read_hxms(data_file)
-        assert "DATA" in result, "No data found in HXMS file"
-        df = result["DATA"]
-    else:
-        raise ValueError(f"Unsupported file format: {data_file.suffix}")
-
-    return df
-
-
-def load_peptides(
-    peptides: Peptides,
-    base_dir: Path = Path.cwd(),
-    convert: bool = True,
-    aggregate: bool | None = None,
-    sort_rows: bool = True,
-    sort_columns: bool = True,
-    drop_null: bool = True,
-) -> nw.DataFrame:
-    """
-    Load peptides from the data file and return a Narwhals DataFrame.
-
-    Args:
-        peptides: Peptides object containing metadata and file path.
-        base_dir: Base directory to resolve relative file paths. Defaults to the current working directory.
-        convert: Whether to convert the data to a standard format.
-        aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.
-        sort_rows: Whether to sort the rows.
-        sort_columns: Whether to sort the columns in a standard order.
-        drop_null: Whether to drop columns that are entirely null.
-
-    Returns:
-        A Narwhals DataFrame containing the loaded peptide data.
-
-    """
-
-    # Resolve the data file path
-    if peptides.data_file.is_absolute():
-        data_path = peptides.data_file
-    else:
-        data_path = base_dir / peptides.data_file
-
-    # Load the raw data
-    # TODO via fmt.read( .. )
-    df = read_peptide_data(data_path)
-
-    from hdxms_datasets import process
-
-    df = process.apply_filters(df, **peptides.filters)
-
-    from hdxms_datasets.formats import FORMAT_LUT
-
-    format_spec = FORMAT_LUT.get(peptides.data_format)
-    assert format_spec is not None, f"Unknown format: {peptides.data_format}"
-
-    if callable(format_spec.aggregated):
-        is_aggregated = format_spec.aggregated(df)
-    else:
-        is_aggregated = format_spec.aggregated
-
-    # if aggregation is not specified, by default aggregate if the data is not already aggregated
-    if aggregate is None:
-        aggregate = not is_aggregated
-
-    if aggregate and is_aggregated:
-        warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
-        aggregate = False
-
-    if not convert and aggregate:
-        warnings.warn("Cannot aggregate data without conversion. Aggeregation will be skipped.")
-        aggregate = False
-
-    if not convert and sort_rows:
-        warnings.warn("Cannot sort rows without conversion. Sorting will be skipped.")
-        sort_rows = False
-
-    if not convert and sort_columns:
-        warnings.warn("Cannot sort columns without conversion. Sorting will be skipped.")
-        sort_columns = False
-
-    if convert:
-        df = format_spec.convert(df)
-
-    if aggregate:
-        df = process.aggregate(df)
-
-    if drop_null:
-        df = process.drop_null_columns(df)
-
-    if sort_rows:
-        df = process.sort_rows(df)
-
-    if sort_columns:
-        df = process.sort_columns(df)
-
-    return df
