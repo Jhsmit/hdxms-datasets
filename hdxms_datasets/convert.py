@@ -83,7 +83,7 @@ def convert_rt(rt_str: str) -> float:
 def cast_exposure(df):
     try:
         df = df.with_columns(nw.col("exposure").str.strip_chars("s").cast(nw.Float64))
-    except InvalidOperationError:
+    except (InvalidOperationError, ValueError):
         pass
     return df
 
