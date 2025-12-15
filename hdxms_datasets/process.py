@@ -196,7 +196,13 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
 
     If no intensity column is present, replicates are averaged with equal weights.
     All other columns are pass through if they are unique, otherwise set to `None`.
-    Also adds n_replicates and n_cluster columns.
+    Also adds n_replicates, n_charges, and n_clusters columns.
+
+        n_replicates: Number of replicates averaged, based on the unique number of values in
+            the 'replicate' column
+        n_charges: Number of unique charged states averaged together
+        n_clusters: Total number of isotopic clusters averaged together regardless of whether
+            they are from replicate experiments or different charged states.
 
     """
 
@@ -224,7 +230,12 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     for col in intensity_wt_avg_columns:
         col_idx = output_columns.index(col)
         output_columns.insert(col_idx + 1, f"{col}_sd")
-    output_columns += ["n_replicates", "n_cluster"]
+
+    if "replicate" in df.columns:
+        output_columns += ["n_replicates"]
+    if "charge" in df.columns:
+        output_columns += ["n_charges"]
+    output_columns += ["n_clusters"]
 
     excluded = {"intensity"}
     output = {k: [] for k in output_columns if k not in excluded}
@@ -237,8 +248,11 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
         # record["start"] = start
         # record["end"] = end
         # record["exposure"] = exposure
-        record["n_replicates"] = df_group["replicate"].n_unique()
-        record["n_cluster"] = len(df_group)
+        if "charge" in df.columns:
+            record["n_charges"] = df_group["charge"].n_unique()
+        if "replicate" in df.columns:
+            record["n_replicates"] = df_group["replicate"].n_unique()
+        record["n_clusters"] = len(df_group)
 
         # add intensity-weighted average columns
         for col in intensity_wt_avg_columns:
