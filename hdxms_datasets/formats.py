@@ -103,8 +103,10 @@ class FormatSpec(ABC):
         """Default format identification based on file extension."""
 
 
-def read_columns(path: Path) -> list[str]:
+def read_columns(path: Path, line: int = 0) -> list[str]:
     with open(path, "r") as fh:
+        for _ in range(line):
+            fh.readline()
         header = fh.readline().strip()
 
     columns = [col.strip() for col in header.split(",")]
@@ -233,8 +235,8 @@ class HDExaminer_all_results(FormatSpec):
         "Search RT",
         "Actual RT",
         "# Spectra",
-        "Peak Width Da",
-        "m/z Shift Da",
+        "Peak Width",
+        "m/z Shift",
         "Max Inty",
         "Exp Cent",
         "Theor Cent",
@@ -262,7 +264,54 @@ class HDExaminer_all_results(FormatSpec):
         return set(cls.returned_columns).issubset(set(columns))
 
 
+class HDExaminer_all_results_with_units(HDExaminer_all_results):
+    """
+    There are some 'all results' files out there which have a variation on the standard columns
+    where the units are incuded in the column names:
+    - Peak Width > Peak Width Da
+    - m/z Shift > m/z Shift Da
+    """
+
+    returned_columns = [
+        "Protein State",
+        "Deut Time",
+        "Experiment",
+        "Start",
+        "End",
+        "Sequence",
+        "Charge",
+        "Search RT",
+        "Actual RT",
+        "# Spectra",
+        "Peak Width Da",
+        "m/z Shift Da",
+        "Max Inty",
+        "Exp Cent",
+        "Theor Cent",
+        "Score",
+        "Cent Diff",
+        "# Deut",
+        "Deut %",
+        "Confidence",
+    ]
+
+
 class HDExaminer_peptide_pool(FormatSpec):
+    """HDExaminer Peptide Pool format specification
+
+    This file consists of an inital block of 8 columns (first 8 in returned_columns),
+    followed by a repeating number of typically 8 columns per exposure (the last 8 in returned_columns).
+    The repeating columns blocks might have 6 columns for FD control blocks. These columns are:
+
+    >> ['Start RT', 'End RT', '#D', '%Max D', 'Score', 'Conf']
+
+    The first line in this file is header with exposure times, in seconds formatted as '10s', or 'Full-D'
+    for the full deuterated control.
+
+    Reading the file returns an additional "Exposure" column with values derived from the header line.
+
+    """
+
     returned_columns = [
         "State",
         "Protein",
@@ -296,8 +345,8 @@ class HDExaminer_peptide_pool(FormatSpec):
 
     @classmethod
     def valid_file(cls, path: Path) -> bool:
-        columns = read_columns(path)
-        return set(cls.returned_columns).issubset(set(columns))
+        columns = read_columns(path, line=1)
+        return set(cls.returned_columns[:-1]).issubset(set(columns))
 
 
 class OpenHDX(FormatSpec):
