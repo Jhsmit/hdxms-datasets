@@ -200,12 +200,16 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
 
     """
 
+    # group by these columns if present
+    by = ["protein", "state", "start", "end", "exposure"]
+    group_by_columns = [col for col in by if col in df.columns]
+
     # these must be unique before aggregating makes sense
     # TODO: we can group also by these columns to avoid this requirement
-    unique_columns = ["protein", "state"]
-    for col in unique_columns:
-        if col in df.columns:
-            assert df[col].n_unique() == 1, f"Column {col} must be unique before aggregating."
+    # unique_columns = ["protein", "state"]
+    # for col in unique_columns:
+    #     if col in df.columns:
+    #         assert df[col].n_unique() == 1, f"Column {col} must be unique before aggregating."
 
     # columns which are intesity weighed averaged
     # TODO global variable
@@ -224,15 +228,15 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
 
     excluded = {"intensity"}
     output = {k: [] for k in output_columns if k not in excluded}
-    groups = df.group_by(["start", "end", "exposure"])
+    groups = df.group_by(group_by_columns)
 
     # TODO: if we don't have an intensity column, we can do a normal aggregate
     # instead of needing a for loop
-    for (start, end, exposure), df_group in groups:
-        record = {}
-        record["start"] = start
-        record["end"] = end
-        record["exposure"] = exposure
+    for group_values, df_group in groups:
+        record = {col: val for col, val in zip(group_by_columns, group_values)}
+        # record["start"] = start
+        # record["end"] = end
+        # record["exposure"] = exposure
         record["n_replicates"] = df_group["replicate"].n_unique()
         record["n_cluster"] = len(df_group)
 
