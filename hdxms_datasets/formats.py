@@ -7,6 +7,7 @@ from hdxms_datasets.convert import (
     from_dynamx_state,
     from_hdexaminer_all_results,
     from_hdexaminer_peptide_pool,
+    from_hdexaminer_uptake_summary,
     from_hxms,
 )
 
@@ -347,6 +348,56 @@ class HDExaminer_peptide_pool(FormatSpec):
     def valid_file(cls, path: Path) -> bool:
         columns = read_columns(path, line=1)
         return set(cls.returned_columns[:-1]).issubset(set(columns))
+
+
+class HDExaminer_uptake_summary(FormatSpec):
+    """HDExaminer Uptake Summary Table format specification.
+
+    This is the output of HD Examiner's "Uptake Summary Table" report.
+
+    The resulting table is aggregated, ie only one row per peptide/timepoint.
+
+    Full deuterated control is labelled as 'MAX', exposure times are in seconds,
+    e.g. '10', '100', etc.
+
+    Typically includes nondeuterated control as '0'.
+
+    """
+
+    returned_columns = [
+        "Protein State",
+        "Protein",
+        "Start",
+        "End",
+        "Sequence",
+        "Peptide Mass",
+        "RT (min)",
+        "Deut Time (sec)",
+        "maxD",
+        "Theor Uptake #D",
+        "#D",
+        "%D",
+        "Conf Interval (#D)",
+        "#Rep",
+        "Confidence",
+        "Stddev",
+        "p",
+    ]
+    filter_columns = ["Protein", "Protein State", "Deut Time (sec)"]
+    aggregated = True
+
+    @classmethod
+    def read(cls, path: Path) -> nw.DataFrame:
+        return read_csv(path)
+
+    @classmethod
+    def convert(cls, df: nw.DataFrame) -> nw.DataFrame:
+        return from_hdexaminer_uptake_summary(df)
+
+    @classmethod
+    def valid_file(cls, path: Path) -> bool:
+        columns = read_columns(path)
+        return set(cls.returned_columns).issubset(set(columns))
 
 
 class OpenHDX(FormatSpec):
