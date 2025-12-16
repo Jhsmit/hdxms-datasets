@@ -161,8 +161,9 @@ class PeptideFormat(str, Enum):
     DynamX_v3_cluster = "DynamX_v3_cluster"
     DynamX_vx_state = "DynamX_vx_state"
     HDExaminer_all_results = "HDExaminer_all_results"
+    HDExaminer_all_results_with_units = "HDExaminer_all_results_with_units"
     HDExaminer_peptide_pool = "HDExaminer_peptide_pool"
-    HDExaminer_summary_table = "HDExaminer_summary_table"
+    HDExaminer_uptake_summary = "HDExaminer_uptake_summary"
     HXMS = "HXMS"
     OpenHDX = "OpenHDX"
 
@@ -307,7 +308,9 @@ class ProteinState(BaseModel):
     @model_validator(mode="after")
     def check_sequence(self):
         if len(self.sequence) != self.c_term - self.n_term + 1:
-            raise ValueError("Sequence length does not match N-term and C-term residue numbers.")
+            raise ValueError(
+                f"Sequence length does not match N-term and C-term residue numbers, found: {len(self.sequence)}, expected: {self.c_term - self.n_term + 1}"
+            )
         return self
 
 
