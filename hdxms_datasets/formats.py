@@ -103,6 +103,15 @@ class FormatSpec(ABC):
     def valid_file(cls, path: Path) -> bool:
         """Default format identification based on file extension."""
 
+    @classmethod
+    @abstractmethod
+    def load(cls, path: Path, convert=True) -> nw.DataFrame:
+        """Load and convert a file to OpenHDX format."""
+        df = cls.read(path)
+        if convert:
+            df = cls.convert(df)
+        return df
+
 
 def read_columns(path: Path, line: int = 0) -> list[str]:
     with open(path, "r") as fh:
