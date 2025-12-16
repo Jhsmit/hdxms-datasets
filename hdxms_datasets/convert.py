@@ -164,6 +164,7 @@ def from_hdexaminer_all_results(
 
 
 def from_hdexaminer_peptide_pool(df: nw.DataFrame) -> nw.DataFrame:
+    """Convert from hd examiner peptide pool format to OpenHDX format."""
     column_mapping = {
         "State": "state",
         "Exposure": "exposure",
@@ -175,6 +176,29 @@ def from_hdexaminer_peptide_pool(df: nw.DataFrame) -> nw.DataFrame:
         "Start RT": "start_rt",
         "End RT": "end_rt",
         "Search RT": "search_rt",
+    }
+
+    df = df.rename(column_mapping)
+    column_order = list(column_mapping.values())
+
+    df = df.select(column_order)  # .sort(by=["state", "exposure", "start", "end"])
+
+    return cast_exposure(df)
+
+
+def from_hdexaminer_uptake_summary(df: nw.DataFrame) -> nw.DataFrame:
+    """Convert from hd examiner uptake summary format to OpenHDX format."""
+    column_mapping = {
+        "Protein": "protein",
+        "Protein State": "state",
+        "Start": "start",
+        "End": "end",
+        "Deut Time (sec)": "exposure",
+        #'Peptide Mass' ?,
+        "Sequence": "sequence",
+        "#D": "uptake",
+        "RT (min)": "rt",
+        "#Rep": "n_replicates",
     }
 
     df = df.rename(column_mapping)
