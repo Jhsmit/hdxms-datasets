@@ -43,21 +43,21 @@ def load_dataset(pth: Path) -> HDXDataSet:
         with zipfile.ZipFile(pth, "r") as zip_ref:
             zip_ref.extractall(temp_dir)
 
-        # find the dataset.json file in the extracted contents
-        json_files = list(temp_dir.rglob("dataset.json"))
-        if not json_files:
-            raise FileNotFoundError("No dataset.json file found in the extracted zip contents.")
-        if len(json_files) > 1:
-            raise ValueError("Multiple dataset.json files found in the extracted zip contents.")
-        json_pth = json_files[0]
-        dataset_root = json_pth.parent
+        return load_dataset(temp_dir)  # recursively load from the extracted directory
 
     elif pth.is_file() and pth.suffix.lower() == ".json":
         dataset_root = pth.parent
         json_pth = pth
     elif pth.is_dir():
-        dataset_root = pth
-        json_pth = dataset_root / "dataset.json"
+        # find the dataset.json file in the extracted contents
+        json_files = list(pth.rglob("dataset.json"))
+        if not json_files:
+            raise FileNotFoundError("No dataset.json file found in the extracted zip contents.")
+        if len(json_files) > 1:
+            raise ValueError("Multiple dataset.json files found in the extracted zip contents.")
+
+        json_pth = json_files[0]
+        dataset_root = json_pth.parent
     else:
         raise ValueError("Path must be a .zip file, .json file or directory.")
 
