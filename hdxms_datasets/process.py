@@ -475,17 +475,6 @@ def merge_peptide_tables(
         assert peptides_are_unique(df), f"{_names[prefix]} peptides must be unique."
         output = left_join(output, df, select_columns=select_columns, prefix=prefix)
 
-    # if non_deuterated is not None:
-    #     # TODO move assert to `left_join` ?
-    #     assert peptides_are_unique(non_deuterated), "Non-deuterated peptides must be unique."
-    #     output = left_join(output, non_deuterated, select_columns=select_columns, prefix="nd")
-    # if fully_deuterated is not None:
-    #     assert peptides_are_unique(fully_deuterated), "Fully deuterated peptides must be unique."
-    #     output = left_join(output, fully_deuterated, select_columns=select_columns, prefix="fd")
-    # else:
-    #     raise ValueError(
-    #         "At least one control (non_deuterated or fully_deuterated) must be provided."
-    #     )
     return output
 
 
