@@ -3,6 +3,8 @@ from pathlib import Path
 from urllib.parse import urljoin
 from urllib.error import HTTPError
 import uuid
+import zipfile
+import tempfile
 
 import requests
 from hdxms_datasets.reader import BACKEND, read_csv
@@ -21,15 +23,44 @@ KNOWN_HDX_IDS = set[str]()
 
 def load_dataset(pth: Path) -> HDXDataSet:
     """
-    Load a dataset from a JSON file or directory.
+    Load a dataset from a JSON file, .zip file or directory.
+
+    Args:
+        pth: Path to a dataset.json file, a .zip file containing a dataset, or a directory.
+
+    Returns:
+        The loaded HDXDataSet.
+
+    Note:
+        When loading from a .zip file, the contents are extracted to a temporary directory
+        that persists for the lifetime of the program.
     """
 
-    if pth.is_file():
+    # Handle .zip files by extracting to a temp directory
+    if pth.is_file() and pth.suffix.lower() == ".zip":
+        temp_dir = Path(tempfile.mkdtemp(prefix="hdxms_dataset_"))
+
+        with zipfile.ZipFile(pth, "r") as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        # find the dataset.json file in the extracted contents
+        json_files = list(temp_dir.rglob("dataset.json"))
+        if not json_files:
+            raise FileNotFoundError("No dataset.json file found in the extracted zip contents.")
+        if len(json_files) > 1:
+            raise ValueError("Multiple dataset.json files found in the extracted zip contents.")
+        json_pth = json_files[0]
+        dataset_root = json_pth.parent
+
+    elif pth.is_file() and pth.suffix.lower() == ".json":
         dataset_root = pth.parent
         json_pth = pth
-    else:
+    elif pth.is_dir():
         dataset_root = pth
         json_pth = dataset_root / "dataset.json"
+    else:
+        raise ValueError("Path must be a .zip file, .json file or directory.")
+
     dataset = HDXDataSet.model_validate_json(
         json_pth.read_text(), context={"dataset_root": dataset_root}
     )
