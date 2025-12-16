@@ -399,25 +399,31 @@ def load_peptides(
 
 
 def left_join(
-    df_left: nw.DataFrame, df_right: nw.DataFrame, column: str, prefix: str, include_sd: bool = True
+    df_left: nw.DataFrame,
+    df_right: nw.DataFrame,
+    select_columns: list[str],
+    prefix: str,
+    include_sd: bool = True,
 ) -> nw.DataFrame:
-    """Left join two DataFrames on start, end and the specified column.
+    """Left join two DataFrames on start, end, selecting
+      and the specified column.
 
     Args:
         df_left: Left DataFrame.
         df_right: Right DataFrame.
-        column: Column name to join on in addition to start and end.
+        select_columns: Column names to select from the right dataframe.
         prefix: Prefix to add to the joined columns from the right DataFrame.
-        include_sd: Whether to include the standard deviation column (column_sd) from the right DataFrame.
+        include_sd: Whether to include the standard deviation column (column_sd) from the right DataFrame, if available
 
     Returns:
         Merged DataFrame.
 
     """
     select = [nw.col("start"), nw.col("end")]
-    select.append(nw.col(column).alias(f"{prefix}_{column}"))
-    if include_sd:
-        select.append(nw.col(f"{column}_sd").alias(f"{prefix}_{column}_sd"))
+    for column in select_columns:
+        select.append(nw.col(column).alias(f"{prefix}_{column}"))
+        if include_sd and f"{column}_sd" in df_right.columns:
+            select.append(nw.col(f"{column}_sd").alias(f"{prefix}_{column}_sd"))
 
     merge = df_left.join(
         df_right.select(select),
@@ -430,16 +436,16 @@ def left_join(
 
 def merge_peptide_tables(
     partially_deuterated: nw.DataFrame,
-    column: Optional[str] = None,
     non_deuterated: Optional[nw.DataFrame] = None,
     fully_deuterated: Optional[nw.DataFrame] = None,
+    select_columns: Optional[list[str]] = None,
 ) -> nw.DataFrame:
     """
     Merges peptide tables from different deuteration types into a single DataFrame.
 
     Args:
         partially_deuterated: DataFrame containing partially deuterated peptides. Must be provided.
-        column: Column name to join on. If None, 'centroid_mass' is used if present, otherwise 'uptake'.
+        select_columns: Column names to select from the controls. If None, 'centroid_mass' and'uptake' are used, if present
         non_deuterated: Optional DataFrame containing non-deuterated peptides.
         fully_deuterated: Optional DataFrame containing fully deuterated peptides.
 
@@ -447,21 +453,39 @@ def merge_peptide_tables(
         Merged DataFrame.
 
     """
-    if column is not None:
-        join_column = column
-    elif "centroid_mass" in partially_deuterated.columns:
-        join_column = "centroid_mass"
-    elif "uptake" in partially_deuterated.columns:
-        join_column = "uptake"
+
+    available_controls = [
+        (prefix, df)
+        for prefix, df in [("nd", non_deuterated), ("fd", fully_deuterated)]
+        if df is not None
+    ]
+    if len(available_controls) == 0:
+        raise ValueError(
+            "At least one control (non_deuterated or fully_deuterated) must be provided."
+        )
+    common_columns = reduce(set.intersection, (set(df.columns) for _, df in available_controls))
+
+    if select_columns is None:
+        candidates = ["centroid_mass", "uptake"]
+        select_columns = [col for col in candidates if col in common_columns]
 
     output = partially_deuterated
-    if non_deuterated is not None:
-        # TODO move assert to `left_join` ?
-        assert peptides_are_unique(non_deuterated), "Non-deuterated peptides must be unique."
-        output = left_join(output, non_deuterated, column=join_column, prefix="nd")
-    if fully_deuterated is not None:
-        assert peptides_are_unique(fully_deuterated), "Fully deuterated peptides must be unique."
-        output = left_join(output, fully_deuterated, column=join_column, prefix="fd")
+    _names = {"fd": "Fully Deuterated", "nd": "Non Deuterated"}
+    for prefix, df in available_controls:
+        assert peptides_are_unique(df), f"{_names[prefix]} peptides must be unique."
+        output = left_join(output, df, select_columns=select_columns, prefix=prefix)
+
+    # if non_deuterated is not None:
+    #     # TODO move assert to `left_join` ?
+    #     assert peptides_are_unique(non_deuterated), "Non-deuterated peptides must be unique."
+    #     output = left_join(output, non_deuterated, select_columns=select_columns, prefix="nd")
+    # if fully_deuterated is not None:
+    #     assert peptides_are_unique(fully_deuterated), "Fully deuterated peptides must be unique."
+    #     output = left_join(output, fully_deuterated, select_columns=select_columns, prefix="fd")
+    # else:
+    #     raise ValueError(
+    #         "At least one control (non_deuterated or fully_deuterated) must be provided."
+    #     )
     return output
 
 
@@ -501,7 +525,7 @@ def merge_peptides(peptides: list[Peptides], base_dir: Path = Path.cwd()) -> nw.
         p.deuteration_type.value: load_peptides(p, base_dir=base_dir) for p in peptides
     }
 
-    merged = merge_peptide_tables(**loaded_peptides, column=None)
+    merged = merge_peptide_tables(**loaded_peptides, select_columns=None)
     return merged
 
 
