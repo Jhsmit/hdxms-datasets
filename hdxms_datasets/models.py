@@ -441,7 +441,7 @@ class Structure(BaseModel):
 class Publication(BaseModel):
     """Publication information"""
 
-    title: Optional[str] = None
+    title: str
     authors: Optional[List[str]] = None
     journal: Optional[str] = None
     year: Optional[int] = None
