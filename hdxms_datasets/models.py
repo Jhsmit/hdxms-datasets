@@ -17,6 +17,7 @@ from enum import Enum
 from pathlib import Path
 import narwhals as nw
 from hdxms_datasets import __version__
+from hdxms_datasets.formats import FormatSpec
 
 if TYPE_CHECKING:
     from Bio.PDB.Structure import Structure as BioStructure
@@ -159,18 +160,30 @@ class PeptideFormat(str, Enum):
     DynamX_v3_state = "DynamX_v3_state"
     DynamX_v3_cluster = "DynamX_v3_cluster"
     DynamX_vx_state = "DynamX_vx_state"
-    HDExaminer_v3 = "HDExaminer_v3"
+    HDExaminer_all_results = "HDExaminer_all_results"
+    HDExaminer_all_results_with_units = "HDExaminer_all_results_with_units"
+    HDExaminer_peptide_pool = "HDExaminer_peptide_pool"
+    HDExaminer_uptake_summary = "HDExaminer_uptake_summary"
     HXMS = "HXMS"
     OpenHDX = "OpenHDX"
 
+    def get_format(self) -> type[FormatSpec]:
+        """Get the FormatSpec for this format"""
+        from hdxms_datasets.formats import FMT_REGISTRY
+
+        fmt = FMT_REGISTRY.get(self.value)
+        if fmt is None:
+            raise ValueError(f"FormatSpec not found for format: {self.value}")
+        return fmt
+
     @classmethod
-    def identify(cls, df: nw.DataFrame) -> PeptideFormat | None:
+    def identify(cls, path: Path) -> PeptideFormat | None:
         """Identify format from DataFrame"""
         from hdxms_datasets.formats import identify_format
 
-        fmt = identify_format(df)
+        fmt = identify_format(path)
         if fmt:
-            return cls(fmt.name)
+            return cls(fmt.__name__)
         return None
 
 
@@ -256,7 +269,7 @@ class Peptides(BaseModel):
 
         """
         if self.data_file.exists():
-            from hdxms_datasets.loader import load_peptides
+            from hdxms_datasets.process import load_peptides
 
             return load_peptides(
                 self,
@@ -295,7 +308,9 @@ class ProteinState(BaseModel):
     @model_validator(mode="after")
     def check_sequence(self):
         if len(self.sequence) != self.c_term - self.n_term + 1:
-            raise ValueError("Sequence length does not match N-term and C-term residue numbers.")
+            raise ValueError(
+                f"Sequence length does not match N-term and C-term residue numbers, found: {len(self.sequence)}, expected: {self.c_term - self.n_term + 1}"
+            )
         return self
 
 
@@ -426,7 +441,7 @@ class Structure(BaseModel):
 class Publication(BaseModel):
     """Publication information"""
 
-    title: Optional[str] = None
+    title: str
     authors: Optional[List[str]] = None
     journal: Optional[str] = None
     year: Optional[int] = None

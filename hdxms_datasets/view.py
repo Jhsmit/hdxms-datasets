@@ -8,6 +8,39 @@ import narwhals as nw
 from hdxms_datasets.utils import contiguous_peptides, non_overlapping_peptides
 
 
+def summarize_peptide_df(df: nw.DataFrame) -> str:
+    """
+    Summarize a peptide DataFrame.
+
+    """
+    exposures = df["exposure"].unique().to_list()
+    peptides = df.select(["start", "end"]).unique()
+
+    mean_length = peptides.with_columns((peptides["end"] - peptides["start"] + 1).alias("length"))[
+        "length"
+    ].mean()
+
+    s = []
+    s.append(f"Number of unique peptides: {len(peptides)}")
+    s.append(f"Mean peptide length: {mean_length:.2f}")
+    s.append(f"Exposures: {exposures}")
+    s.append(f"Total number of data points: {len(df)}")
+
+    if "n_clusters" in df.columns:
+        n_clusters = df["n_clusters"].mean()
+        s.append(f"Mean number of clusters per peptide/exposure: {n_clusters}")
+
+    if "n_replicates" in df.columns:
+        n_replicates = df["n_replicates"].mean()
+        s.append(f"Mean number of replicates per peptide/exposure: {n_replicates}")
+
+    if "n_charges" in df.columns:
+        n_charges = df["n_charges"].mean()
+        s.append(f"Mean number of charge states per peptide/exposure: {n_charges}")
+
+    return "\n".join(s)
+
+
 class StructureView:
     def __init__(
         self,

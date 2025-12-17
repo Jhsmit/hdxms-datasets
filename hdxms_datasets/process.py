@@ -11,7 +11,7 @@ from uncertainties import Variable, ufloat
 
 import hdxms_datasets.expr as hdx_expr
 from hdxms_datasets.formats import OPEN_HDX_COLUMNS
-from hdxms_datasets.loader import load_peptides, BACKEND
+from hdxms_datasets.reader import BACKEND
 from hdxms_datasets.models import DeuterationType, Peptides, ValueType
 from hdxms_datasets.utils import peptides_are_unique, records_to_dict
 
@@ -196,16 +196,29 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
 
     If no intensity column is present, replicates are averaged with equal weights.
     All other columns are pass through if they are unique, otherwise set to `None`.
-    Also adds n_replicates and n_cluster columns.
+    Also adds n_replicates, n_charges, and n_clusters columns.
+
+        n_replicates: Number of replicates averaged, based on the unique number of values in
+            the 'replicate' column
+        n_charges: Number of unique charged states averaged together
+        n_clusters: Total number of isotopic clusters averaged together regardless of whether
+            they are from replicate experiments or different charged states.
 
     """
 
-    if "state" in df.columns:
-        assert df["state"].n_unique() == 1, (
-            "DataFrame must be filtered to a single state before aggregation."
-        )
+    # group by these columns if present
+    by = ["protein", "state", "start", "end", "exposure"]
+    group_by_columns = [col for col in by if col in df.columns]
+
+    # these must be unique before aggregating makes sense
+    # TODO: we can group also by these columns to avoid this requirement
+    # unique_columns = ["protein", "state"]
+    # for col in unique_columns:
+    #     if col in df.columns:
+    #         assert df[col].n_unique() == 1, f"Column {col} must be unique before aggregating."
 
     # columns which are intesity weighed averaged
+    # TODO global variable
     candidate_columns = ["uptake", "centroid_mz", "centroid_mass", "rt"]
     intensity_wt_avg_columns = [col for col in candidate_columns if col in df.columns]
 
@@ -217,18 +230,29 @@ def aggregate(df: nw.DataFrame) -> nw.DataFrame:
     for col in intensity_wt_avg_columns:
         col_idx = output_columns.index(col)
         output_columns.insert(col_idx + 1, f"{col}_sd")
-    output_columns += ["n_replicates", "n_cluster"]
+
+    if "replicate" in df.columns:
+        output_columns += ["n_replicates"]
+    if "charge" in df.columns:
+        output_columns += ["n_charges"]
+    output_columns += ["n_clusters"]
 
     excluded = {"intensity"}
     output = {k: [] for k in output_columns if k not in excluded}
-    groups = df.group_by(["start", "end", "exposure"])
-    for (start, end, exposure), df_group in groups:
-        record = {}
-        record["start"] = start
-        record["end"] = end
-        record["exposure"] = exposure
-        record["n_replicates"] = df_group["replicate"].n_unique()
-        record["n_cluster"] = len(df_group)
+    groups = df.group_by(group_by_columns)
+
+    # TODO: if we don't have an intensity column, we can do a normal aggregate
+    # instead of needing a for loop
+    for group_values, df_group in groups:
+        record = {col: val for col, val in zip(group_by_columns, group_values)}
+        # record["start"] = start
+        # record["end"] = end
+        # record["exposure"] = exposure
+        if "charge" in df.columns:
+            record["n_charges"] = df_group["charge"].n_unique()
+        if "replicate" in df.columns:
+            record["n_replicates"] = df_group["replicate"].n_unique()
+        record["n_clusters"] = len(df_group)
 
         # add intensity-weighted average columns
         for col in intensity_wt_avg_columns:
@@ -286,26 +310,120 @@ def drop_null_columns(df: nw.DataFrame) -> nw.DataFrame:
     return df.drop(all_null_columns)
 
 
-def left_join(
-    df_left: nw.DataFrame, df_right: nw.DataFrame, column: str, prefix: str, include_sd: bool = True
+def load_peptides(
+    peptides: Peptides,
+    base_dir: Path = Path.cwd(),
+    convert: bool = True,
+    aggregate: bool | None = None,
+    sort_rows: bool = True,
+    sort_columns: bool = True,
+    drop_null: bool = True,
 ) -> nw.DataFrame:
-    """Left join two DataFrames on start, end and the specified column.
+    """
+    Load peptides from the data file and return a Narwhals DataFrame.
+
+    Args:
+        peptides: Peptides object containing metadata and file path.
+        base_dir: Base directory to resolve relative file paths. Defaults to the current working directory.
+        convert: Whether to convert the data to a standard format.
+        aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.
+        sort_rows: Whether to sort the rows.
+        sort_columns: Whether to sort the columns in a standard order.
+        drop_null: Whether to drop columns that are entirely null.
+
+    Returns:
+        A Narwhals DataFrame containing the loaded peptide data.
+
+    """
+
+    # Resolve the data file path
+    if peptides.data_file.is_absolute():
+        data_path = peptides.data_file
+    else:
+        data_path = base_dir / peptides.data_file
+
+    from hdxms_datasets.formats import FMT_REGISTRY, is_aggregated
+
+    format_spec = FMT_REGISTRY.get(peptides.data_format)
+    assert format_spec is not None, f"Unknown format: {peptides.data_format}"
+
+    df = format_spec.read(data_path)
+
+    from hdxms_datasets import process
+
+    df = process.apply_filters(df, **peptides.filters)
+
+    if not convert and sort_rows:
+        warnings.warn("Cannot sort rows without conversion. Sorting will be skipped.")
+        sort_rows = False
+
+    if not convert and sort_columns:
+        warnings.warn("Cannot sort columns without conversion. Sorting will be skipped.")
+        sort_columns = False
+
+    if convert:
+        df = format_spec.convert(df)
+
+    peptides_are_aggregated = format_spec.aggregated or is_aggregated(df)
+
+    if callable(format_spec.aggregated):
+        peptides_are_aggregated = format_spec.aggregated(df)
+    else:
+        peptides_are_aggregated = format_spec.aggregated
+
+    # if aggregation is not specified, by default aggregate if the data is not already aggregated
+    if aggregate is None:
+        aggregate = not peptides_are_aggregated
+
+    if aggregate and peptides_are_aggregated:
+        warnings.warn("Data format is pre-aggregated. Aggregation will be skipped.")
+        aggregate = False
+
+    if not convert and aggregate:
+        warnings.warn("Cannot aggregate data without conversion. Aggregation will be skipped.")
+        aggregate = False
+
+    if aggregate:
+        df = process.aggregate(df)
+
+    if drop_null:
+        df = process.drop_null_columns(df)
+
+    if sort_rows:
+        df = process.sort_rows(df)
+
+    if sort_columns:
+        df = process.sort_columns(df)
+
+    return df
+
+
+def left_join(
+    df_left: nw.DataFrame,
+    df_right: nw.DataFrame,
+    select_columns: list[str],
+    prefix: str,
+    include_sd: bool = True,
+) -> nw.DataFrame:
+    """Left join two DataFrames on start, end, selecting
+      and the specified column.
 
     Args:
         df_left: Left DataFrame.
         df_right: Right DataFrame.
-        column: Column name to join on in addition to start and end.
+        select_columns: Column names to select from the right dataframe.
         prefix: Prefix to add to the joined columns from the right DataFrame.
-        include_sd: Whether to include the standard deviation column (column_sd) from the right DataFrame.
+        include_sd: Whether to include the standard deviation column (column_sd) from the right DataFrame, if available
 
     Returns:
         Merged DataFrame.
 
     """
     select = [nw.col("start"), nw.col("end")]
-    select.append(nw.col(column).alias(f"{prefix}_{column}"))
-    if include_sd:
-        select.append(nw.col(f"{column}_sd").alias(f"{prefix}_{column}_sd"))
+    for column in select_columns:
+        select.append(nw.col(column).alias(f"{prefix}_{column}"))
+        if include_sd and f"{column}_sd" in df_right.columns:
+            select.append(nw.col(f"{column}_sd").alias(f"{prefix}_{column}_sd"))
 
     merge = df_left.join(
         df_right.select(select),
@@ -318,16 +436,16 @@ def left_join(
 
 def merge_peptide_tables(
     partially_deuterated: nw.DataFrame,
-    column: Optional[str] = None,
     non_deuterated: Optional[nw.DataFrame] = None,
     fully_deuterated: Optional[nw.DataFrame] = None,
+    select_columns: Optional[list[str]] = None,
 ) -> nw.DataFrame:
     """
     Merges peptide tables from different deuteration types into a single DataFrame.
 
     Args:
         partially_deuterated: DataFrame containing partially deuterated peptides. Must be provided.
-        column: Column name to join on. If None, 'centroid_mass' is used if present, otherwise 'uptake'.
+        select_columns: Column names to select from the controls. If None, 'centroid_mass' and'uptake' are used, if present
         non_deuterated: Optional DataFrame containing non-deuterated peptides.
         fully_deuterated: Optional DataFrame containing fully deuterated peptides.
 
@@ -335,21 +453,28 @@ def merge_peptide_tables(
         Merged DataFrame.
 
     """
-    if column is not None:
-        join_column = column
-    elif "centroid_mass" in partially_deuterated.columns:
-        join_column = "centroid_mass"
-    elif "uptake" in partially_deuterated.columns:
-        join_column = "uptake"
+
+    available_controls = [
+        (prefix, df)
+        for prefix, df in [("nd", non_deuterated), ("fd", fully_deuterated)]
+        if df is not None
+    ]
+    if len(available_controls) == 0:
+        raise ValueError(
+            "At least one control (non_deuterated or fully_deuterated) must be provided."
+        )
+    common_columns = reduce(set.intersection, (set(df.columns) for _, df in available_controls))
+
+    if select_columns is None:
+        candidates = ["centroid_mass", "uptake"]
+        select_columns = [col for col in candidates if col in common_columns]
 
     output = partially_deuterated
-    if non_deuterated is not None:
-        # TODO move assert to `left_join` ?
-        assert peptides_are_unique(non_deuterated), "Non-deuterated peptides must be unique."
-        output = left_join(output, non_deuterated, column=join_column, prefix="nd")
-    if fully_deuterated is not None:
-        assert peptides_are_unique(fully_deuterated), "Fully deuterated peptides must be unique."
-        output = left_join(output, fully_deuterated, column=join_column, prefix="fd")
+    _names = {"fd": "Fully Deuterated", "nd": "Non Deuterated"}
+    for prefix, df in available_controls:
+        assert peptides_are_unique(df), f"{_names[prefix]} peptides must be unique."
+        output = left_join(output, df, select_columns=select_columns, prefix=prefix)
+
     return output
 
 
@@ -389,7 +514,7 @@ def merge_peptides(peptides: list[Peptides], base_dir: Path = Path.cwd()) -> nw.
         p.deuteration_type.value: load_peptides(p, base_dir=base_dir) for p in peptides
     }
 
-    merged = merge_peptide_tables(**loaded_peptides, column=None)
+    merged = merge_peptide_tables(**loaded_peptides, select_columns=None)
     return merged
 
 

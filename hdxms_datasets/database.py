@@ -3,9 +3,11 @@ from pathlib import Path
 from urllib.parse import urljoin
 from urllib.error import HTTPError
 import uuid
+import zipfile
+import tempfile
 
 import requests
-from hdxms_datasets.loader import BACKEND, read_csv
+from hdxms_datasets.reader import BACKEND, read_csv
 from hdxms_datasets.models import HDXDataSet, extract_values_by_types
 import shutil
 import narwhals as nw
@@ -15,21 +17,58 @@ from hdxms_datasets.verification import verify_dataset
 
 
 CATALOG_FILE = "datasets_catalog.csv"
-DATABASE_URL = "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
+DATABASE_URL = (
+    "https://raw.githubusercontent.com/Jhsmit/HDXMS-database/master/datasets/"
+)
 KNOWN_HDX_IDS = set[str]()
 
 
-def load_dataset(pth: Path) -> HDXDataSet:
+def load_dataset(pth: Path | str) -> HDXDataSet:
     """
-    Load a dataset from a JSON file or directory.
+    Load a dataset from a JSON file, .zip file or directory.
+
+    Args:
+        pth: Path to a dataset.json file, a .zip file containing a dataset, or a directory.
+
+    Returns:
+        The loaded HDXDataSet.
+
+    Note:
+        When loading from a .zip file, the contents are extracted to a temporary directory
+        that persists for the lifetime of the program.
     """
 
-    if pth.is_file():
+    pth = Path(pth)
+
+    # Handle .zip files by extracting to a temp directory
+    if pth.is_file() and pth.suffix.lower() == ".zip":
+        temp_dir = Path(tempfile.mkdtemp(prefix="hdxms_dataset_"))
+
+        with zipfile.ZipFile(pth, "r") as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+        return load_dataset(temp_dir)  # recursively load from the extracted directory
+
+    elif pth.is_file() and pth.suffix.lower() == ".json":
         dataset_root = pth.parent
         json_pth = pth
+    elif pth.is_dir():
+        # find the dataset.json file in the extracted contents
+        json_files = list(pth.rglob("dataset.json"))
+        if not json_files:
+            raise FileNotFoundError(
+                "No dataset.json file found in the extracted zip contents."
+            )
+        if len(json_files) > 1:
+            raise ValueError(
+                "Multiple dataset.json files found in the extracted zip contents."
+            )
+
+        json_pth = json_files[0]
+        dataset_root = json_pth.parent
     else:
-        dataset_root = pth
-        json_pth = dataset_root / "dataset.json"
+        raise ValueError("Path must be a .zip file, .json file or directory.")
+
     dataset = HDXDataSet.model_validate_json(
         json_pth.read_text(), context={"dataset_root": dataset_root}
     )
@@ -91,7 +130,9 @@ def export_dataset(dataset: HDXDataSet, tgt_dir: Path) -> None:
     data_dir.mkdir(exist_ok=True, parents=True)
 
     # copy the sequence file
-    shutil.copy(ds_copy.structure.data_file, data_dir / ds_copy.structure.data_file.name)
+    shutil.copy(
+        ds_copy.structure.data_file, data_dir / ds_copy.structure.data_file.name
+    )
     # the the path to the copied file relative path
     ds_copy.structure.data_file = Path("data") / ds_copy.structure.data_file.name
 
@@ -142,7 +183,9 @@ def find_file_hash_matches(dataset: HDXDataSet, database_dir: Path) -> list[str]
     Check if a new dataset matches an existing dataset in the database directory.
     """
     try:
-        catalog = nw.read_csv(str(database_dir / "datasets_catalog.csv"), backend=BACKEND)
+        catalog = nw.read_csv(
+            str(database_dir / "datasets_catalog.csv"), backend=BACKEND
+        )
     except FileNotFoundError:
         return []
 
@@ -194,7 +237,9 @@ def submit_dataset(
         matches = find_file_hash_matches(dataset_copy, database_dir)
         if matches:
             if len(matches) == 1:
-                msg = f"Dataset matches an existing dataset in the database: {matches[0]}"
+                msg = (
+                    f"Dataset matches an existing dataset in the database: {matches[0]}"
+                )
             else:
                 msg = f"Dataset matches existing datasets in the database: {', '.join(matches)}"
             return False, msg
@@ -331,7 +376,9 @@ class RemoteDataBase(DataBase):
             return False, f"Error validating dataset JSON: {e}"
 
         # create a list of all Path objects in the dataset plus the dataset.json file
-        data_files = list(set(extract_values_by_types(dataset, Path))) + [Path("dataset.json")]
+        data_files = list(set(extract_values_by_types(dataset, Path))) + [
+            Path("dataset.json")
+        ]
 
         # create the target directory to store the dataset
         output_pth = self.database_dir / data_id
