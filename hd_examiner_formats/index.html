@@ -1,0 +1,1727 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Loading and parsing of HDX-MS datasets and associated metadata">
+      
+      
+      
+        <link rel="canonical" href="https://jhsmit.github.io/hdxms-datasets/hd_examiner_formats/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>HD examiner export format - HDX-MS Datasets</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/styles.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hd-examiner-export-format" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="HDX-MS Datasets" class="md-header__button md-logo" aria-label="HDX-MS Datasets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HDX-MS Datasets
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              HD examiner export format
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Jhsmit/hdxms-datasets/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="HDX-MS Datasets" class="md-nav__button md-logo" aria-label="HDX-MS Datasets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    HDX-MS Datasets
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Jhsmit/hdxms-datasets/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loading Datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/convert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    convert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/expr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    expr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    migration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    migration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/migration/v020/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v020
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/plot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    plot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stable
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    stable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10_1" id="__nav_4_10_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v020
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_10_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    v020
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/convert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    convert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/datavault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    datavault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/expr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    expr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/plot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    plot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/stable/v020/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/verification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    web
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    web
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/web/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/web/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/web/state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/web/upload_form/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    upload_form
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#list-of-found-hd-examiner-exported-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List of found HD examiner exported data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="List of found HD examiner exported data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hdgraphix-pool-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HDgraphiX pool output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hdgraphix-summary-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HDgraphiX summary output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pflink-example-file-pool-peptide-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PFLink example file 'pool peptide results'
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hd-examiner-v34-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HD Examiner v3.4 export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tang-et-al-hd-examiner-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tang et al HD examiner export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ekstrom-et-al-hd-examiner-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ekström et al HD examiner export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#burke-et-al-hd-examiner-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Burke et al HD examiner export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bryan-et-al-hd-examiner-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bryan et al HD examiner export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tuttlelm-all_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tuttlelm all_results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tuttlelm-uptake_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tuttlelm uptake_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kingfisher-hd-examiner-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kingfisher HD examiner example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hd-examiner-manual-on-exporting-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HD Examiner manual on exporting data
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="hd-examiner-export-format">HD examiner export format</h1>
+<p>There are multiple different file format formats of HD Examiner exported HDX-MS data published. This page provides an overview of the different formats in an attempt to assign HD examiner version numbers and export name / functionality to the different formats.</p>
+<p>See docs/hd_examiner_files for a collection of example files. </p>
+<p>It appears that there are three different export formats from HD examiner; 'all results', 'peptide pool results' and 'uptake summary table'. The latter two contain the same data but have different layouts.</p>
+<h2 id="list-of-found-hd-examiner-exported-data">List of found HD examiner exported data</h2>
+<p>Below is a list of found HD examiner exported data files, with their source, columns and comments.</p>
+<h3 id="hdgraphix-pool-output">HDgraphiX pool output</h3>
+<p>File: 'HDgraphiX Sample HDExaminer Pool.csv'<br />
+Source: <a href="https://hdgraphix.net/">HDGraphix</a>.</p>
+<p>Columns:<br />
+The first line is a header with exposure times. </p>
+<p>The second line has the column names, starting with:<br />
+'State,Protein,Start,End,Sequence,Search RT,Charge,Max D,'</p>
+<p>Followed by repeating blocks of:<br />
+'Start RT,End RT,#D,%D,#D right,%D right,Score,Conf,'</p>
+<p>FD control is expected to be labelled as 'Full-D'</p>
+<p>Comments:<br />
+Data itself has alternating empty lines?</p>
+<p>Reading: <a href="https://github.com/KentV-UofG/HDgraphiX/blob/d68b1c941acf85c6d4429dfcee85b2c3420ba221/app.py#L614">GitHub</a></p>
+<h3 id="hdgraphix-summary-output">HDgraphiX summary output</h3>
+<p>File: 'HDgraphiX Sample HDExaminer Summary.csv'<br />
+Source: <a href="https://hdgraphix.net/">HDGraphix</a>.</p>
+<p>Columns:<br />
+Protein State,Protein,Start,End,Sequence,Peptide Mass,RT (min),Deut Time (sec),maxD,Theor Uptake,#D,%D,Conf Interval (#D),#Rep,Confidence,Stddev,p</p>
+<p>Format: HD examiner summary<br />
+FD control: 'Full-D'</p>
+<p>Comments:<br />
+Data itself has alternating empty lines?</p>
+<h3 id="pflink-example-file-pool-peptide-results">PFLink example file 'pool peptide results'</h3>
+<p>File: ecDHFR_tutorial.csv<br />
+Source: https://huggingface.co/spaces/glasgow-lab/PFLink</p>
+<p>Columns: <br />
+Same as HDgrapix pool output</p>
+<p>Format: HD examiner peptide pool / HD examiner pool<br />
+FD control: 'Full-D'</p>
+<p>Comments:<br />
+This is similar to HDgraphix pool output, no alternating empty lines.</p>
+<p>Reading: <a href="https://huggingface.co/spaces/glasgow-lab/PFLink/blob/main/Parsers.py#L278">Huggingface code</a></p>
+<h3 id="hd-examiner-v34-export">HD Examiner v3.4 export</h3>
+<p>File: &lt; Not public &gt;<br />
+Source: Data provided by Vladimir Sarpe from Trajan (not public)</p>
+<p>Columns:<br />
+'Protein State,Deut Time,Experiment,Start,End,Sequence,Charge,Search RT,Actual RT,# Spectra,Peak Width Da,m/z Shift Da,Max Inty,Exp Cent,Theor Cent,Score,Cent Diff,# Deut,Deut %,Confidence'</p>
+<p>'Deut Time' columns are in seconds, stored as strings formatted as '0s'.<br />
+Format: HD examiner V3.4 (as currently used in <code>hdxms-datasets</code>)</p>
+<p>FD control: 'FD'</p>
+<p>Comments:<br />
+Unknown name of export function used in HD Examiner v3.4, suspected it is an export of the 'Results Table'.<br />
+Differences with tuttlelm 'all_results' and bryan et al (this, other):</p>
+<ul>
+<li>(Peak Width Da, Peak Width)</li>
+<li>(m/z Shift Da, m/z Shift)</li>
+</ul>
+<h3 id="tang-et-al-hd-examiner-export">Tang et al HD examiner export</h3>
+<p>File: 'Tang_HDExaminer_layout_SLO.csv'<br />
+Source: https://www.ebi.ac.uk/pride/archive/projects/PXD047461</p>
+<p>columns: <br />
+Protein;Protein State;Deut Time;Experiment;Start;End;Sequence;Charge;Search RT;Actual RT;# Spectra;Peak Width;m/z Shift;Max Inty;Exp Cent;Exp Cent 2;L/R Ratio;Theor Cent;Theor Cent 2;Theor L/R;Score;Cent Diff;# Deut;Deut %;Cent Diff 2;# Deut 2;Deut % 2;Confidence</p>
+<p>Comments:<br />
+This is a ; separated file</p>
+<h3 id="ekstrom-et-al-hd-examiner-export">Ekström et al HD examiner export</h3>
+<p>File: 'HDX_S3.csv'<br />
+Source: https://www.ebi.ac.uk/pride/archive/projects/PXD021266</p>
+<p>Columns: Protein State,Protein,Start,End,Sequence,Peptide Mass,RT (min),Deut Time (sec),maxD,Theor #D,#D,%D,Conf Interval (#D),#Rep,Confidence,Stddev,p</p>
+<p>Format: HD examiner summary file</p>
+<h3 id="burke-et-al-hd-examiner-export">Burke et al HD examiner export</h3>
+<p>File: 'adjusted_ND_peptides.csv'<br />
+Source: https://www.ebi.ac.uk/pride/archive/projects/PXD022172</p>
+<p>Columns: Start,End,Sequence,Charge,Search RT,Actual RT,# Spectra,Peak Width,m/z Shift,Max Inty,Exp Cent,Theor Cent,Score,Confidence</p>
+<p>Format: Unkown</p>
+<p>Looks like HD examiner but doesnt match previously seen columns</p>
+<h3 id="bryan-et-al-hd-examiner-export">Bryan et al HD examiner export</h3>
+<p>File: 2020_ISB_Droplet_HXMS_Experiment_Data_Reduction_All_Results_Table_20220603.csv<br />
+Source: https://www.ebi.ac.uk/pride/archive/projects/PXD034374</p>
+<p>Columns: Protein State,Deut Time,Experiment,Start,End,Sequence,Charge,Search RT,Actual RT,# Spectra,Peak Width,m/z Shift,Max Inty,Exp Cent,Theor Cent,Score,Cent Diff,# Deut,Deut %,Confidence</p>
+<p>Format: Unkown</p>
+<p>Looks like HD examiner but doesnt match previously seen columns</p>
+<h3 id="tuttlelm-all_results">tuttlelm all_results</h3>
+<p>File: all_results.csv<br />
+Source: PyHDX PR by Lisa Tuttle (https://github.com/Jhsmit/PyHDX/pull/350)</p>
+<p>Columns: Protein State,Deut Time,Experiment,Start,End,Sequence,Charge,Search RT,Actual RT,# Spectra,Peak Width,m/z Shift,Max Inty,Exp Cent,Theor Cent,Score,Cent Diff,# Deut,Deut %,Confidence</p>
+<p>Format:<br />
+FD control: 'FD'</p>
+<p>Comments:<br />
+Equal to Bryan et al HD examiner export<br />
+not an aggregated format</p>
+<h3 id="tuttlelm-uptake_summary">tuttlelm uptake_summary</h3>
+<p>File: uptake_summary.csv<br />
+Source: PyHDX PR by Lisa Tuttle (https://github.com/Jhsmit/PyHDX/pull/350)</p>
+<p>Columns: Protein State,Protein,Start,End,Sequence,Peptide Mass,RT (min),Deut Time (sec),maxD,Theor Uptake #D,#D,%D,Conf Interval (#D),#Rep,Confidence,Stddev,p</p>
+<p>Format: (almost!) HD examiner summary file</p>
+<p>'Theor Uptake #D' instead of 'Theor #D'</p>
+<p>FD control: 'MAX' (older version)</p>
+<p>Comments:</p>
+<h3 id="kingfisher-hd-examiner-example">Kingfisher HD examiner example</h3>
+<p>File: HDX export file test.csv<br />
+Source: https://github.com/juan2089/Kingfisher-HDX/blob/Kingfisher-v1.1/www/HDX%20export%20file%20test.csv</p>
+<p>Columns:<br />
+The first line is a header with exposure times. </p>
+<p>The second line has the column names, starting with:<br />
+'State,Protein,Start,End,Sequence,Search RT,Charge,Max D,'</p>
+<p>Followed by repeating blocks of:<br />
+'Start RT,End RT,#D,%D,#D right,%D right,Score,Conf,'<br />
+Format: (almost!) HD examiner summary file</p>
+<p>This is a HD examiner 'peptide pool' file</p>
+<h2 id="hd-examiner-manual-on-exporting-data">HD Examiner manual on exporting data</h2>
+<p><strong>Peptide Pool Results / Uptake Summary Table</strong><br />
+To export the deuteration level table to a .csv file, switch to the Peptides View, then select a Peptide Pool or any peptide in that pool. Select “Tools”, then “Export”, then “Peptide Pool Results…” or “Uptake Summary Table…” or right-click on any Peptide Pool or peptide and select “Export Peptide Pool Results…” or “Export Uptake Summary Table…”. Specify a filename. HDExaminer will save the table to that file. The two tables contain the same data, but are formatted differently (one peptide per line versus one result per line). </p>
+<p><strong>'All results'</strong><br />
+To export all tables to a .csv file, switch to the Analysis View, then select any experiment. Select “Tools”, then “Export”, then “All Results Tables…” or right-click on the results table and select “Export All Tables…”. Specify a filename. HDExaminer will save the combined tables to that file. </p>
+<p><strong>Note on back-exchange correction</strong></p>
+<p>In Masson et al., Nat Methods 16, 595–602 (2019), the HDX community codified many recommendations for the design, analysis and reporting of HDX experiments. HDExaminer’s data export features now adhere to the recommendations set forth in that paper. </p>
+<p>Note that Recommendation 3.1 of that paper states that reported #D results should not be back-exchange corrected. In light of this recommendation, the #D results reported in HDExaminer’s Uptake Summary Table are not corrected for back exchange, regardless of your HDExaminer settings. This is a change in behavior from previous versions of HDExaminer. </p>
+<p>Unfortunately, its not known which verions of HDExaminer this change applies to and which files/formats are affected. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascript/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

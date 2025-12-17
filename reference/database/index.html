@@ -1,0 +1,3576 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Loading and parsing of HDX-MS datasets and associated metadata">
+      
+      
+      
+        <link rel="canonical" href="https://jhsmit.github.io/hdxms-datasets/reference/database/">
+      
+      
+        <link rel="prev" href="../convert/">
+      
+      
+        <link rel="next" href="../expr/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>database - HDX-MS Datasets</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../css/styles.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#database" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HDX-MS Datasets" class="md-header__button md-logo" aria-label="HDX-MS Datasets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HDX-MS Datasets
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              database
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Jhsmit/hdxms-datasets/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HDX-MS Datasets" class="md-nav__button md-logo" aria-label="HDX-MS Datasets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    HDX-MS Datasets
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Jhsmit/hdxms-datasets/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loading Datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../convert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    convert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    database
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.DataBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DataBase
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DataBase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database.DataBase.datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.DataBase.is_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.RemoteDataBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RemoteDataBase
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RemoteDataBase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.local_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        local_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.remote_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remote_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.clear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.fetch_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetch_dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.export_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export_dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.find_file_hash_matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_file_hash_matches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.generate_datasets_catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_datasets_catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.list_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_datasets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.load_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.mint_new_dataset_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mint_new_dataset_id
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.populate_known_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        populate_known_ids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.submit_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        submit_dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.valid_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        valid_id
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../expr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    expr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    migration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    migration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration/v020/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v020
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    plot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stable
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    stable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10_1" id="__nav_4_10_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v020
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_10_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    v020
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/convert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    convert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/datavault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    datavault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/expr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    expr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/plot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    plot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    web
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    web
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/upload_form/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    upload_form
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.DataBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DataBase
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DataBase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database.DataBase.datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.DataBase.is_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.RemoteDataBase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RemoteDataBase
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RemoteDataBase">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.local_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        local_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.remote_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remote_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.clear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database.RemoteDataBase.fetch_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fetch_dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.export_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        export_dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.find_file_hash_matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_file_hash_matches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.generate_datasets_catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_datasets_catalog
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.list_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list_datasets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.load_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.mint_new_dataset_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mint_new_dataset_id
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.populate_known_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        populate_known_ids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.submit_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        submit_dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database.valid_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        valid_id
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>database</h1>
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="database"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="database.DataBase" class="doc doc-heading">
+            <code>DataBase</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DataBase</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">database_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of available datasets in the cache dir&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">stem</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dataset</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the supplied path is a HDX-MS dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;dataset.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HDXDataSet</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span> <span class="o">/</span> <span class="n">dataset_id</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="database.DataBase.datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">datasets</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>List of available datasets in the cache dir</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="database.DataBase.is_dataset" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Checks if the supplied path is a HDX-MS dataset.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_dataset</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if the supplied path is a HDX-MS dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;dataset.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="database.RemoteDataBase" class="doc doc-heading">
+            <code>RemoteDataBase</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="DataBase (database.DataBase)" href="#database.DataBase">DataBase</a></code></p>
+
+
+
+        <p>A database for HDX-MS datasets, with the ability to fetch datasets from a remote repository.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>database_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span> | <span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Directory to store downloaded datasets.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>remote_url</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>URL of the remote repository (default: DATABASE_URL).</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="database.DATABASE_URL">DATABASE_URL</span></code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RemoteDataBase</span><span class="p">(</span><span class="n">DataBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A database for HDX-MS datasets, with the ability to fetch datasets from a remote repository.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        database_dir: Directory to store downloaded datasets.</span>
+<span class="sd">        remote_url: URL of the remote repository (default: DATABASE_URL).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">remote_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DATABASE_URL</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">database_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remote_url</span> <span class="o">=</span> <span class="n">remote_url</span>
+
+        <span class="n">index_url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">CATALOG_FILE</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">index_url</span><span class="p">)</span>
+
+        <span class="c1"># TODO keep catalogs on a per-url basis in a singleton</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">datasets_catalog</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HTTPError</span><span class="p">(</span>
+                <span class="n">index_url</span><span class="p">,</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+                <span class="s2">&quot;Error fetching dataset index&quot;</span><span class="p">,</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remote_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of available datasets in the remote repository&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets_catalog</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">local_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of available datasets in the local database directory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clear all datasets from the local database directory&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download a dataset from the online repository to `database_dir`</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_id: The ID of the dataset to download.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple (success: bool, message: str):</span>
+<span class="sd">            - success: True if the dataset was successfully downloaded, False otherwise.</span>
+<span class="sd">            - message: A message indicating the result of the download.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">data_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_datasets</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Dataset ID </span><span class="si">{</span><span class="n">data_id</span><span class="si">!r}</span><span class="s2"> not found in remote database.&quot;</span>
+
+        <span class="n">json_url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">data_id</span> <span class="o">+</span> <span class="s2">&quot;/dataset.json&quot;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">json_url</span><span class="p">)</span>
+
+        <span class="c1"># confirm if the json is according to spec</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">HDXDataSet</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Error validating dataset JSON: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># create a list of all Path objects in the dataset plus the dataset.json file</span>
+        <span class="n">data_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Path</span><span class="p">)))</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dataset.json&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># create the target directory to store the dataset</span>
+        <span class="n">output_pth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span> <span class="o">/</span> <span class="n">data_id</span>
+        <span class="k">if</span> <span class="n">output_pth</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Dataset already exists in the local database.&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_pth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">data_file</span> <span class="ow">in</span> <span class="n">data_files</span><span class="p">:</span>
+            <span class="n">data_url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">data_id</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">data_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                <span class="c1"># write the file to disk</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="n">output_pth</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+                <span class="n">fpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">fpath</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">output_pth</span><span class="p">)</span>  <span class="c1"># clean up partial download</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Failed to download </span><span class="si">{</span><span class="n">data_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="database.RemoteDataBase.local_datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">local_datasets</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>List of available datasets in the local database directory</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="database.RemoteDataBase.remote_datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">remote_datasets</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>List of available datasets in the remote repository</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="database.RemoteDataBase.clear" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">clear</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Clear all datasets from the local database directory</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clear all datasets from the local database directory&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="database.RemoteDataBase.fetch_dataset" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fetch_dataset</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Download a dataset from the online repository to <code>database_dir</code></p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data_id</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The ID of the dataset to download.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A tuple (success: bool, message: str):</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>success: True if the dataset was successfully downloaded, False otherwise.</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="bool">bool</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>message: A message indicating the result of the download.</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fetch_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download a dataset from the online repository to `database_dir`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data_id: The ID of the dataset to download.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple (success: bool, message: str):</span>
+<span class="sd">        - success: True if the dataset was successfully downloaded, False otherwise.</span>
+<span class="sd">        - message: A message indicating the result of the download.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">data_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_datasets</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Dataset ID </span><span class="si">{</span><span class="n">data_id</span><span class="si">!r}</span><span class="s2"> not found in remote database.&quot;</span>
+
+    <span class="n">json_url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">data_id</span> <span class="o">+</span> <span class="s2">&quot;/dataset.json&quot;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">json_url</span><span class="p">)</span>
+
+    <span class="c1"># confirm if the json is according to spec</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">HDXDataSet</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Error validating dataset JSON: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># create a list of all Path objects in the dataset plus the dataset.json file</span>
+    <span class="n">data_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Path</span><span class="p">)))</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dataset.json&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># create the target directory to store the dataset</span>
+    <span class="n">output_pth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database_dir</span> <span class="o">/</span> <span class="n">data_id</span>
+    <span class="k">if</span> <span class="n">output_pth</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Dataset already exists in the local database.&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_pth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">data_file</span> <span class="ow">in</span> <span class="n">data_files</span><span class="p">:</span>
+        <span class="n">data_url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">,</span> <span class="n">data_id</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">data_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="c1"># write the file to disk</span>
+            <span class="n">fpath</span> <span class="o">=</span> <span class="n">output_pth</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+            <span class="n">fpath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">fpath</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">output_pth</span><span class="p">)</span>  <span class="c1"># clean up partial download</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Failed to download </span><span class="si">{</span><span class="n">data_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.export_dataset" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">export_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">tgt_dir</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Store a dataset to a target directory.<br />
+This will copy the data files to a 'data' subdirectory and write the dataset JSON.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">HDXDataSet</span><span class="p">,</span> <span class="n">tgt_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Store a dataset to a target directory.</span>
+<span class="sd">    This will copy the data files to a &#39;data&#39; subdirectory and write the dataset JSON.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># copy the dataset to update the paths</span>
+    <span class="n">ds_copy</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">tgt_dir</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
+    <span class="n">data_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># copy the sequence file</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+        <span class="n">ds_copy</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="n">ds_copy</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">name</span>
+    <span class="p">)</span>
+    <span class="c1"># the the path to the copied file relative path</span>
+    <span class="n">ds_copy</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">data_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">ds_copy</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="c1"># repeat for the peptides</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">ds_copy</span><span class="o">.</span><span class="n">states</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">peptides</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">peptides</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">peptides</span><span class="o">.</span><span class="n">data_file</span><span class="p">,</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="n">peptides</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="c1"># update the path to the copied file relative path</span>
+            <span class="n">peptides</span><span class="o">.</span><span class="n">data_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">peptides</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="c1"># write the dataset to a JSON file</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">ds_copy</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">tgt_dir</span> <span class="o">/</span> <span class="s2">&quot;dataset.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.find_file_hash_matches" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">find_file_hash_matches</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">database_dir</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if a new dataset matches an existing dataset in the database directory.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_file_hash_matches</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">HDXDataSet</span><span class="p">,</span> <span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a new dataset matches an existing dataset in the database directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">catalog</span> <span class="o">=</span> <span class="n">nw</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">database_dir</span> <span class="o">/</span> <span class="s2">&quot;datasets_catalog.csv&quot;</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">file_hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Dataset must have a file hash.&quot;</span>
+    <span class="n">matching_datasets</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nw</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;file_hash&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">dataset</span><span class="o">.</span><span class="n">file_hash</span><span class="p">[:</span><span class="mi">16</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">matching_datasets</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.generate_datasets_catalog" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">generate_datasets_catalog</span><span class="p">(</span><span class="n">database_dir</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Generate an overview DataFrame of all datasets in the database directory.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_datasets_catalog</span><span class="p">(</span><span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nw</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate an overview DataFrame of all datasets in the database directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ds_id</span> <span class="ow">in</span> <span class="n">list_datasets</span><span class="p">(</span><span class="n">database_dir</span><span class="p">):</span>
+        <span class="n">ds_path</span> <span class="o">=</span> <span class="n">database_dir</span> <span class="o">/</span> <span class="n">ds_id</span> <span class="o">/</span> <span class="s2">&quot;dataset.json&quot;</span>
+        <span class="k">if</span> <span class="n">ds_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">HDXDataSet</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span>
+                <span class="n">ds_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_root&quot;</span><span class="p">:</span> <span class="n">database_dir</span> <span class="o">/</span> <span class="n">ds_id</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">ds_id</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                    <span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
+                    <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">publication</span><span class="o">.</span><span class="n">doi</span>
+                    <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">publication</span>
+                    <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;created_date&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">created_date</span><span class="p">,</span>
+                    <span class="s2">&quot;uniprot_accession_number&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">protein_identifiers</span><span class="o">.</span><span class="n">uniprot_accession_number</span><span class="p">,</span>
+                    <span class="s2">&quot;file_hash&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">file_hash</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">nw</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">records_to_dict</span><span class="p">(</span><span class="n">records</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.list_datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">list_datasets</span><span class="p">(</span><span class="n">database_dir</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>List all valid dataset IDs in the database directory.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">list_datasets</span><span class="p">(</span><span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List all valid dataset IDs in the database directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">stem</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">database_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="n">valid_id</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stem</span><span class="p">)]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.load_dataset" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_dataset</span><span class="p">(</span><span class="n">pth</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a dataset from a JSON file, .zip file or directory.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>pth</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span> | <span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to a dataset.json file, a .zip file containing a dataset, or a directory.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="hdxms_datasets.models.HDXDataSet">HDXDataSet</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The loaded HDXDataSet.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Note</summary>
+  <p>When loading from a .zip file, the contents are extracted to a temporary directory<br />
+that persists for the lifetime of the program.</p>
+</details>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_dataset</span><span class="p">(</span><span class="n">pth</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HDXDataSet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a dataset from a JSON file, .zip file or directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pth: Path to a dataset.json file, a .zip file containing a dataset, or a directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The loaded HDXDataSet.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        When loading from a .zip file, the contents are extracted to a temporary directory</span>
+<span class="sd">        that persists for the lifetime of the program.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pth</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pth</span><span class="p">)</span>
+
+    <span class="c1"># Handle .zip files by extracting to a temp directory</span>
+    <span class="k">if</span> <span class="n">pth</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">pth</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.zip&quot;</span><span class="p">:</span>
+        <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;hdxms_dataset_&quot;</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">pth</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+            <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>  <span class="c1"># recursively load from the extracted directory</span>
+
+    <span class="k">elif</span> <span class="n">pth</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">pth</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+        <span class="n">dataset_root</span> <span class="o">=</span> <span class="n">pth</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">json_pth</span> <span class="o">=</span> <span class="n">pth</span>
+    <span class="k">elif</span> <span class="n">pth</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="c1"># find the dataset.json file in the extracted contents</span>
+        <span class="n">json_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pth</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;dataset.json&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_files</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;No dataset.json file found in the extracted zip contents.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Multiple dataset.json files found in the extracted zip contents.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">json_pth</span> <span class="o">=</span> <span class="n">json_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dataset_root</span> <span class="o">=</span> <span class="n">json_pth</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Path must be a .zip file, .json file or directory.&quot;</span><span class="p">)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">HDXDataSet</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span>
+        <span class="n">json_pth</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="n">context</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset_root&quot;</span><span class="p">:</span> <span class="n">dataset_root</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.mint_new_dataset_id" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">mint_new_dataset_id</span><span class="p">(</span><span class="n">current_ids</span><span class="o">=</span><span class="n">KNOWN_HDX_IDS</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Mint a new dataset ID that does not conflict with existing IDs in the database directory.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mint_new_dataset_id</span><span class="p">(</span><span class="n">current_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">KNOWN_HDX_IDS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mint a new dataset ID that does not conflict with existing IDs in the database directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">new_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;HDX_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">new_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">new_id</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.populate_known_ids" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">populate_known_ids</span><span class="p">(</span><span class="n">database_dir</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Populate the KNOWN_HDX_IDS set with existing dataset IDs from the database directory.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">populate_known_ids</span><span class="p">(</span><span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Populate the KNOWN_HDX_IDS set with existing dataset IDs from the database directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">KNOWN_HDX_IDS</span>
+    <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
+        <span class="n">KNOWN_HDX_IDS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">database_dir</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">KNOWN_HDX_IDS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">database_dir</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.submit_dataset" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">submit_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">database_dir</span><span class="p">,</span> <span class="n">allow_mint_new_id</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_existing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Submit a dataset to a local HDX-MS database.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>dataset</code>
+            </td>
+            <td>
+                  <code><span title="hdxms_datasets.models.HDXDataSet">HDXDataSet</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The HDXDataSet to submit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>database_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The directory where the dataset will be stored.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>allow_mint_new_id</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, allows minting a new dataset ID if it is already present in the database.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>check_existing</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, checks if the dataset already exists in the database.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>verify</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, verifies the dataset before submission.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>strict</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, performs strict verification of the dataset.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A tuple (success: bool, message: str):</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>success: True if the dataset was successfully submitted, False otherwise.</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="bool">bool</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>message: A message indicating the result of the submission.</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">submit_dataset</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">HDXDataSet</span><span class="p">,</span>
+    <span class="n">database_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">allow_mint_new_id</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">check_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">verify</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Submit a dataset to a local HDX-MS database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: The HDXDataSet to submit.</span>
+<span class="sd">        database_dir: The directory where the dataset will be stored.</span>
+<span class="sd">        allow_mint_new_id: If True, allows minting a new dataset ID if it is already present in the database.</span>
+<span class="sd">        check_existing: If True, checks if the dataset already exists in the database.</span>
+<span class="sd">        verify: If True, verifies the dataset before submission.</span>
+<span class="sd">        strict: If True, performs strict verification of the dataset.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple (success: bool, message: str):</span>
+<span class="sd">        - success: True if the dataset was successfully submitted, False otherwise.</span>
+<span class="sd">        - message: A message indicating the result of the submission.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># copy the datasets in case we need to update the ID</span>
+    <span class="n">dataset_copy</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verify</span><span class="p">:</span>
+        <span class="n">verify_dataset</span><span class="p">(</span><span class="n">dataset_copy</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">database_dir</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Database directory must be an absolute path.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># check if the uniprot ID is already there,</span>
+    <span class="c1"># although there could be multiple states with the same uniprot ID</span>
+    <span class="c1"># this is a quick check to avoid duplicates</span>
+    <span class="k">if</span> <span class="n">check_existing</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">find_file_hash_matches</span><span class="p">(</span><span class="n">dataset_copy</span><span class="p">,</span> <span class="n">database_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Dataset matches an existing dataset in the database: </span><span class="si">{</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Dataset matches existing datasets in the database: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">msg</span>
+
+    <span class="c1"># mint a new ID if not provided</span>
+    <span class="n">existing_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">list_datasets</span><span class="p">(</span><span class="n">database_dir</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">dataset_copy</span><span class="o">.</span><span class="n">hdx_id</span> <span class="ow">in</span> <span class="n">existing_ids</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">allow_mint_new_id</span><span class="p">:</span>
+            <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">mint_new_dataset_id</span><span class="p">(</span><span class="n">existing_ids</span><span class="p">)</span>
+            <span class="n">dataset_copy</span><span class="o">.</span><span class="n">hdx_id</span> <span class="o">=</span> <span class="n">dataset_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="kc">False</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Dataset ID </span><span class="si">{</span><span class="n">dataset_copy</span><span class="o">.</span><span class="n">hdx_id</span><span class="si">}</span><span class="s2"> already exists in the database.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">dataset_copy</span><span class="o">.</span><span class="n">hdx_id</span>
+
+    <span class="c1"># TODO this check is now superfluous</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_id</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid dataset ID: </span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;A valid ID starts with &#39;HDX_&#39; followed by 8 uppercase alphanumeric characters.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># create the target directory</span>
+    <span class="n">tgt_dir</span> <span class="o">=</span> <span class="n">database_dir</span> <span class="o">/</span> <span class="n">dataset_id</span>
+    <span class="n">export_dataset</span><span class="p">(</span><span class="n">dataset_copy</span><span class="p">,</span> <span class="n">tgt_dir</span><span class="p">)</span>
+
+    <span class="c1"># update the catalogue</span>
+    <span class="c1"># TODO: update instead of regenerate</span>
+    <span class="c1"># TODO: lockfile? https://github.com/harlowja/fasteners</span>
+    <span class="c1"># TODO: at the moment this also reads all the datasets again</span>
+    <span class="c1"># generate_datasets_catalog(database_dir, save_csv=True)</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">dataset_id</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="database.valid_id" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">valid_id</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check if the dataset ID is valid.<br />
+A valid ID starts with 'HDX_' followed by 8 uppercase alphanumeric characters.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/database.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">valid_id</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the dataset ID is valid.</span>
+<span class="sd">    A valid ID starts with &#39;HDX_&#39; followed by 8 uppercase alphanumeric characters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">bool</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">dataset_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;HDX_&quot;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span>
+        <span class="ow">and</span> <span class="n">dataset_id</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../../javascript/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,4846 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Loading and parsing of HDX-MS datasets and associated metadata">
+      
+      
+      
+        <link rel="canonical" href="https://jhsmit.github.io/hdxms-datasets/reference/models/">
+      
+      
+        <link rel="prev" href="../migration/v020/">
+      
+      
+        <link rel="next" href="../plot/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>models - HDX-MS Datasets</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../css/styles.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#models" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HDX-MS Datasets" class="md-header__button md-logo" aria-label="HDX-MS Datasets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HDX-MS Datasets
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              models
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Jhsmit/hdxms-datasets/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HDX-MS Datasets" class="md-nav__button md-logo" aria-label="HDX-MS Datasets" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    HDX-MS Datasets
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Jhsmit/hdxms-datasets/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loading Datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../convert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    convert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../expr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    expr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    migration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    migration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migration/v020/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v020
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.DataRepository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DataRepository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.DeuterationType" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeuterationType
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.HDXDataSet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HDXDataSet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HDXDataSet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.data_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        data_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.compute_file_hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        compute_file_hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.from_json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.get_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.validate_file_integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_file_integrity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.validate_hdx_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_hdx_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.verify_unique_state_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        verify_unique_state_names
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.PeptideFormat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PeptideFormat
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PeptideFormat">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.PeptideFormat.get_format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.PeptideFormat.identify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identify
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.Peptides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peptides
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Peptides">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.Peptides.load" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.ProteinIdentifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProteinIdentifiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.ProteinState" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProteinState
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.Publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.State" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.Structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.Structure.get_auth_residue_mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_auth_residue_mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.Structure.pdbemolstar_custom_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pdbemolstar_custom_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.Structure.to_biopython" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_biopython
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.StructureMapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StructureMapping
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StructureMapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.StructureMapping.map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.extract_values_by_types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_values_by_types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.hash_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hash_files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.id_factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        id_factory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.residue_number_mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        residue_number_mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.serialize_datafile_path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        serialize_datafile_path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.validate_datafile_path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_datafile_path
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    plot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stable
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    stable
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_10_1" id="__nav_4_10_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v020
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_10_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    v020
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/convert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    convert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/datavault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    datavault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/expr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    expr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/plot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    plot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stable/v020/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../view/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    view
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_14" id="__nav_4_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    web
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    web
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/upload_form/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    upload_form
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.DataRepository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DataRepository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.DeuterationType" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DeuterationType
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.HDXDataSet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HDXDataSet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="HDXDataSet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.data_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        data_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.compute_file_hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        compute_file_hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.from_json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.get_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.validate_file_integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_file_integrity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.validate_hdx_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_hdx_id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.HDXDataSet.verify_unique_state_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        verify_unique_state_names
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.PeptideFormat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PeptideFormat
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PeptideFormat">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.PeptideFormat.get_format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.PeptideFormat.identify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identify
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.Peptides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peptides
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Peptides">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.Peptides.load" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.ProteinIdentifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProteinIdentifiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.ProteinState" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProteinState
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.Publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.State" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.Structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.Structure.get_auth_residue_mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_auth_residue_mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.Structure.pdbemolstar_custom_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pdbemolstar_custom_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#models.Structure.to_biopython" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_biopython
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.StructureMapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StructureMapping
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StructureMapping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#models.StructureMapping.map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.extract_values_by_types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_values_by_types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.hash_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hash_files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.id_factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        id_factory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.residue_number_mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        residue_number_mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.serialize_datafile_path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        serialize_datafile_path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#models.validate_datafile_path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_datafile_path
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>models</h1>
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="models"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.DataRepository" class="doc doc-heading">
+            <code>DataRepository</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Information about the data repository where the source data is published</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DataRepository</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information about the data repository where the source data is published&quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Repository name&quot;</span><span class="p">)]</span>  <span class="c1"># ie Pride, Zenodo,</span>
+    <span class="n">url</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">HttpUrl</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Repository URL&quot;</span><span class="p">)]</span>
+    <span class="n">identifier</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Repository entry identifier&quot;</span><span class="p">)]</span>
+    <span class="n">doi</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Repository DOI&quot;</span><span class="p">)]</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Repository description&quot;</span><span class="p">)]</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.DeuterationType" class="doc doc-heading">
+            <code>DeuterationType</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Experimental Deuteration Type of the peptide</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeuterationType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Experimental Deuteration Type of the peptide&quot;&quot;&quot;</span>
+
+    <span class="n">partially_deuterated</span> <span class="o">=</span> <span class="s2">&quot;partially_deuterated&quot;</span>
+    <span class="n">fully_deuterated</span> <span class="o">=</span> <span class="s2">&quot;fully_deuterated&quot;</span>
+    <span class="n">non_deuterated</span> <span class="o">=</span> <span class="s2">&quot;non_deuterated&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.HDXDataSet" class="doc doc-heading">
+            <code>HDXDataSet</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>HDX-MS dataset containing multiple states</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">HDXDataSet</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;HDX-MS dataset containing multiple states&quot;&quot;&quot;</span>
+
+    <span class="n">hdx_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">id_factory</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;HDX-MS dataset identifier&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Basic information</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Dataset description&quot;</span><span class="p">)]</span>
+
+    <span class="n">states</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">State</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of HDX states in the dataset&quot;</span><span class="p">)</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Structural model file path&quot;</span><span class="p">)]</span>
+    <span class="n">protein_identifiers</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">ProteinIdentifiers</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Protein identifiers (UniProt, etc.)&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">DatasetMetadata</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Dataset metadata&quot;</span><span class="p">)]</span>
+    <span class="n">file_hash</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Hash of the files in the dataset&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_hdx_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate hdx_id format: &#39;HDX_&#39; followed by 8 uppercase alphanumeric chars (e.g. HDX_3BAE2080).&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_id</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdx_id</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;hdx_id must match pattern &#39;HDX_XXXXXXXX&#39; where X are uppercase letters or digits, e.g. &#39;HDX_3BAE2080&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_file_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a hash of the dataset based on its data files&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_files</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_files</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>  <span class="c1"># Shorten to 16 characters</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">verify_unique_state_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that all state names are unique within the dataset&quot;&quot;&quot;</span>
+        <span class="n">state_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">state_names</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;State names must be unique within the dataset.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">hash_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hash_files</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_files</span><span class="p">)</span>  <span class="c1"># Ensure files are sorted and hashed consistently</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_file_integrity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Match hash of files with the stored hash&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">current_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_files</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">current_hash</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a specific state by name or index&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">state</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">s</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State &#39;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&#39; not found in dataset.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;List of all data files in the dataset&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Path</span><span class="p">)))</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_json</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">json_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dataset_root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HDXDataSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load dataset from JSON string</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            json_str: JSON string representing the dataset</span>
+<span class="sd">            dataset_root: Optional root directory to resolve relative paths</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            HDXDataSet instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dataset_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dataset_root&quot;</span><span class="p">:</span> <span class="n">dataset_root</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="models.HDXDataSet.data_files" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">data_files</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>List of all data files in the dataset</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.HDXDataSet.compute_file_hash" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">compute_file_hash</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute a hash of the dataset based on its data files</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_file_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a hash of the dataset based on its data files&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_files</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_files</span><span class="p">()[:</span><span class="mi">16</span><span class="p">]</span>  <span class="c1"># Shorten to 16 characters</span>
+
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.HDXDataSet.from_json" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_json</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">dataset_root</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load dataset from JSON string</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>json_str</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>JSON string representing the dataset</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dataset_root</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional root directory to resolve relative paths</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="HDXDataSet (models.HDXDataSet)" href="#models.HDXDataSet">HDXDataSet</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>HDXDataSet instance.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_json</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="p">,</span>
+    <span class="n">json_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dataset_root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HDXDataSet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load dataset from JSON string</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        json_str: JSON string representing the dataset</span>
+<span class="sd">        dataset_root: Optional root directory to resolve relative paths</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        HDXDataSet instance.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dataset_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dataset_root&quot;</span><span class="p">:</span> <span class="n">dataset_root</span><span class="p">}</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.HDXDataSet.get_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get a specific state by name or index</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a specific state by name or index&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">state</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">s</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State &#39;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&#39; not found in dataset.&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.HDXDataSet.validate_file_integrity" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_file_integrity</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Match hash of files with the stored hash</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_file_integrity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match hash of files with the stored hash&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">current_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hash_files</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">current_hash</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_hash</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.HDXDataSet.validate_hdx_id" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_hdx_id</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate hdx_id format: 'HDX_' followed by 8 uppercase alphanumeric chars (e.g. HDX_3BAE2080).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_hdx_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate hdx_id format: &#39;HDX_&#39; followed by 8 uppercase alphanumeric chars (e.g. HDX_3BAE2080).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_id</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">valid_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdx_id</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;hdx_id must match pattern &#39;HDX_XXXXXXXX&#39; where X are uppercase letters or digits, e.g. &#39;HDX_3BAE2080&#39;&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.HDXDataSet.verify_unique_state_names" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">verify_unique_state_names</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Ensure that all state names are unique within the dataset</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_unique_state_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure that all state names are unique within the dataset&quot;&quot;&quot;</span>
+    <span class="n">state_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">state_names</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;State names must be unique within the dataset.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.PeptideFormat" class="doc doc-heading">
+            <code>PeptideFormat</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Format of the peptide data</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PeptideFormat</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format of the peptide data&quot;&quot;&quot;</span>
+
+    <span class="n">DynamX_v3_state</span> <span class="o">=</span> <span class="s2">&quot;DynamX_v3_state&quot;</span>
+    <span class="n">DynamX_v3_cluster</span> <span class="o">=</span> <span class="s2">&quot;DynamX_v3_cluster&quot;</span>
+    <span class="n">DynamX_vx_state</span> <span class="o">=</span> <span class="s2">&quot;DynamX_vx_state&quot;</span>
+    <span class="n">HDExaminer_all_results</span> <span class="o">=</span> <span class="s2">&quot;HDExaminer_all_results&quot;</span>
+    <span class="n">HDExaminer_all_results_with_units</span> <span class="o">=</span> <span class="s2">&quot;HDExaminer_all_results_with_units&quot;</span>
+    <span class="n">HDExaminer_peptide_pool</span> <span class="o">=</span> <span class="s2">&quot;HDExaminer_peptide_pool&quot;</span>
+    <span class="n">HDExaminer_uptake_summary</span> <span class="o">=</span> <span class="s2">&quot;HDExaminer_uptake_summary&quot;</span>
+    <span class="n">HXMS</span> <span class="o">=</span> <span class="s2">&quot;HXMS&quot;</span>
+    <span class="n">OpenHDX</span> <span class="o">=</span> <span class="s2">&quot;OpenHDX&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">FormatSpec</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the FormatSpec for this format&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">FMT_REGISTRY</span>
+
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">FMT_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FormatSpec not found for format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fmt</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">identify</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PeptideFormat</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Identify format from DataFrame&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">identify_format</span>
+
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">identify_format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fmt</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.PeptideFormat.get_format" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_format</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get the FormatSpec for this format</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">FormatSpec</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the FormatSpec for this format&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">FMT_REGISTRY</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">FMT_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FormatSpec not found for format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fmt</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.PeptideFormat.identify" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">identify</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Identify format from DataFrame</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">identify</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PeptideFormat</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Identify format from DataFrame&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">identify_format</span>
+
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">identify_format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.Peptides" class="doc doc-heading">
+            <code>Peptides</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Information about HDX-MS peptides</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Peptides</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information about HDX-MS peptides&quot;&quot;&quot;</span>
+
+    <span class="n">data_file</span><span class="p">:</span> <span class="n">DataFilePath</span>
+    <span class="n">data_format</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">PeptideFormat</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Data format (e.g., OpenHDX)&quot;</span><span class="p">)]</span>
+    <span class="n">deuteration_type</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">DeuterationType</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Type of the peptide (e.g., fully_deuterated)&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">filters</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ValueType</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValueType</span><span class="p">]],</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Filters applied to the data&quot;</span><span class="p">),</span>
+        <span class="n">AfterValidator</span><span class="p">(</span><span class="n">validate_nonfinite_numbers_recursive</span><span class="p">),</span>
+        <span class="n">PlainSerializer</span><span class="p">(</span><span class="n">serialize_nonfinite_numbers_recursive</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">pH</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;pH (read, uncorrected) of the experiment&quot;</span><span class="p">)</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Temperature in Kelvin&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">d_percentage</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Deuteration percentage&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ionic_strength</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Ionic strength in Molar&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">structure_mapping</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">StructureMapping</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Structure mapping information&quot;</span><span class="p">)</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">StructureMapping</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">convert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">aggregate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sort_rows</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">sort_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">drop_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nw</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the peptides from the data file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            convert: Whether to convert the data to a standard format.</span>
+<span class="sd">            aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.</span>
+<span class="sd">            sort_rows: Whether to sort the rows.</span>
+<span class="sd">            sort_columns: Whether to sort the columns in a standard order.</span>
+<span class="sd">            drop_null: Whether to drop columns that are entirely null.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_peptides</span>
+
+            <span class="k">return</span> <span class="n">load_peptides</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">convert</span><span class="o">=</span><span class="n">convert</span><span class="p">,</span>
+                <span class="n">aggregate</span><span class="o">=</span><span class="n">aggregate</span><span class="p">,</span>
+                <span class="n">sort_rows</span><span class="o">=</span><span class="n">sort_rows</span><span class="p">,</span>
+                <span class="n">sort_columns</span><span class="o">=</span><span class="n">sort_columns</span><span class="p">,</span>
+                <span class="n">drop_null</span><span class="o">=</span><span class="n">drop_null</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.Peptides.load" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load</span><span class="p">(</span><span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">aggregate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_columns</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load the peptides from the data file</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>convert</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to convert the data to a standard format.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>aggregate</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>sort_rows</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to sort the rows.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>sort_columns</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to sort the columns in a standard order.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>drop_null</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to drop columns that are entirely null.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">convert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">aggregate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sort_rows</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">sort_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">drop_null</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nw</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the peptides from the data file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        convert: Whether to convert the data to a standard format.</span>
+<span class="sd">        aggregate: Whether to aggregate the data. If None, will aggregate if the data is not already aggregated.</span>
+<span class="sd">        sort_rows: Whether to sort the rows.</span>
+<span class="sd">        sort_columns: Whether to sort the columns in a standard order.</span>
+<span class="sd">        drop_null: Whether to drop columns that are entirely null.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_peptides</span>
+
+        <span class="k">return</span> <span class="n">load_peptides</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">convert</span><span class="o">=</span><span class="n">convert</span><span class="p">,</span>
+            <span class="n">aggregate</span><span class="o">=</span><span class="n">aggregate</span><span class="p">,</span>
+            <span class="n">sort_rows</span><span class="o">=</span><span class="n">sort_rows</span><span class="p">,</span>
+            <span class="n">sort_columns</span><span class="o">=</span><span class="n">sort_columns</span><span class="p">,</span>
+            <span class="n">drop_null</span><span class="o">=</span><span class="n">drop_null</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.ProteinIdentifiers" class="doc doc-heading">
+            <code>ProteinIdentifiers</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>General protein information</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ProteinIdentifiers</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;General protein information&quot;&quot;&quot;</span>
+
+    <span class="n">uniprot_accession_number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;UniProt ID&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">uniprot_entry_name</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;UniProt entry name&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="n">protein_name</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Recommended protein name&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.ProteinState" class="doc doc-heading">
+            <code>ProteinState</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Protein information for a specific state</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ProteinState</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protein information for a specific state&quot;&quot;&quot;</span>
+
+    <span class="n">sequence</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Amino acid sequence&quot;</span><span class="p">)]</span>
+    <span class="n">n_term</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;N-terminal residue number&quot;</span><span class="p">)]</span>
+    <span class="n">c_term</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;C-terminal residue number&quot;</span><span class="p">)]</span>
+    <span class="n">mutations</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of mutations&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">oligomeric_state</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Oligomeric state&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ligand</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Bound ligand information&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_term</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_term</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Sequence length does not match N-term and C-term residue numbers, found: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="p">)</span><span class="si">}</span><span class="s2">, expected: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">c_term</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">n_term</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.Publication" class="doc doc-heading">
+            <code>Publication</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Publication information</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Publication</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Publication information&quot;&quot;&quot;</span>
+
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">authors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">journal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">year</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">doi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pmid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.State" class="doc doc-heading">
+            <code>State</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Information about HDX-MS state</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Information about HDX-MS state&quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;State name&quot;</span><span class="p">)]</span>
+    <span class="n">peptides</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Peptides</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of peptides in this state&quot;</span><span class="p">)</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;State description&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># TODO max length?</span>
+    <span class="n">protein_state</span><span class="p">:</span> <span class="n">ProteinState</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Protein information for this state&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.Structure" class="doc doc-heading">
+            <code>Structure</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Structural model file information</p>
+<p>Residues or protein chains may have different numbering/labels depending on if they are<br />
+the assigned labels by the author of the structure ('auth') or renumbered by the RCSB PDB.</p>
+<p>If your HDX data uses the author numbering/labels, set <code>auth_residue_numbers</code> and/or<br />
+<code>auth_chain_labels</code> to True.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Structure</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Structural model file information</span>
+
+<span class="sd">    Residues or protein chains may have different numbering/labels depending on if they are</span>
+<span class="sd">    the assigned labels by the author of the structure (&#39;auth&#39;) or renumbered by the RCSB PDB.</span>
+
+<span class="sd">    If your HDX data uses the author numbering/labels, set `auth_residue_numbers` and/or</span>
+<span class="sd">    `auth_chain_labels` to True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_file</span><span class="p">:</span> <span class="n">DataFilePath</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Format of the structure file (e.g., PDB, mmCIF)&quot;</span><span class="p">)]</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Description of the structure&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># source database identifiers</span>
+    <span class="n">pdb_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;RCSB PDB ID&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">alphafold_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;AlphaFold ID&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">pdbemolstar_custom_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary with custom data for PDBeMolstar visualization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bcif&quot;</span><span class="p">]:</span>
+            <span class="n">binary</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">binary</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Path </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="si">}</span><span class="s2"> is not a file.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+            <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_auth_residue_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a mapping from author residue numbers to RCSB residue numbers.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_auth_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_auth_mapping</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cif&quot;</span><span class="p">,</span> <span class="s2">&quot;mmcif&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Author residue number mapping is only supported for mmCIF files.&quot;</span><span class="p">)</span>
+
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">residue_number_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_auth_mapping</span> <span class="o">=</span> <span class="n">mapping</span>
+            <span class="k">return</span> <span class="n">mapping</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_biopython</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BioStructure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the structure using Biopython&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB.PDBParser</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB.MMCIFParser</span><span class="w"> </span><span class="kn">import</span> <span class="n">MMCIFParser</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Biopython is required to load structures.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pdb&quot;</span><span class="p">]:</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cif&quot;</span><span class="p">,</span> <span class="s2">&quot;mmcif&quot;</span><span class="p">]:</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">MMCIFParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported structure format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_id</span> <span class="ow">or</span> <span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">structure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">structure</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.Structure.get_auth_residue_mapping" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_auth_residue_mapping</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a mapping from author residue numbers to RCSB residue numbers.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_auth_residue_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a mapping from author residue numbers to RCSB residue numbers.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_auth_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_auth_mapping</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cif&quot;</span><span class="p">,</span> <span class="s2">&quot;mmcif&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Author residue number mapping is only supported for mmCIF files.&quot;</span><span class="p">)</span>
+
+        <span class="n">mapping</span> <span class="o">=</span> <span class="n">residue_number_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_auth_mapping</span> <span class="o">=</span> <span class="n">mapping</span>
+        <span class="k">return</span> <span class="n">mapping</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.Structure.pdbemolstar_custom_data" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pdbemolstar_custom_data</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Returns a dictionary with custom data for PDBeMolstar visualization.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pdbemolstar_custom_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary with custom data for PDBeMolstar visualization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bcif&quot;</span><span class="p">]:</span>
+        <span class="n">binary</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">binary</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Path </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="si">}</span><span class="s2"> is not a file.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+        <span class="s2">&quot;binary&quot;</span><span class="p">:</span> <span class="n">binary</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.Structure.to_biopython" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">to_biopython</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load the structure using Biopython</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_biopython</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BioStructure</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the structure using Biopython&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB.PDBParser</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDBParser</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB.MMCIFParser</span><span class="w"> </span><span class="kn">import</span> <span class="n">MMCIFParser</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Biopython is required to load structures.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pdb&quot;</span><span class="p">]:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">PDBParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cif&quot;</span><span class="p">,</span> <span class="s2">&quot;mmcif&quot;</span><span class="p">]:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">MMCIFParser</span><span class="p">(</span><span class="n">QUIET</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported structure format: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_id</span> <span class="ow">or</span> <span class="s2">&quot;structure&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_file</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">structure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">structure</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="models.StructureMapping" class="doc doc-heading">
+            <code>StructureMapping</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Maps peptide HDX-MS data to a structure</p>
+<p>Residue numbers can be mapped from HDX-MS data to a structure using either an residue number<br />
+offset or a specific dictionary mapping.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">StructureMapping</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maps peptide HDX-MS data to a structure</span>
+
+<span class="sd">    Residue numbers can be mapped from HDX-MS data to a structure using either an residue number</span>
+<span class="sd">    offset or a specific dictionary mapping.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">entity_id</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Entity identifier&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">chain</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Chain identifiers&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">residue_offset</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Residue number offset to apply&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Residue number mapping&quot;</span><span class="p">)</span>
+
+    <span class="n">auth_residue_numbers</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="nb">bool</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Use author residue numbers&quot;</span><span class="p">)</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">auth_chain_labels</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+        <span class="nb">bool</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Use author chain labels&quot;</span><span class="p">)</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">residue_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map a residue number using the mapping dictionary and offset&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">residue_offset</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">residue_number</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">residue_offset</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">residue_number</span><span class="p">,</span> <span class="n">residue_number</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">residue_number</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="models.StructureMapping.map" class="doc doc-heading">
+            <code class="highlight language-python"><span class="nb">map</span><span class="p">(</span><span class="n">residue_number</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Map a residue number using the mapping dictionary and offset</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">residue_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map a residue number using the mapping dictionary and offset&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">residue_offset</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">residue_number</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">residue_offset</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">residue_number</span><span class="p">,</span> <span class="n">residue_number</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">residue_number</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="models.extract_values_by_types" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">target_types</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Recursively extract all values of specified type(s) from a nested structure.<br />
+This function can handle Pydantic models, lists, tuples, sets, and dictionaries.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>obj</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pydantic model instance or any nested structure</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>target_types</code>
+            </td>
+            <td>
+                  <code><span title="typing.Type">Type</span> | <span title="tuple">tuple</span>[<span title="typing.Type">Type</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Single type or tuple of types to search for</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="list">list</span>[<span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of all values matching any of the target types</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_values_by_types</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">target_types</span><span class="p">:</span> <span class="n">Type</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Type</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursively extract all values of specified type(s) from a nested structure.</span>
+<span class="sd">    This function can handle Pydantic models, lists, tuples, sets, and dictionaries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: Pydantic model instance or any nested structure</span>
+<span class="sd">        target_types: Single type or tuple of types to search for</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of all values matching any of the target types</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Normalize target_types to tuple</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_types</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">target_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_types</span><span class="p">,)</span>
+
+    <span class="c1"># Check if current object is of any target type</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">target_types</span><span class="p">):</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">):</span>
+        <span class="c1"># Iterate through all field values in the Pydantic model</span>
+        <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">field_value</span><span class="p">,</span> <span class="n">target_types</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+        <span class="c1"># Handle sequences</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">target_types</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="c1"># Handle dictionaries (both keys and values)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">target_types</span><span class="p">))</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extract_values_by_types</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">target_types</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">values</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="models.hash_files" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">hash_files</span><span class="p">(</span><span class="n">data_files</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute a hash of all data files in the dataset</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hash_files</span><span class="p">(</span><span class="n">data_files</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a hash of all data files in the dataset&quot;&quot;&quot;</span>
+    <span class="n">hash_obj</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data_files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>  <span class="c1"># Sort to ensure consistent order</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="n">TEXT_FILE_FORMATS</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">hash_obj</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hash_obj</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">hash_obj</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="models.id_factory" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">id_factory</span><span class="p">()</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Factory function to generate a new dataset ID</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">id_factory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory function to generate a new dataset ID&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">hdxms_datasets.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">mint_new_dataset_id</span>
+
+    <span class="k">return</span> <span class="n">mint_new_dataset_id</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="models.residue_number_mapping" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">residue_number_mapping</span><span class="p">(</span><span class="n">cif_path</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">residue</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a mapping from author residue numbers to RCSB residue numbers from an mmCIF file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>cif_path</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the mmCIF file.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>chain</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to include chain mapping.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>residue</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to include residue number mapping.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">residue_number_mapping</span><span class="p">(</span>
+    <span class="n">cif_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">residue</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a mapping from author residue numbers to RCSB residue numbers from an mmCIF file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cif_path: Path to the mmCIF file.</span>
+<span class="sd">        chain: Whether to include chain mapping.</span>
+<span class="sd">        residue: Whether to include residue number mapping.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">Bio.PDB.MMCIF2Dict</span><span class="w"> </span><span class="kn">import</span> <span class="n">MMCIF2Dict</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Biopython is required for residue number mapping from mmCIF files.&quot;</span><span class="p">)</span>
+
+    <span class="n">mm</span> <span class="o">=</span> <span class="n">MMCIF2Dict</span><span class="p">(</span><span class="n">cif_path</span><span class="p">)</span>
+
+    <span class="n">label_asym</span> <span class="o">=</span> <span class="n">mm</span><span class="p">[</span><span class="s2">&quot;_atom_site.label_asym_id&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">chain</span><span class="p">:</span>
+        <span class="n">auth_asym</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_atom_site.auth_asym_id&quot;</span><span class="p">,</span> <span class="n">label_asym</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">auth_asym</span> <span class="o">=</span> <span class="n">label_asym</span>
+
+    <span class="n">label_seq</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_atom_site.label_seq_id&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="n">residue</span><span class="p">:</span>
+        <span class="n">auth_seq</span> <span class="o">=</span> <span class="n">mm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_atom_site.auth_seq_id&quot;</span><span class="p">,</span> <span class="n">label_seq</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">auth_seq</span> <span class="o">=</span> <span class="n">label_seq</span>
+
+    <span class="c1"># maps author chain/residue numbers to PDB chain/residue numbers</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">a_asym</span><span class="p">,</span> <span class="n">a_seq</span><span class="p">):</span> <span class="p">(</span><span class="n">l_asym</span><span class="p">,</span> <span class="n">l_seq</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">l_asym</span><span class="p">,</span> <span class="n">l_seq</span><span class="p">,</span> <span class="n">a_asym</span><span class="p">,</span> <span class="n">a_seq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">label_asym</span><span class="p">,</span> <span class="n">label_seq</span><span class="p">,</span> <span class="n">auth_asym</span><span class="p">,</span> <span class="n">auth_seq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l_asym</span> <span class="o">!=</span> <span class="n">a_asym</span> <span class="ow">or</span> <span class="n">l_seq</span> <span class="o">!=</span> <span class="n">a_seq</span>  <span class="c1"># dont include identical mappings</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">mapping</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="models.serialize_datafile_path" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">serialize_datafile_path</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Pydantic serializer to convert paths to relative paths based on context</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">serialize_datafile_path</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">ValidationInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pydantic serializer to convert paths to relative paths based on context&quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">context</span>
+    <span class="k">if</span> <span class="n">context</span> <span class="ow">and</span> <span class="s2">&quot;dataset_root&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="p">:</span>
+        <span class="n">relpath</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;dataset_root&quot;</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">relpath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="models.validate_datafile_path" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_datafile_path</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Pydantic validator to resolve relative paths based on context</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>hdxms_datasets/models.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_datafile_path</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">ValidationInfo</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pydantic validator to resolve relative paths based on context&quot;&quot;&quot;</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">context</span>
+    <span class="k">if</span> <span class="n">context</span> <span class="ow">and</span> <span class="s2">&quot;dataset_root&quot;</span> <span class="ow">in</span> <span class="n">context</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">context</span><span class="p">[</span><span class="s2">&quot;dataset_root&quot;</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="n">x</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../../javascript/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
