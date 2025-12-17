@@ -80,10 +80,11 @@ def convert_rt(rt_str: str) -> float:
     return mean
 
 
-def cast_exposure(df):
+def cast_exposure(df: nw.DataFrame) -> nw.DataFrame:
+    """Tries to cast the exposure column to float"""
     try:
         df = df.with_columns(nw.col("exposure").str.strip_chars("s").cast(nw.Float64))
-    except (InvalidOperationError, ValueError):
+    except (InvalidOperationError, ValueError, AttributeError):
         pass
     return df
 
