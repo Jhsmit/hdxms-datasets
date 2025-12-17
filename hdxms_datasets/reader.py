@@ -125,7 +125,13 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
         header_line = source.readline()
 
     else:
-        df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
+        kwargs = {
+            "polars": {"skip_rows": 1, "has_header": True},
+            "pandas": {"skiprows": [0]},
+        }
+        if BACKEND not in kwargs:
+            raise ValueError(f"Unsupported backend: {BACKEND}")
+        df = nw.read_csv(source.as_posix(), backend=BACKEND, **kwargs[BACKEND])
         with open(source, "r") as fh:
             exposure_line = fh.readline()
             header_line = fh.readline()
