@@ -188,6 +188,10 @@ def build_structure_peptides_comparison(
     import polars as pl
 
     # apply residue offset to peptides
+    # doesnt support 'mapping' dicts yet
+    if peptides.structure_mapping.mapping:
+        raise NotImplementedError("Custom residue mapping is not supported yet.")
+
     residue_df = residue_df.with_columns(
         (pl.col("resi") + peptides.structure_mapping.residue_offset).cast(str).alias("resi")
     )
@@ -265,7 +269,16 @@ def compare_structure_peptides(
     peptides: Peptides,
     returns: Literal["dict", "df", "both"] = "dict",
 ) -> pl.DataFrame | CompareSummary | tuple[CompareSummary, pl.DataFrame]:
-    """Compares structure and peptide data."""
+    """Compares structure and peptide data.
+
+    Returned dataframe has the following columns:
+    resi (str): Residue number from peptides
+    resn: (str): One letter amino acid code from peptides
+    resn_TLA: (str): Three letter amino acid code from peptides
+    chain (str): Chain identifier
+    resn_TLA_right: (str): Three letter amino acid code from structure (null if no match)
+
+    """
 
     df = build_structure_peptides_comparison(structure, peptides)
 
@@ -277,3 +290,57 @@ def compare_structure_peptides(
         return summarize_compare_table(df), df
     else:
         raise ValueError(f"Invalid returns value: {returns!r}")
+
+
+def residue_offset_optimization(
+    structure: Structure,
+    peptides: Peptides,
+    search_range: tuple[int, int] = (-100, 100),
+) -> int:
+    """
+    Optimize residue offset to maximize matched residues between structure and peptides.
+    Ignores current offset on the peptides' structure mapping.
+
+    Args:
+        structure: Structure object
+        peptides: Peptides object
+        search_range: Tuple of (min_offset, max_offset) to search
+
+    Returns:
+        The optimal residue offset as an integer.
+    """
+
+    import polars as pl
+
+    structure_df = residue_df_from_structure(structure, peptides.structure_mapping)
+    residue_df = residue_df_from_peptides(peptides)
+    residue_df = pl.concat(
+        [
+            residue_df.with_columns(pl.lit(ch).alias("chain"))
+            for ch in peptides.structure_mapping.chain or []
+        ]
+    )
+
+    best_offset = search_range[0]
+    prev_result = -float("inf")
+    for offset in range(*search_range):
+        residue_df_with_offset = residue_df.with_columns(
+            (pl.col("resi").cast(int) + offset).cast(str).alias("resi")
+        )
+
+        merged = residue_df_with_offset.join(
+            structure_df,
+            on=["chain", "resi"],
+            how="left",
+        )
+
+        matched = merged.drop_nulls(subset=["resn_TLA_right"]).filter(
+            pl.col("resn_TLA") == pl.col("resn_TLA_right")
+        )
+
+        result = matched.height
+        if result > prev_result:
+            best_offset = offset
+            prev_result = result
+
+    return best_offset

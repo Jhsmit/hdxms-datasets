@@ -159,6 +159,25 @@ FD control: 'MAX' (older version)
 Comments:
 
 
+### Kingfisher HD examiner example
+
+File: HDX export file test.csv
+Source: https://github.com/juan2089/Kingfisher-HDX/blob/Kingfisher-v1.1/www/HDX%20export%20file%20test.csv
+
+Columns:
+The first line is a header with exposure times. 
+
+The second line has the column names, starting with:
+'State,Protein,Start,End,Sequence,Search RT,Charge,Max D,'
+
+Followed by repeating blocks of:
+'Start RT,End RT,#D,%D,#D right,%D right,Score,Conf,'
+Format: (almost!) HD examiner summary file
+
+This is a HD examiner 'peptide pool' file
+
+
+
 ## HD Examiner manual on exporting data
 
 **Peptide Pool Results / Uptake Summary Table**

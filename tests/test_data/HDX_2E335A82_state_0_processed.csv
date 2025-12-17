@@ -1,4 +1,4 @@
-start,end,sequence,replicate,exposure,uptake,uptake_sd,n_replicates,n_cluster,nd_uptake,nd_uptake_sd,fd_uptake,fd_uptake_sd,max_uptake,frac_fd_control,frac_fd_control_sd,frac_max_uptake,frac_max_uptake_sd
+start,end,sequence,replicate,exposure,uptake,uptake_sd,n_replicates,n_clusters,nd_uptake,nd_uptake_sd,fd_uptake,fd_uptake_sd,max_uptake,frac_fd_control,frac_fd_control_sd,frac_max_uptake,frac_max_uptake_sd
 11,19,NLYFQSISL,4,43.0,1.955,0.015000000000000013,1,2,0.0,0.0,5.03,0.0,8,0.38866799204771374,0.0029821073558648136,0.244375,0.0018750000000000017
 12,18,LYFQSIS,4,43.0,1.1,0.0,1,2,0.0,0.0,3.614285714285714,0.03849198167230704,6,0.3043478260869566,0.003241290774949382,0.18333333333333335,0.0
 12,19,LYFQSISL,4,43.0,1.7,0.0,1,1,0.0,0.0,4.22,0.0,7,0.4028436018957346,0.0,0.24285714285714285,0.0

@@ -13,6 +13,12 @@ residue number of the last amino acid in the peptide
 ### sequence (str)
 fasta sequence of the peptide
 
+### protein (str)
+protein name or identifier
+
+HDExaminer name: Protein
+DynamX name: Protein
+
 ### state (str)
 state label
 
@@ -92,6 +98,9 @@ These fields are derived from other fields defined in the above sections.
 ### n_replicates
 added after data aggregation
 Total number of replicates that were aggregated together
+
+### n_charges
+Total number of different charged states that were aggregated together
 
 ### n_clusters
 added after data aggregation
