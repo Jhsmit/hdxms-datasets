@@ -47,7 +47,9 @@ def get_backend():
     except ImportError:
         pass
 
-    raise ImportError("No suitable backend found. Please install pandas, polars, pyarrow or modin.")
+    raise ImportError(
+        "No suitable backend found. Please install pandas, polars, pyarrow or modin."
+    )
 
 
 BACKEND = get_backend()
@@ -125,7 +127,9 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
         header_line = source.readline()
 
     else:
-        df = nw.read_csv(source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True)
+        df = nw.read_csv(
+            source.as_posix(), backend=BACKEND, skip_rows=1, has_header=True
+        )
         with open(source, "r") as fh:
             exposure_line = fh.readline()
             header_line = fh.readline()
@@ -135,7 +139,9 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
 
     found_schema = df[:, 0:8].schema
     if found_schema != HDEXAMINER_PEPTIDE_POOL_INITIAL_SCHEMA:
-        raise ValueError("HDX-Examiner peptide pool file has an unexpected columns schema.")
+        raise ValueError(
+            "HDX-Examiner peptide pool file has an unexpected columns schema."
+        )
 
     # find indices of exposure markers in header
     has_entry_with_end = [i for i, col in enumerate(exposure_columns) if col] + [
@@ -181,7 +187,7 @@ def read_hdexaminer_peptide_pool(source: Path | StringIO) -> nw.DataFrame:
     return final_output
 
 
-def read_csv(source: Path | IO | bytes, **kwargs) -> nw.DataFrame:
+def read_csv(source: Path | StringIO | bytes, **kwargs) -> nw.DataFrame:
     """
     Read a CSV file and return a Narwhals DataFrame.
 
@@ -199,7 +205,7 @@ def read_csv(source: Path | IO | bytes, **kwargs) -> nw.DataFrame:
         import polars as pl
 
         return nw.from_native(pl.read_csv(source), **kwargs)
-    elif isinstance(source, IO):
+    elif isinstance(source, StringIO):
         try:
             import polars as pl
 
@@ -213,7 +219,9 @@ def read_csv(source: Path | IO | bytes, **kwargs) -> nw.DataFrame:
         except ImportError:
             raise ValueError("No suitable backend found for reading file-like objects")
     else:
-        raise TypeError("source must be a Path, bytes, or file-like object")
+        raise TypeError(
+            f"Source must be a Path, bytes, or file-like object, got: {type(source)}"
+        )
 
 
 def hxms_line_generator(source: Path) -> Iterator[str]:
@@ -311,7 +319,9 @@ def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
 
     used_columns = list(HXMS_SCHEMA)[: len(content)]
     data_dict: dict[str, Any] = dict(zip(used_columns, content))
-    data_dict["sequence"] = sequence[int(data_dict["START"]) - 1 : int(data_dict["END"])]
+    data_dict["sequence"] = sequence[
+        int(data_dict["START"]) - 1 : int(data_dict["END"])
+    ]
     data_dict = _cast_envelope(data_dict)
     dicts.append(data_dict)
 
@@ -321,11 +331,15 @@ def _parse_hxms_TP_lines(lines: Iterable[str], sequence: str) -> nw.DataFrame:
             continue
         content = _line_content(line)
         data_dict = dict(zip(used_columns, content))
-        data_dict["sequence"] = sequence[int(data_dict["START"]) - 1 : int(data_dict["END"])]
+        data_dict["sequence"] = sequence[
+            int(data_dict["START"]) - 1 : int(data_dict["END"])
+        ]
         data_dict = _cast_envelope(data_dict)
         dicts.append(data_dict)
 
-    schema = nw.Schema({col: HXMS_SCHEMA[col] for col in used_columns} | {"sequence": nw.String()})
+    schema = nw.Schema(
+        {col: HXMS_SCHEMA[col] for col in used_columns} | {"sequence": nw.String()}
+    )
     df = nw.from_dicts(dicts, schema=schema, backend=BACKEND)
 
     return df
@@ -384,7 +398,9 @@ def parse_hxms_lines(lines: Iterable[str], read_content: bool = True) -> HXMSRes
             break
 
     # the rest of the lines are data lines
-    df = _parse_hxms_TP_lines(line_iter, sequence=result["METADATA"]["PROTEIN_SEQUENCE"])
+    df = _parse_hxms_TP_lines(
+        line_iter, sequence=result["METADATA"]["PROTEIN_SEQUENCE"]
+    )
     result["DATA"] = df
 
     # check read columns against expected columns
@@ -400,15 +416,20 @@ def parse_hxms_lines(lines: Iterable[str], read_content: bool = True) -> HXMSRes
 
 
 @overload
-def read_hxms(source: Path | IO | bytes, returns: Literal["HXMSResult"]) -> HXMSResult: ...
+def read_hxms(
+    source: Path | IO | bytes, returns: Literal["HXMSResult"]
+) -> HXMSResult: ...
 
 
 @overload
-def read_hxms(source: Path | IO | bytes, returns: Literal["DataFrame"]) -> nw.DataFrame: ...
+def read_hxms(
+    source: Path | IO | bytes, returns: Literal["DataFrame"]
+) -> nw.DataFrame: ...
 
 
 def read_hxms(
-    source: Path | IO | bytes, returns: Literal["HXMSResult", "DataFrame"] = "HXMSResult"
+    source: Path | IO | bytes,
+    returns: Literal["HXMSResult", "DataFrame"] = "HXMSResult",
 ) -> HXMSResult | nw.DataFrame:
     """
     Read an HXMS file and return a HXMSResult or Narwhals DataFrame.
