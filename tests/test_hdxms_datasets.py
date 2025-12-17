@@ -8,6 +8,7 @@ from hdxms_datasets.models import HDXDataSet
 from pathlib import Path
 import pytest
 import narwhals as nw
+import zipfile
 
 
 # %%
@@ -31,6 +32,21 @@ def database():
     """Create a database instance for testing"""
     db = DataBase(TEST_PTH / "datasets")
     yield db
+
+
+@pytest.fixture()
+def zipped_dataset(tmp_path: Path):
+    """Create a zipped version of the dataset directory"""
+    dataset_dir = TEST_PTH / "datasets" / DATA_ID
+    zip_path = tmp_path / f"{DATA_ID}.zip"
+
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file_path in dataset_dir.rglob('*'):
+            if file_path.is_file():
+                arcname = file_path.relative_to(dataset_dir.parent)
+                zipf.write(file_path, arcname)
+
+    yield zip_path
 
 
 def test_dataset_basic(dataset: HDXDataSet):
@@ -135,6 +151,23 @@ def test_protein_identifiers(dataset: HDXDataSet):
         assert dataset.protein_identifiers.uniprot_entry_name is not None
         assert len(dataset.protein_identifiers.uniprot_accession_number) > 0
         assert len(dataset.protein_identifiers.uniprot_entry_name) > 0
+
+
+def test_load_dataset_from_zip(zipped_dataset: Path):
+    """Test loading a dataset from a zip file"""
+    ds = load_dataset(zipped_dataset)
+
+    assert isinstance(ds, HDXDataSet)
+    assert len(ds.states) == 6
+
+    # Verify the loaded data structure is correct
+    first_state = ds.states[0]
+    assert len(first_state.peptides) == 2
+
+    # Verify metadata is loaded correctly
+    assert ds.metadata is not None
+    assert len(ds.metadata.authors) > 0
+    assert ds.metadata.authors[0].name == "Srinath Krishnamurthy"
 
 
 # %%
